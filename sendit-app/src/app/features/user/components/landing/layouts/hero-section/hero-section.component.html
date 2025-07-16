@@ -1,0 +1,32 @@
+<section class="relative min-h-screen  max-w-7xl mx-auto overflow-hidden rounded-[45px] my-10">
+  <!-- Background image -->
+  <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/images/hero-bicyle.jpg')"></div>
+  <!-- Dark overlay -->
+  <div class="absolute inset-0 bg-[#020066] bg-opacity-40"></div>
+
+  <!-- Content -->
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-screen flex items-center">
+    <div class="max-w-2xl">
+      <h1 class="text-[91px] md:text-5xl lg:text-6xl font-gilroy font-medium text-white leading-tight mb-8">
+        Your most <span class="text-white">affordable</span><br>
+        and <span class="text-white">reliable</span> courier<br>
+        service provider
+      </h1>
+
+      <div class="flex flex-col sm:flex-row gap-4 mb-12">
+        <button  (click)="onJoinUs()" class="bg-white text-gray-900 px-8 py-3 rounded-lg font-gilroy font-semibold hover:bg-gray-100 transition-colors">
+          Join us
+        </button>
+        <button  (click)="onLogin()"  class="bg-yellow-400 text-gray-900 px-8 py-3 rounded-lg font-gilroy font-semibold hover:bg-yellow-500 transition-colors">
+          Login
+        </button>
+      </div>
+
+      <!-- Bottom right text -->
+      <div class="absolute bottom-8 right-8 text-white text-right">
+        <p class="text-lg font-gilroy font-medium">Flexibility, Reliability and</p>
+        <p class="text-lg font-gilroy font-medium">Speed The Answer is SendIt</p>
+      </div>
+    </div>
+  </div>
+</section>

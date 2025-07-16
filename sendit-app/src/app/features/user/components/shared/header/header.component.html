@@ -1,0 +1,80 @@
+<header class="bg-white shadow-sm z-50 sticky top-0">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo -->
+      <div class="flex-shrink-0">
+        <a href="#" class="text-2xl font-gilroy font-extrabold text-gray-900">
+          SendIt.
+        </a>
+      </div>
+
+      <!-- Desktop Navigation -->
+      <div class="hidden md:block">
+        <div class="ml-6 flex items-center gap-6">
+          <!-- Use a shared class or Angular binding to handle "active" -->
+          <a href="#" class="text-white bg-gray-900 px-4 py-2 rounded-md text-sm font-gilroy font-medium hover:bg-gray-800 transition-colors">
+            Home
+          </a>
+          <a href="#" class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
+            Services
+          </a>
+          <a href="#" class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
+            Track
+          </a>
+          <a href="#" class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
+            Account
+          </a>
+          <a href="#" class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
+            Support
+          </a>
+        </div>
+      </div>
+
+      <!-- Join us button -->
+      <div class="hidden md:block">
+        <a href="#" class="bg-gray-100 text-gray-700 px-6 py-2 rounded-md text-sm font-gilroy font-medium hover:bg-gray-200 transition-colors">
+          Join us
+        </a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <div class="md:hidden">
+        <button
+          type="button"
+          class="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500"
+          (click)="toggleMobileMenu()"
+          aria-expanded="false"
+        >
+          <span class="sr-only">Open main menu</span>
+          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="md:hidden" [class.hidden]="!isMobileMenuOpen">
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
+        <a href="#" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+          Home
+        </a>
+        <a href="#" class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+          Services
+        </a>
+        <a href="#" class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+          Track
+        </a>
+        <a href="#" class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+          Account
+        </a>
+        <a href="#" class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+          Support
+        </a>
+        <a href="#" class="bg-gray-100 text-gray-700 block px-4 py-2 rounded-md text-base font-gilroy font-medium">
+          Join us
+        </a>
+      </div>
+    </div>
+  </nav>
+</header>
