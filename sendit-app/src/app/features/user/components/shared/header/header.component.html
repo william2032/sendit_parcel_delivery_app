@@ -12,8 +12,11 @@
       <div class="hidden md:block">
         <div class="ml-6 flex items-center gap-6">
           <!-- Use a shared class or Angular binding to handle "active" -->
-          <a href="#"
-             class="text-white bg-gray-900 px-4 py-2 rounded-md text-sm font-gilroy font-medium hover:bg-gray-800 transition-colors">
+          <a routerLink="/home"
+             routerLinkActive="bg-gray-900 text-white"
+             [routerLinkActiveOptions]="{ exact: true }"
+             class="text-gray-700
+               px-4 py-2 rounded-md hover:bg-gray-900 text-sm font-gilroy font-medium  transition-colors">
             Home
           </a>
           <a href="#"
@@ -25,7 +28,8 @@
              class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
             Track
           </a>
-          <a href="#"
+          <a routerLink="/home/account-settings"
+             routerLinkActive="bg-gray-900 text-white"
              class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
             Account
           </a>
@@ -71,11 +75,13 @@
            class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Services
         </a>
-        <a href="#"
+       <a routerLink="/home/track-order"
+              routerLinkActive="bg-gray-900 text-white"
            class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Track
         </a>
-        <a href="#"
+        <a routerLink="/home/account-settings"
+           routerLinkActive="bg-gray-900 text-white"
            class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Account
         </a>
