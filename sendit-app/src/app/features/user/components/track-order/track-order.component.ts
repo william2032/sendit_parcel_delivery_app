@@ -6,6 +6,8 @@ import {Parcel} from '../../../../shared/models/parcel-interface';
 import {
   ParcelDetailsModalComponent
 } from "../../../../shared/components/parcel-details-modal/parcel-details-modal.component";
+import {HeaderComponent} from "../shared/header/header.component";
+import {FooterComponent} from "../shared/footer/footer.component";
 
 declare var google: any;
 
@@ -18,7 +20,9 @@ declare var google: any;
     FormsModule,
     NgFor,
     NgIf,
-    ParcelDetailsModalComponent
+    ParcelDetailsModalComponent,
+    HeaderComponent,
+    FooterComponent
   ],
   styleUrls: ['./track-order.component.scss']
 })
