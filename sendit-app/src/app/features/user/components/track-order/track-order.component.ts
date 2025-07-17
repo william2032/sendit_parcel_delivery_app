@@ -2,33 +2,23 @@ import { Component, OnInit } from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgFor, NgIf} from '@angular/common';
 import {GoogleMapsService} from '../../../../shared/services/google-maps';
+import {Parcel} from '../../../../shared/models/parcel-interface';
+import {
+  ParcelDetailsModalComponent
+} from "../../../../shared/components/parcel-details-modal/parcel-details-modal.component";
 
 declare var google: any;
 
-interface Parcel {
-  id: string;
-  address: string;
-  date: string;
-  status: string;
-  pickupLocation: {
-    lat: number;
-    lng: number;
-    name: string;
-  };
-  destination: {
-    lat: number;
-    lng: number;
-    name: string;
-  };
-}
 
 @Component({
   selector: 'app-track-order',
+  standalone: true,
   templateUrl: './track-order.component.html',
   imports: [
     FormsModule,
     NgFor,
-    NgIf
+    NgIf,
+    ParcelDetailsModalComponent
   ],
   styleUrls: ['./track-order.component.scss']
 })
@@ -39,6 +29,8 @@ export class TrackOrderComponent implements OnInit {
   currentMarkers: any[] = [];
   currentPolyline: any;
   selectedParcel: Parcel | null = null;
+  showModal: boolean = false;
+  modalParcel: Parcel | null = null;
 
   sentParcels: Parcel[] = [
     {
@@ -47,7 +39,17 @@ export class TrackOrderComponent implements OnInit {
       date: '04 Sep 2019',
       status: 'In transit',
       pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.2634, lng: 36.8118, name: 'Westlands' }
+      destination: { lat: -1.2634, lng: 36.8118, name: 'Westlands' },
+      weight: 2.0,
+      senderName: 'David Steward',
+      senderPhone: '+254712345678',
+      receiverName: 'John Doe',
+      receiverPhone: '+254798765432',
+      deliveryTime: '15 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-09-04 09:00', description: 'Package picked up from sender' },
+        { status: 'In transit', location: 'Nairobi CBD', timestamp: '2019-09-04 10:30', description: 'Package in transit to destination' }
+      ]
     },
     {
       id: '#AHCAG9',
@@ -55,7 +57,16 @@ export class TrackOrderComponent implements OnInit {
       date: '28 May 2019',
       status: 'Picked',
       pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.3197, lng: 36.7085, name: 'Karen' }
+      destination: { lat: -1.3197, lng: 36.7085, name: 'Karen' },
+      weight: 1.5,
+      senderName: 'Sarah Johnson',
+      senderPhone: '+254723456789',
+      receiverName: 'Mike Wilson',
+      receiverPhone: '+254756789012',
+      deliveryTime: '12 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-05-28 14:00', description: 'Package picked up from sender' }
+      ]
     },
     {
       id: '#AHCAG10',
@@ -63,7 +74,16 @@ export class TrackOrderComponent implements OnInit {
       date: '23 Nov 2019',
       status: 'Cancelled',
       pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.1714, lng: 36.8356, name: 'Kiambu Town' }
+      destination: { lat: -1.1714, lng: 36.8356, name: 'Kiambu Town' },
+      weight: 0.8,
+      senderName: 'Peter Mwangi',
+      senderPhone: '+254734567890',
+      receiverName: 'Grace Wanjiku',
+      receiverPhone: '+254767890123',
+      deliveryTime: '8 hrs',
+      trackingHistory: [
+        { status: 'Cancelled', location: 'Nairobi CBD', timestamp: '2019-11-23 11:00', description: 'Package cancelled by sender' }
+      ]
     },
     {
       id: '#AHCAG11',
@@ -71,7 +91,18 @@ export class TrackOrderComponent implements OnInit {
       date: '03 Feb 2019',
       status: 'Completed',
       pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.0332, lng: 37.0692, name: 'Thika Town' }
+      destination: { lat: -1.0332, lng: 37.0692, name: 'Thika Town' },
+      weight: 3.2,
+      senderName: 'Alice Nyong',
+      senderPhone: '+254745678901',
+      receiverName: 'James Kariuki',
+      receiverPhone: '+254778901234',
+      deliveryTime: '18 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-02-03 08:00', description: 'Package picked up from sender' },
+        { status: 'In transit', location: 'Thika Road', timestamp: '2019-02-03 14:00', description: 'Package in transit' },
+        { status: 'Delivered', location: 'Thika Town', timestamp: '2019-02-04 02:00', description: 'Package delivered successfully' }
+      ]
     },
     {
       id: '#AHCAG12',
@@ -79,31 +110,17 @@ export class TrackOrderComponent implements OnInit {
       date: '29 Jul 2019',
       status: 'Completed',
       pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.3733, lng: 36.8644, name: 'Mombasa Road' }
-    },
-    {
-      id: '#AHCAG13',
-      address: 'Eldoret Town',
-      date: '15 Aug 2019',
-      status: 'Completed',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: 0.5143, lng: 35.2698, name: 'Eldoret Town' }
-    },
-    {
-      id: '#AHCAG14',
-      address: 'Kisumu City',
-      date: '21 Dec 2019',
-      status: 'Completed',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -0.0917, lng: 34.7680, name: 'Kisumu City' }
-    },
-    {
-      id: '#AHCAG15',
-      address: 'Nakuru Town',
-      date: '30 Apr 2019',
-      status: 'Cancelled',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -0.3031, lng: 36.0800, name: 'Nakuru Town' }
+      destination: { lat: -1.3733, lng: 36.8644, name: 'Mombasa Road' },
+      weight: 5.5,
+      senderName: 'Robert Kimani',
+      senderPhone: '+254756789012',
+      receiverName: 'Mary Achieng',
+      receiverPhone: '+254789012345',
+      deliveryTime: '10 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-07-29 09:00', description: 'Package picked up from sender' },
+        { status: 'Delivered', location: 'Mombasa Road', timestamp: '2019-07-29 19:00', description: 'Package delivered successfully' }
+      ]
     }
   ];
 
@@ -114,7 +131,17 @@ export class TrackOrderComponent implements OnInit {
       date: '15 Jun 2019',
       status: 'Delivered',
       pickupLocation: { lat: -4.0435, lng: 39.6682, name: 'Mombasa CBD' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' }
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
+      weight: 1.2,
+      senderName: 'Ahmed Hassan',
+      senderPhone: '+254790123456',
+      receiverName: 'Catherine Wanjiru',
+      receiverPhone: '+254712345678',
+      deliveryTime: '24 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Mombasa CBD', timestamp: '2019-06-15 10:00', description: 'Package picked up from sender' },
+        { status: 'Delivered', location: 'Nairobi CBD', timestamp: '2019-06-16 10:00', description: 'Package delivered successfully' }
+      ]
     },
     {
       id: '#RHCAG10',
@@ -122,7 +149,17 @@ export class TrackOrderComponent implements OnInit {
       date: '10 Jul 2019',
       status: 'Delivered',
       pickupLocation: { lat: -0.0917, lng: 34.7680, name: 'Kisumu Port' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' }
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
+      weight: 0.7,
+      senderName: 'Daniel Ochieng',
+      senderPhone: '+254723456789',
+      receiverName: 'Francis Maina',
+      receiverPhone: '+254756789012',
+      deliveryTime: '30 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Kisumu Port', timestamp: '2019-07-10 12:00', description: 'Package picked up from sender' },
+        { status: 'Delivered', location: 'Nairobi CBD', timestamp: '2019-07-11 18:00', description: 'Package delivered successfully' }
+      ]
     },
     {
       id: '#RHCAG11',
@@ -130,7 +167,17 @@ export class TrackOrderComponent implements OnInit {
       date: '20 Aug 2019',
       status: 'In transit',
       pickupLocation: { lat: 0.5143, lng: 35.2698, name: 'Eldoret Depot' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' }
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
+      weight: 2.8,
+      senderName: 'Lucy Chepkemoi',
+      senderPhone: '+254734567890',
+      receiverName: 'Samuel Njoroge',
+      receiverPhone: '+254767890123',
+      deliveryTime: '22 hrs',
+      trackingHistory: [
+        { status: 'Picked up', location: 'Eldoret Depot', timestamp: '2019-08-20 08:00', description: 'Package picked up from sender' },
+        { status: 'In transit', location: 'Nakuru', timestamp: '2019-08-20 16:00', description: 'Package in transit to destination' }
+      ]
     }
   ];
 
@@ -350,8 +397,15 @@ export class TrackOrderComponent implements OnInit {
   }
 
   viewDetails(parcel: Parcel) {
+    this.modalParcel = parcel;
+    this.showModal = true;
     this.showParcelRoute(parcel);
     console.log('View details for:', parcel);
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.modalParcel = null;
   }
 
   onSearch() {
