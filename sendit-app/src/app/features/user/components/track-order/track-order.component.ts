@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgFor, NgIf} from '@angular/common';
 import {GoogleMapsService} from '../../../../shared/services/google-maps';
@@ -27,6 +27,8 @@ declare var google: any;
   styleUrls: ['./track-order.component.scss']
 })
 export class TrackOrderComponent implements OnInit {
+  @ViewChild('mapSection') mapSection!: ElementRef;
+
   activeTab: string = 'sent';
   searchQuery: string = '';
   map: any;
@@ -241,6 +243,21 @@ export class TrackOrderComponent implements OnInit {
     this.clearMapElements();
     this.selectedParcel = parcel;
 
+    // If modal is open, close it and delay the scroll
+    if (this.showModal) {
+      this.showModal = false;
+
+      // Wait for modal animation + DOM removal to complete
+      setTimeout(() => {
+        this.mapSection?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300); // adjust if your modal has longer animation
+    } else {
+      // Scroll immediately if modal isn't showing
+      setTimeout(() => {
+        this.mapSection?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 0);
+    }
+
     // Create pickup marker (green)
     const pickupMarker = new google.maps.Marker({
       position: parcel.pickupLocation,
@@ -403,7 +420,6 @@ export class TrackOrderComponent implements OnInit {
   viewDetails(parcel: Parcel) {
     this.modalParcel = parcel;
     this.showModal = true;
-    this.showParcelRoute(parcel);
     console.log('View details for:', parcel);
   }
 
