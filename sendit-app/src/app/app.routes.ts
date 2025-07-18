@@ -2,11 +2,25 @@ import { Routes } from '@angular/router';
 import {LandingComponent} from './features/user/components/landing/landing.component';
 import {TrackOrderComponent} from './features/user/components/track-order/track-order.component';
 import {AccountComponent} from './shared/components/account/account.component';
+import {AdminLayoutComponent} from './features/admin/layouts/admin-main/admin-layout.component';
+import {UserLayoutComponent} from './features/admin/layouts/users/user-layout.component';
+import {AdminDashboardComponent} from './features/admin/admin-dashboard.component';
 
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
   { path: 'home/track-order', component: TrackOrderComponent },
   { path: 'home/account-settings', component: AccountComponent },
+  {
+    path: 'auth/admin',
+    component: AdminLayoutComponent,
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'users', component:UserLayoutComponent },
+      { path: 'orders', component: AdminDashboardComponent },
+      { path: 'make-delivery', component: AdminDashboardComponent },
+    ]
+  },
 
   // Redirect root to /home
   { path: '', redirectTo: 'home', pathMatch: 'full' },
