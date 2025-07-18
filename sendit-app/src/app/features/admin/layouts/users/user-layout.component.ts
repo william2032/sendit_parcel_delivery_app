@@ -22,7 +22,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=RF'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 2,
@@ -30,7 +30,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=RF'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=RF'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 4,
@@ -46,7 +46,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=TM'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 5,
@@ -54,7 +54,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=BS'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 6,
@@ -62,7 +62,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=DL'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 7,
@@ -70,7 +70,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://via.placeholder.com/40x40?text=DL'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
       id: 8,
@@ -78,7 +78,7 @@ export class UserLayoutComponent implements OnInit {
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Inactive',
-      avatar: 'https://via.placeholder.com/40x40?text=DL'
+      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     }
   ];
 

@@ -5,6 +5,7 @@ import {AccountComponent} from './shared/components/account/account.component';
 import {AdminLayoutComponent} from './features/admin/layouts/admin-main/admin-layout.component';
 import {UserLayoutComponent} from './features/admin/layouts/users/user-layout.component';
 import {AdminDashboardComponent} from './features/admin/admin-dashboard.component';
+import {OrdersLayoutComponent} from './features/admin/layouts/orders/orders-layout.component';
 
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
@@ -17,7 +18,7 @@ export const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', component:UserLayoutComponent },
-      { path: 'orders', component: AdminDashboardComponent },
+      { path: 'orders', component: OrdersLayoutComponent },
       { path: 'make-delivery', component: AdminDashboardComponent },
     ]
   },

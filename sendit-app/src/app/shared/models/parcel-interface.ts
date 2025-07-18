@@ -28,3 +28,12 @@ export interface TrackingEvent {
   timestamp: string;
   description: string;
 }
+
+export interface DeliveryOrder {
+  id: string;
+  deliveryAddress: string;
+  date: string;
+  weight: number;
+  quote: string;
+  status: 'Completed' | 'Picked' | 'In Transit' | 'Pending';
+}

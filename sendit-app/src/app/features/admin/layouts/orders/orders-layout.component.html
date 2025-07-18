@@ -1,0 +1,180 @@
+<div class="p-6 bg-white min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Delivery Lists</h1>
+
+    <!-- Filters -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4 mb-6">
+        <div class="flex items-center gap-2">
+          <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Filter By</span>
+        </div>
+
+        <!-- Weight Category Filter -->
+        <div class="relative">
+          <select
+            [(ngModel)]="selectedWeightCategory"
+            (change)="handleWeightCategoryChange($event)"
+            class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Weight Category</option>
+            <option *ngFor="let category of weightCategories" [value]="category">
+              {{ category }}
+            </option>
+          </select>
+          <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+
+        <!-- Delivery Status Filter -->
+        <div class="relative">
+          <select
+            [(ngModel)]="selectedStatus"
+            (change)="handleStatusChange($event)"
+            class="appearance-none bg-white border border-gray-300 rounded-md px-3 py-2 pr-8 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">Delivery Status</option>
+            <option *ngFor="let status of statuses" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+          <svg class="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </div>
+
+        <!-- Reset Filter Button -->
+        <button
+          (click)="resetFilters()"
+          class="flex items-center gap-1 text-red-600 hover:text-red-700 text-sm font-medium">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Reset Filter
+        </button>
+      </div>
+
+      <div>
+        <button
+          (click)="refreshOrders()"
+          [disabled]="isRefreshing"
+          title="Refresh"
+          class="text-gray-600 hover:text-gray-800 transition-colors flex disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <svg
+            class="w-6 h-6 transition-transform duration-300"
+            [class.animate-spin]="isRefreshing"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 4v6h6M20 20v-6h-6M4 10a8 8 0 0114.9-2M20 14a8 8 0 01-14.9 2"
+            />
+          </svg>
+          <span class="text-sm mx-1">
+      {{ isRefreshing ? 'Refreshing...' : 'Refresh' }}
+    </span>
+        </button>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- Table -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <!-- Table Header -->
+    <div
+      class="grid grid-cols-6 gap-4 p-4 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700 uppercase tracking-wider">
+      <div>ID</div>
+      <div>DELIVERY ADDRESS</div>
+      <div>DATE</div>
+      <div>WEIGHT CATEGORY</div>
+      <div>Quote</div>
+      <div>STATUS</div>
+    </div>
+
+    <!-- Table Body -->
+    <div class="divide-y divide-gray-200">
+      <div *ngFor="let order of paginatedOrders" class="grid grid-cols-6 gap-4 p-4 hover:bg-gray-50 transition-colors">
+        <!-- ID -->
+        <div class="text-sm font-medium text-gray-900">
+          {{ order.id }}
+        </div>
+
+        <!-- Delivery Address -->
+        <div class="text-sm text-gray-900">
+          {{ order.deliveryAddress }}
+        </div>
+
+        <!-- Date -->
+        <div class="text-sm text-gray-900">
+          {{ order.date }}
+        </div>
+
+        <!-- Weight Category -->
+        <div class="text-sm text-gray-900">
+          {{ getWeightCategory(order.weight) }}
+        </div>
+
+        <!-- Quote -->
+        <div class="text-sm text-gray-900">
+          {{ order.quote }}
+        </div>
+
+        <!-- Status -->
+        <div>
+          <span [class]="getStatusClass(order.status)">
+            {{ order.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredOrders.length === 0" class="text-center py-12">
+      <div class="text-gray-500">No delivery orders found.</div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex items-center justify-between mt-6">
+    <div class="text-sm text-gray-700">
+      Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to {{ math.min(currentPage * itemsPerPage, totalItems) }}
+      of {{ totalItems }} entries
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        (click)="goToPrevious()"
+        [disabled]="currentPage === 1"
+        class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of [].constructor(totalPages); let i = index"
+        (click)="goToPage(i + 1)"
+        [class]="'px-3 py-1 text-sm border rounded-md ' + (currentPage === i + 1 ? 'bg-gray-900 text-white border-gray-900' : 'border-gray-300 hover:bg-gray-50')">
+        {{ i + 1 }}
+      </button>
+
+      <button
+        (click)="goToNext()"
+        [disabled]="currentPage === totalPages"
+        class="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+        Next
+      </button>
+    </div>
+  </div>
+</div>

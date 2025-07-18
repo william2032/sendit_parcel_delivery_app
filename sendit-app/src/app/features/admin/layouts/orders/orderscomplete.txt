@@ -1,0 +1,202 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, takeUntil, debounceTime, distinctUntilChanged } from 'rxjs';
+import { OrdersService, OrdersFilters } from './orders.service';
+
+export interface DeliveryOrder {
+  id: string;
+  deliveryAddress: string;
+  date: string;
+  weight: number;
+  quote: string;
+  status: 'Completed' | 'Picked' | 'In Transit' | 'Pending';
+}
+
+@Component({
+  selector: 'app-orders',
+  templateUrl: './orders.component.html',
+  styleUrls: ['./orders.component.css']
+})
+export class OrdersComponent implements OnInit, OnDestroy {
+  orders: DeliveryOrder[] = [];
+
+  // Filter states
+  selectedWeightCategory: string = '';
+  selectedStatus: string = '';
+  searchTerm: string = '';
+
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 8;
+  totalItems: number = 0;
+
+  // Loading state
+  isLoading: boolean = false;
+
+  // Error handling
+  error: string | null = null;
+
+  // Destroy subject for cleanup
+  private destroy$ = new Subject<void>();
+
+  // Search subject for debouncing
+  private searchSubject = new Subject<string>();
+
+  weightCategories = [
+    'Ultra Light Parcel',
+    'Light Parcel',
+    'Medium Parcel',
+    'Heavy Parcel',
+    'Extra Heavy Parcel',
+    'Freight'
+  ];
+
+  statuses = ['Completed', 'Picked', 'In Transit', 'Pending'];
+
+  constructor(private ordersService: OrdersService) {}
+
+  ngOnInit(): void {
+    this.setupSearchDebouncing();
+    this.loadOrders();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupSearchDebouncing(): void {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      this.searchTerm = searchTerm;
+      this.currentPage = 1;
+      this.loadOrders();
+    });
+  }
+
+  loadOrders(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const filters: OrdersFilters = {
+      page: this.currentPage,
+      limit: this.itemsPerPage,
+      ...(this.selectedWeightCategory && { weightCategory: this.selectedWeightCategory }),
+      ...(this.selectedStatus && { status: this.selectedStatus }),
+      ...(this.searchTerm && { search: this.searchTerm })
+    };
+
+    this.ordersService.getOrders(filters)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.orders = response.orders;
+          this.totalItems = response.total;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading orders:', error);
+          this.error = 'Failed to load orders. Please try again.';
+          this.isLoading = false;
+        }
+      });
+  }
+
+  getWeightCategory(weight: number): string {
+    if (weight <= 0.5) return 'Ultra Light Parcel';
+    if (weight <= 2) return 'Light Parcel';
+    if (weight <= 5) return 'Medium Parcel';
+    if (weight <= 10) return 'Heavy Parcel';
+    if (weight <= 20) return 'Extra Heavy Parcel';
+    return 'Freight';
+  }
+
+  getStatusClass(status: string): string {
+    const baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
+    switch (status) {
+      case 'Completed':
+        return `${baseClasses} bg-teal-100 text-teal-800`;
+      case 'Picked':
+        return `${baseClasses} bg-red-100 text-red-800`;
+      case 'In Transit':
+        return `${baseClasses} bg-orange-100 text-orange-800`;
+      case 'Pending':
+        return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800`;
+    }
+  }
+
+  onWeightCategoryChange(category: string): void {
+    this.selectedWeightCategory = category;
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  onStatusChange(status: string): void {
+    this.selectedStatus = status;
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  onSearchChange(searchTerm: string): void {
+    this.searchSubject.next(searchTerm);
+  }
+
+  resetFilters(): void {
+    this.selectedWeightCategory = '';
+    this.selectedStatus = '';
+    this.searchTerm = '';
+    this.currentPage = 1;
+    this.loadOrders();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalItems / this.itemsPerPage);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadOrders();
+    }
+  }
+
+  goToPrevious(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadOrders();
+    }
+  }
+
+  goToNext(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.loadOrders();
+    }
+  }
+
+  refreshOrders(): void {
+    this.loadOrders();
+  }
+
+  updateOrderStatus(orderId: string, newStatus: string): void {
+    this.ordersService.updateOrderStatus(orderId, newStatus)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedOrder) => {
+          // Update the local order
+          const index = this.orders.findIndex(order => order.id === orderId);
+          if (index !== -1) {
+            this.orders[index] = updatedOrder;
+          }
+        },
+        error: (error) => {
+          console.error('Error updating order status:', error);
+          this.error = 'Failed to update order status. Please try again.';
+        }
+      });
+  }
+}
