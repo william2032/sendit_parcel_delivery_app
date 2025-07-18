@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 import {LandingComponent} from './features/user/components/landing/landing.component';
 import {TrackOrderComponent} from './features/user/components/track-order/track-order.component';
 import {AccountComponent} from './shared/components/account/account.component';
@@ -9,24 +9,30 @@ import {OrdersLayoutComponent} from './features/admin/layouts/orders/orders-layo
 import {DeliveryLayoutComponent} from './features/admin/layouts/delivery/delivery-layout.component';
 
 export const routes: Routes = [
-  { path: 'home', component: LandingComponent },
-  { path: 'home/track-order', component: TrackOrderComponent },
-  { path: 'home/account-settings', component: AccountComponent },
+  {
+    path: 'home', component: LandingComponent,
+    children: [
+      {path: 'account-settings', component: AccountComponent},
+    ]
+  },
+  {path: 'home/track-order', component: TrackOrderComponent},
   {
     path: 'auth/admin',
     component: AdminLayoutComponent,
     children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-      { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'users', component:UserLayoutComponent },
-      { path: 'orders', component: OrdersLayoutComponent },
-      { path: 'make-delivery', component: DeliveryLayoutComponent },
+      {path: '', redirectTo: 'dashboard', pathMatch: 'full'},
+      {path: 'dashboard', component: AdminDashboardComponent},
+      {path: 'users', component: UserLayoutComponent},
+      {path: 'orders', component: OrdersLayoutComponent},
+      {path: 'make-delivery', component: DeliveryLayoutComponent},
+      {path: 'account-settings', component: AccountComponent},
+
     ]
   },
 
   // Redirect root to /home
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  {path: '', redirectTo: 'home', pathMatch: 'full'},
   // Redirect unknown paths to /home (or 404 if needed)
-  { path: '**', redirectTo: 'home' }
+  {path: '**', redirectTo: 'home'}
 ];
 

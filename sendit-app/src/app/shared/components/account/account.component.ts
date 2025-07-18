@@ -9,8 +9,7 @@ import {HeaderComponent} from '../../../features/user/components/shared/header/h
   templateUrl: './account.component.html',
   imports: [
     ReactiveFormsModule,
-    NgIf,
-    HeaderComponent
+    NgIf
   ],
   styleUrls: ['./account.component.scss']
 })
