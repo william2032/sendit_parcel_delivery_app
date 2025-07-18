@@ -25,6 +25,15 @@ export class OrdersLayoutComponent implements OnInit {
   itemsPerPage: number = 8;
   totalItems: number = 0;
 
+  // Modal states
+  showUpdateModal: boolean = false;
+  showDeleteConfirmation: boolean = false;
+  selectedOrder: DeliveryOrder | null = null;
+  originalOrder: DeliveryOrder | null = null; // Store original for cancel functionality
+  editMode: boolean = false;
+  isUpdating: boolean = false;
+  isDeleting: boolean = false;
+
   weightCategories = [
     'Ultra Light Parcel',
     'Light Parcel',
@@ -114,6 +123,83 @@ export class OrdersLayoutComponent implements OnInit {
 
     this.filteredOrders = [...this.orders];
     this.totalItems = this.orders.length;
+  }
+
+  openUpdateModal(order: DeliveryOrder): void {
+    this.selectedOrder = { ...order }; // Create a copy
+    this.originalOrder = { ...order }; // Store original for cancel
+    this.showUpdateModal = true;
+    this.editMode = false;
+  }
+
+  closeUpdateModal(): void {
+    this.showUpdateModal = false;
+    this.selectedOrder = null;
+    this.originalOrder = null;
+    this.editMode = false;
+    this.isUpdating = false;
+  }
+
+  enableEditMode(): void {
+    this.editMode = true;
+  }
+
+  cancelEdit(): void {
+    if (this.originalOrder && this.selectedOrder) {
+      this.selectedOrder = { ...this.originalOrder };
+    }
+    this.editMode = false;
+  }
+
+  saveOrder(): void {
+    if (!this.selectedOrder) return;
+
+    this.isUpdating = true;
+
+    // Simulate API call
+    setTimeout(() => {
+      // Find and update the order in the orders array
+      const index = this.orders.findIndex(order => order.id === this.selectedOrder!.id);
+      if (index !== -1) {
+        this.orders[index] = { ...this.selectedOrder! };
+        this.applyFilters(); // Refresh filtered orders
+      }
+
+      this.isUpdating = false;
+      this.editMode = false;
+      this.originalOrder = { ...this.selectedOrder! };
+
+      // Show success message (you can implement a toast notification here)
+      console.log('Order updated successfully');
+    }, 1000);
+  }
+
+  confirmDelete(): void {
+    this.showDeleteConfirmation = true;
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirmation = false;
+  }
+
+  deleteOrder(): void {
+    if (!this.selectedOrder) return;
+
+    this.isDeleting = true;
+
+    // Simulate API call
+    setTimeout(() => {
+      // Remove the order from the orders array
+      this.orders = this.orders.filter(order => order.id !== this.selectedOrder!.id);
+      this.applyFilters(); // Refresh filtered orders
+
+      this.isDeleting = false;
+      this.showDeleteConfirmation = false;
+      this.closeUpdateModal();
+
+      // Show success message (you can implement a toast notification here)
+      console.log('Order deleted successfully');
+    }, 1000);
   }
 
   getWeightCategory(weight: number): string {
