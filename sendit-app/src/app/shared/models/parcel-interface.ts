@@ -37,3 +37,14 @@ export interface DeliveryOrder {
   quote: string;
   status: 'Completed' | 'Picked' | 'In Transit' | 'Pending';
 }
+
+export interface DeliveryFormData {
+  sender: string;
+  receiver: string;
+  emailAddress: string;
+  receiverNo: string;
+  deliveryLocation: string;
+  pickupLocation: string;
+  arrivalTime: string;
+  weightCategory: string;
+}

@@ -1,0 +1,272 @@
+<div class="min-h-screen bg-gray-50 py-4 px-4 sm:px-6 lg:px-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900 text-center sm:text-left">Send Order</h1>
+    <p class="mt-2 text-sm text-gray-600 text-center sm:text-left">Fill out the details below to place customer's delivery order</p>
+  </div>
+  <div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <!-- Main Form Container -->
+    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <form (ngSubmit)="onSubmit()" #deliveryForm="ngForm" class="p-6 sm:p-8">
+        <div class="space-y-8">
+
+          <!-- Sender Section -->
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-gray-900">
+              Sender <span class="text-red-500">*</span>
+            </label>
+            <div class="dropdown-container">
+              <div class="relative">
+                <button
+                  type="button"
+                  (click)="showSenderDropdown = !showSenderDropdown"
+                  class="w-full px-4 py-4 text-left bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between hover:border-blue-300 transition-all duration-200 min-h-[56px]">
+                  <span class="text-gray-400 text-sm" *ngIf="!formData.sender">Select a customer</span>
+                  <span class="text-gray-900 font-medium" *ngIf="formData.sender">{{ formData.sender }}</span>
+                  <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200"
+                       [class.rotate-180]="showSenderDropdown"
+                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+
+                <!-- Enhanced Dropdown Menu -->
+                <div *ngIf="showSenderDropdown"
+                     class="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                  <div *ngIf="isLoadingCustomers" class="p-6 text-center text-gray-500">
+                    <svg class="animate-spin h-5 w-5 mx-auto mb-2" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading customers...
+                  </div>
+                  <div *ngIf="!isLoadingCustomers" class="py-2">
+                    <button
+                      type="button"
+                      *ngFor="let customer of customers; let i = index"
+                      (click)="onSenderSelect(customer)"
+                      class="w-full px-4 py-3 text-left hover:bg-blue-50 focus:outline-none focus:bg-blue-50 border-b border-gray-50 last:border-b-0 transition-colors duration-150">
+                      <div class="font-medium text-gray-900">{{ customer.name }}</div>
+                      <div class="text-sm text-gray-500 mt-1">{{ customer.email }}</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Receiver Details Section -->
+          <div class="bg-gray-50 rounded-xl p-6 space-y-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Receiver Information</h3>
+
+            <!-- Receiver Name -->
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-900">
+                Receiver Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                [(ngModel)]="formData.receiver"
+                name="receiver"
+                placeholder="e.g., Jane Doe"
+                required
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+            </div>
+
+            <!-- Email Address -->
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-900">
+                Email Address <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                [(ngModel)]="formData.emailAddress"
+                name="emailAddress"
+                placeholder="e.g., janedoe@gmail.com"
+                required
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+            </div>
+
+            <!-- Phone Number -->
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-900">
+                Phone Number <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="tel"
+                [(ngModel)]="formData.receiverNo"
+                name="receiverNo"
+                placeholder="e.g., +254 700 000 000"
+                required
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+            </div>
+          </div>
+
+          <!-- Location Section -->
+          <div class="space-y-6">
+            <h3 class="text-lg font-semibold text-gray-900">Delivery Locations</h3>
+
+            <!-- Pickup Location -->
+            <div class="flex gap-4 items-start">
+              <div class="flex-shrink-0 pt-2">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1 space-y-3">
+                <label class="block text-sm font-semibold text-gray-900">
+                  Pickup Location <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.pickupLocation"
+                  name="pickupLocation"
+                  placeholder="Enter pickup location"
+                  required
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 placeholder-gray-400 transition-all duration-200"
+                />
+              </div>
+            </div>
+
+            <!-- Delivery Location -->
+            <div class="flex gap-4 items-start">
+              <div class="flex-shrink-0 pt-2">
+                <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="flex-1 space-y-3">
+                <label class="block text-sm font-semibold text-gray-900">
+                  Delivery Location <span class="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.deliveryLocation"
+                  name="deliveryLocation"
+                  placeholder="Enter delivery location"
+                  required
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 placeholder-gray-400 transition-all duration-200"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivery Details Section -->
+          <div class="bg-gray-50 rounded-xl p-6 space-y-6">
+            <h3 class="text-lg font-semibold text-gray-900">Delivery Details</h3>
+
+            <!-- Arrival Time -->
+            <div class="space-y-4">
+              <label class="block text-sm font-semibold text-gray-900">
+                Preferred Arrival Time <span class="text-red-500">*</span>
+              </label>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button
+                  type="button"
+                  *ngFor="let time of arrivalTimeOptions"
+                  (click)="onArrivalTimeSelect(time)"
+                  [class]="'px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ' +
+                           (formData.arrivalTime === time ?
+                            'bg-blue-600 text-white border-blue-600 shadow-md' :
+                            'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300')">
+                  {{ time }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Weight Category -->
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-900">
+                Weight Category <span class="text-red-500">*</span>
+              </label>
+              <div class="dropdown-container">
+                <div class="relative">
+                  <button
+                    type="button"
+                    (click)="showWeightDropdown = !showWeightDropdown"
+                    class="w-full px-4 py-4 text-left bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between hover:border-blue-300 transition-all duration-200 min-h-[56px]">
+                    <span class="text-gray-400 text-sm" *ngIf="!formData.weightCategory">Select weight category</span>
+                    <span class="text-gray-900 font-medium"
+                          *ngIf="formData.weightCategory">{{ getSelectedWeightCategory()?.label }}</span>
+                    <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200"
+                         [class.rotate-180]="showWeightDropdown"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                  </button>
+
+                  <!-- Enhanced Weight Dropdown -->
+                  <div *ngIf="showWeightDropdown"
+                       class="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                    <div class="py-2">
+                      <button
+                        type="button"
+                        *ngFor="let category of weightCategories"
+                        (click)="onWeightCategorySelect(category)"
+                        class="w-full px-4 py-3 text-left hover:bg-blue-50 focus:outline-none focus:bg-blue-50 border-b border-gray-50 last:border-b-0 transition-colors duration-150">
+                        <div class="font-medium text-gray-900">{{ category.label }}</div>
+                        <div class="text-sm text-blue-600 font-medium mt-1">{{ category.priceRange }}</div>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price Estimate -->
+            <div *ngIf="formData.weightCategory"
+                 class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
+              <div class="flex items-center">
+                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-medium text-blue-900">Estimated Price</p>
+                  <p class="text-2xl font-bold text-blue-600">{{ getSelectedWeightCategory()?.priceRange }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-6">
+            <button
+              type="submit"
+              [disabled]="!isFormValid() || isSubmitting"
+              class="w-full py-4 px-6 bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-xl font-semibold hover:from-gray-900 hover:to-black focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:hover:transform-none">
+              <span *ngIf="!isSubmitting" class="flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+                Place Order
+              </span>
+              <span *ngIf="isSubmitting" class="flex items-center justify-center">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Placing Order...
+              </span>
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

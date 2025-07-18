@@ -6,3 +6,10 @@ export  interface User {
   status: 'Active' | 'Inactive';
   avatar?: string;
 }
+
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}

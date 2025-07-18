@@ -1,0 +1,88 @@
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-container button {
+  transition: all 0.2s ease-in-out;
+}
+
+.dropdown-container button:hover {
+  border-color: #60a5fa;
+}
+
+// Loading animation
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Form validation states
+.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.ng-valid.ng-touched {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Focus states
+button:focus,
+input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+// Disabled states
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+// Hover effects
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+
+.hover\:bg-gray-900:hover {
+  background-color: #111827;
+}
+
+/* Enhanced dropdown animations */
+.dropdown-container .rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Smooth hover effects */
+.transform {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover\:-translate-y-0\.5:hover {
+  transform: translateY(-0.125rem);
+}
+
+/* Shadow enhancements */
+.shadow-xl {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.hover\:shadow-xl:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}

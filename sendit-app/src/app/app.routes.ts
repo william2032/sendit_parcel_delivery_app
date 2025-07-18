@@ -6,6 +6,7 @@ import {AdminLayoutComponent} from './features/admin/layouts/admin-main/admin-la
 import {UserLayoutComponent} from './features/admin/layouts/users/user-layout.component';
 import {AdminDashboardComponent} from './features/admin/admin-dashboard.component';
 import {OrdersLayoutComponent} from './features/admin/layouts/orders/orders-layout.component';
+import {DeliveryLayoutComponent} from './features/admin/layouts/delivery/delivery-layout.component';
 
 export const routes: Routes = [
   { path: 'home', component: LandingComponent },
@@ -19,7 +20,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: AdminDashboardComponent },
       { path: 'users', component:UserLayoutComponent },
       { path: 'orders', component: OrdersLayoutComponent },
-      { path: 'make-delivery', component: AdminDashboardComponent },
+      { path: 'make-delivery', component: DeliveryLayoutComponent },
     ]
   },
 
