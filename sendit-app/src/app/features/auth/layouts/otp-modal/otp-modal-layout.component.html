@@ -1,0 +1,91 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" *ngIf="isVisible">
+  <div class="bg-white rounded-2xl p-8 w-96 max-w-md mx-4 relative">
+    <!-- Close button -->
+    <button
+      (click)="closeModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl"
+    >
+      ×
+    </button>
+
+    <!-- Icon -->
+    <div class="flex justify-center mb-6">
+      <div class="relative">
+        <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+          <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+          </svg>
+        </div>
+        <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center">
+          <span class="text-white font-bold text-sm">&#64;</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title and description -->
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 mb-2">Verify your phone</h2>
+      <p class="text-gray-500 text-sm">
+        Please enter the 5 digit code sent to<br>
+        <span class="font-medium">{{phoneNumber}}</span>
+      </p>
+    </div>
+
+    <!-- OTP Input Form -->
+    <form [formGroup]="otpForm" (ngSubmit)="onSubmit()">
+      <div class="flex justify-center space-x-3 mb-8">
+        <input
+          *ngFor="let digit of digits; let i = index"
+          #otpInput
+          type="text"
+          maxlength="1"
+          [value]="digit"
+          (input)="onDigitInput($event, i)"
+          (keydown)="onKeyDown($event, i)"
+          (paste)="onPaste($event, i)"
+          class="w-12 h-12 text-center text-xl font-semibold border-2 rounded-lg focus:border-blue-500 focus:outline-none transition-colors"
+          [class.border-gray-200]="!digit"
+          [class.border-blue-500]="digit"
+          [class.bg-gray-50]="digit"
+        />
+      </div>
+
+      <!-- Confirm button -->
+      <button
+        type="submit"
+        [disabled]="!isOtpComplete || isLoading"
+        class="w-full bg-blue-500 text-white py-3 rounded-lg font-medium transition-colors hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
+      >
+        <span *ngIf="!isLoading">Confirm</span>
+        <span *ngIf="isLoading" class="flex items-center justify-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Verifying...
+            </span>
+      </button>
+    </form>
+
+    <!-- Resend code -->
+    <div class="text-center mt-6">
+      <p class="text-gray-500 text-sm">
+        Don't Receive Code?
+        <button
+          (click)="resendCode()"
+          [disabled]="isResendDisabled"
+          class="text-blue-500 hover:text-blue-600 font-medium disabled:text-gray-400 disabled:cursor-not-allowed ml-1"
+        >
+          <span *ngIf="!isResendDisabled">Resend code</span>
+          <span *ngIf="isResendDisabled">Resend in {{resendTimer}}s</span>
+        </button>
+      </p>
+    </div>
+
+    <!-- Error message -->
+    <div *ngIf="errorMessage" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-red-600 text-sm text-center">{{errorMessage}}</p>
+    </div>
+  </div>
+</div>

@@ -7,6 +7,7 @@ import {UserLayoutComponent} from './features/admin/layouts/users/user-layout.co
 import {AdminDashboardComponent} from './features/admin/admin-dashboard.component';
 import {OrdersLayoutComponent} from './features/admin/layouts/orders/orders-layout.component';
 import {DeliveryLayoutComponent} from './features/admin/layouts/delivery/delivery-layout.component';
+import {PhoneVerifyLayoutComponent} from './features/auth/layouts/phone-verify/phone-verify-layout.component';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,10 @@ export const routes: Routes = [
     ]
   },
   {path: 'home/track-order', component: TrackOrderComponent},
+
+  //otp verification
+  {path: 'auth/verify-phone', component: PhoneVerifyLayoutComponent},
+
   {
     path: 'auth/admin',
     component: AdminLayoutComponent,
