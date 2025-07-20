@@ -1,0 +1,60 @@
+### Base setup
+@BASE_URL = http://localhost:3000
+@TOKEN = your_jwt_token_here
+@USER_ID = your_user_id_here
+
+### Create a new user (Admin only)
+POST {{BASE_URL}}/users
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "StrongPassword123",
+  "name": "Test User",
+  "phone": "+254712345678",
+  "role": "CUSTOMER",
+  "city": "Nairobi",
+  "country": "Kenya"
+}
+
+###
+
+### Get all users (Admin only)
+GET {{BASE_URL}}/users?limit=10&offset=0
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Get a specific user by ID
+GET {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Update a user
+PATCH {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "name": "Updated User Name",
+  "city": "Mombasa",
+  "phone": "+254700123456"
+}
+
+###
+
+### Delete a user (soft delete, Admin only)
+DELETE {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Request password reset
+POST {{BASE_URL}}/users/reset-password
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com"
+}

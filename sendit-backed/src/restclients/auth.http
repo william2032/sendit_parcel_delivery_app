@@ -1,0 +1,249 @@
+### Auth API Testing
+### Base URL - Update this to your actual server URL
+@baseUrl = http://localhost:3000
+@apiPrefix = /auth
+
+### Variables for testing (update these with actual values)
+@testEmail = test@example.com
+@testPassword = password123
+@testName = John Doe
+@testPhone = +254798666512
+@testCity = New York
+@testCountry = USA
+@token = your_jwt_token_here
+@emailVerificationToken = your_email_verification_token_here
+@phoneOtp = 123456
+
+###
+# 1. REGISTER USER
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "{{testName}}",
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}",
+  "phone": "{{testPhone}}",
+  "city": "{{testCity}}",
+  "country": "{{testCountry}}",
+  "verifyEmail": true
+}
+
+###
+# 2. REGISTER USER (without email verification)
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "password456",
+  "phone": "+254987654321",
+  "city": "Chuka",
+  "country": "Kenya",
+  "verifyEmail": false
+}
+
+###
+# 3. REGISTER USER (missing phone - should fail)
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Invalid User",
+  "email": "invalid@example.com",
+  "password": "password789"
+}
+
+###
+# 4. LOGIN USER (should fail - phone not verified)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+###
+# 5. VERIFY EMAIL (optional)
+GET {{baseUrl}}{{apiPrefix}}/verify-email?token={{emailVerificationToken}}
+
+###
+# 6. VERIFY PHONE (required for login)
+POST {{baseUrl}}{{apiPrefix}}/verify-phone
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "otp": "{{phoneOtp}}"
+}
+
+###
+# 7. RESEND PHONE OTP
+POST {{baseUrl}}{{apiPrefix}}/resend-phone-otp
+Authorization: Bearer {{token}}
+
+###
+# 8. LOGIN USER (after phone verification)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+###
+# 9. LOGIN USER (invalid credentials)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "wrongpassword"
+}
+
+###
+# 10. GET USER PROFILE
+GET {{baseUrl}}{{apiPrefix}}/profile
+Authorization: Bearer {{token}}
+
+###
+# 11. REFRESH TOKEN
+POST {{baseUrl}}{{apiPrefix}}/refresh-token
+Authorization: Bearer {{token}}
+
+###
+# 12. FORGOT PASSWORD
+POST {{baseUrl}}{{apiPrefix}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}"
+}
+
+###
+# 13. FORGOT PASSWORD (non-existent email)
+POST {{baseUrl}}{{apiPrefix}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com"
+}
+
+### ================================
+### TESTING SCENARIOS
+### ================================
+
+###
+# SCENARIO 1: Complete Registration Flow
+# 1. Register user with email verification
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Complete Flow User",
+  "email": "complete@example.com",
+  "password": "password123",
+  "phone": "+1555000123",
+  "city": "Chicago",
+  "country": "USA",
+  "verifyEmail": true
+}
+
+# 2. Try to login (should fail - phone not verified)
+# 3. Verify phone using OTP from above registration
+# 4. Login successfully
+# 5. Access protected routes
+
+###
+# SCENARIO 2: Test Duplicate Registration
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Duplicate Email",
+  "email": "{{testEmail}}",
+  "password": "password123",
+  "phone": "+1555000999",
+  "city": "Miami",
+  "country": "USA"
+}
+
+###
+# SCENARIO 3: Test Duplicate Phone
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Duplicate Phone",
+  "email": "uniqueemail@example.com",
+  "password": "password123",
+  "phone": "{{testPhone}}",
+  "city": "Seattle",
+  "country": "USA"
+}
+
+###
+# SCENARIO 4: Test Invalid OTP
+POST {{baseUrl}}{{apiPrefix}}/verify-phone
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "otp": "000000"
+}
+
+###
+# SCENARIO 5: Test Expired Token Access
+GET {{baseUrl}}{{apiPrefix}}/profile
+Authorization: Bearer expired_or_invalid_token_here
+
+### ================================
+### QUICK TEST VARIABLES
+### ================================
+
+# Update these after running tests:
+# @token = paste_jwt_token_from_registration_or_login_response
+# @emailVerificationToken = paste_token_from_registration_response_or_email
+# @phoneOtp = paste_otp_received_via_sms
+
+### ================================
+### NOTES FOR TESTING
+### ================================
+
+# 1. Start with user registration
+# 2. Copy the JWT token from registration response to @token variable
+# 3. If you enabled email verification, check email for verification token
+# 4. You'll need to implement SMS service to get actual OTP for phone verification
+# 5. After phone verification, you can successfully login
+# 6. Use the login token for protected endpoints
+
+### ================================
+### EXPECTED RESPONSES
+### ================================
+
+# Registration Success:
+# {
+#   "message": "Registration successful! Please check your email and Please verify your phone number with the OTP sent to +1234567890",
+#   "user": { user object },
+#   "access_token": "jwt_token_here",
+#   "token_type": "Bearer",
+#   "expires_in": 3600
+# }
+
+# Login Success:
+# {
+#   "message": "Login successful",
+#   "user": { user object },
+#   "access_token": "jwt_token_here",
+#   "token_type": "Bearer",
+#   "expires_in": 3600
+# }
+
+# Phone Verification Success:
+# {
+#   "success": true,
+#   "message": "Phone number verified successfully"
+# }

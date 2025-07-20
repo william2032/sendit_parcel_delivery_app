@@ -4,7 +4,7 @@ export  interface User {
   email: string;
   joinedDate: string;
   status: 'Active' | 'Inactive';
-  avatar?: string;
+  profileImage?: string;
 }
 
 export interface Customer {

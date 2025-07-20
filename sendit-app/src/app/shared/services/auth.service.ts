@@ -39,9 +39,9 @@ export class AuthService {
     return this.userSubject.asObservable();
   }
 
-  // getHttpOptions(): any {
-  //   return this.httpOptions;
-  // }
+  getHttpOptions(): any {
+    return this.httpOptions;
+  }
 
   // Login method
   login(credentials: LoginRequest): Observable<AuthResponse> {
