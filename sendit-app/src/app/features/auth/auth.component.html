@@ -1,119 +1,164 @@
-<div class="min-h-screen  flex">
+<div class="min-h-screen flex">
   <div *ngIf="currentMode" class="flex flex-1">
 
     <!-- Left Side - Image Section -->
     <div class="hidden lg:flex lg:flex-1 relative">
-      <div
-        class="flex-1 flex flex-col justify-center items-center relative bg-white">
+      <div class="flex-1 flex flex-col justify-center items-center relative bg-[#020066] ">
         <!-- Background Pattern -->
-        <div class="absolute inset-0 "></div>
+        <div class="absolute inset-0 bg-black/10"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
 
         <!-- Content -->
         <div class="relative z-10 text-center px-8">
           <!-- Logo -->
           <div class="mb-8">
-            <h1 class="text-5xl xl:text-6xl font-bold text-gray-700 tracking-wide font-montserrat">
-              ElimuHub
+            <div class="flex items-center justify-center mb-4">
+              <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-4 shadow-2xl">
+                <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20 8l-6-6H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM9 19H7v-9h2v9zm4 0h-2v-6h2v6zm4 0h-2v-3h2v3zM14 9h-1V4l5 5h-4z"/>
+                </svg>
+              </div>
+            </div>
+            <h1 class="text-5xl xl:text-6xl font-bold text-white tracking-wide font-montserrat drop-shadow-lg">
+              SendIT
             </h1>
-            <div class="w-24 h-1 bg-white/30 mx-auto mt-4"></div>
+            <p class="text-white/80 text-lg font-medium mt-2">Smart Courier Solutions</p>
+            <div class="w-24 h-1 bg-white/30 mx-auto mt-4 rounded-full"></div>
           </div>
 
           <!-- Welcome Text -->
-          <div class="max-w-md mx-auto">
-            <h2 class="text-3xl font-semibold text-gray-500 mb-4" [ngSwitch]="currentMode">
+          <div class="max-w-md mx-auto mb-8">
+            <h2 class="text-3xl font-semibold text-white mb-4 drop-shadow-md" [ngSwitch]="currentMode">
               <span *ngSwitchCase="'login'">Welcome Back!</span>
-              <span *ngSwitchCase="'register'">Join ElimuHub</span>
+              <span *ngSwitchCase="'register'">Join SendIT</span>
               <span *ngSwitchCase="'forgot-password'">Reset Password</span>
               <span *ngSwitchCase="'reset-password'">New Password</span>
             </h2>
-            <p class="text-xl text-gray-400 leading-relaxed" [ngSwitch]="currentMode">
-              <span *ngSwitchCase="'login'">Continue your learning journey with us</span>
-              <span *ngSwitchCase="'register'">Start your educational adventure today</span>
-              <span *ngSwitchCase="'forgot-password'">We'll help you get back on track</span>
-              <span *ngSwitchCase="'reset-password'">Secure your account with a new password</span>
+            <p class="text-xl text-white/90 leading-relaxed drop-shadow-sm" [ngSwitch]="currentMode">
+              <span *ngSwitchCase="'login'">Continue shipping parcels with intelligent weight-based pricing</span>
+              <span *ngSwitchCase="'register'">Start delivering parcels with smart courier quotes based on weight categories</span>
+              <span *ngSwitchCase="'forgot-password'">We'll help you get back to managing your deliveries</span>
+              <span *ngSwitchCase="'reset-password'">Secure your courier account with a new password</span>
             </p>
           </div>
 
-          <!-- Main Image -->
+          <!-- Main Image/Icon -->
           <div class="mb-8">
-            <img
-              src="/images/secuby.com-introduce-header.png"
-              alt="Authentication illustration"
-              class="max-w-md mx-auto h-auto filter drop-shadow-2xl"
-            />
+            <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 max-w-sm mx-auto shadow-2xl">
+              <div class="flex items-center justify-center space-x-4 mb-4">
+                <!-- Delivery Truck Icon -->
+                <svg class="w-16 h-16 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <!-- Package Icon -->
+                <svg class="w-14 h-14 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+              </div>
+              <p class="text-white/80 text-sm font-medium">Smart • Fast • Reliable</p>
+            </div>
           </div>
 
+          <!-- Features -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto">
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-white">Weight</div>
+              <div class="text-white/80 text-xs">Based Pricing</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-white">Track</div>
+              <div class="text-white/80 text-xs">Real-time</div>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-white">Quotes</div>
+              <div class="text-white/80 text-xs">Instant</div>
+            </div>
+          </div>
 
           <!-- Decorative Elements -->
-          <div class="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl"></div>
+          <div class="absolute top-10 left-10 w-20 h-20 bg-white/5 rounded-full blur-xl"></div>
           <div class="absolute bottom-10 right-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+          <div class="absolute top-1/2 left-5 w-16 h-16 bg-yellow-400/20 rounded-full blur-lg"></div>
+          <div class="absolute bottom-1/4 left-1/3 w-12 h-12 bg-blue-400/20 rounded-full blur-md"></div>
         </div>
       </div>
     </div>
 
     <!-- Right Side - Form Section -->
-    <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 xl:px-12">
+    <div class="flex-1 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 xl:px-12 bg-gray-50">
       <div class="mx-auto w-full max-w-md">
 
         <!-- Mobile Header (visible on small screens) -->
         <div class="lg:hidden text-center mb-8">
+          <div class="flex items-center justify-center mb-4">
+            <div class="bg-gradient-to-br from-orange-500 to-red-500 rounded-xl p-3 shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+              </svg>
+            </div>
+          </div>
           <h1 class="text-4xl font-bold text-gray-900 tracking-wide font-montserrat mb-2">
-            ElimuHub
+            SendIT
           </h1>
-          <div class="w-16 h-1 bg-blue-600 mx-auto"></div>
+          <p class="text-orange-600 font-medium">Smart Courier Solutions</p>
+          <div class="w-16 h-1 bg-gradient-to-r from-orange-500 to-red-500 mx-auto mt-2 rounded-full"></div>
         </div>
 
         <!-- Form Container -->
-        <div class="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100 relative">
+        <div class="bg-white py-8 px-6 shadow-2xl rounded-3xl border border-gray-200 relative backdrop-blur-sm">
 
           <!-- Close Button -->
           <button
             type="button"
             (click)="onClose()"
-            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full p-1"
+            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-full p-2 hover:bg-gray-100"
             aria-label="Close form">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
             </svg>
           </button>
 
           <!-- Form Header -->
           <div class="mb-8">
-            <h2 class="text-2xl font-bold text-gray-900 text-center" [ngSwitch]="currentMode">
+            <h2 class="text-3xl font-bold text-gray-900 text-center mb-2" [ngSwitch]="currentMode">
               <span *ngSwitchCase="'login'">Sign In</span>
               <span *ngSwitchCase="'register'">Create Account</span>
               <span *ngSwitchCase="'forgot-password'">Reset Password</span>
               <span *ngSwitchCase="'reset-password'">New Password</span>
             </h2>
-            <p class="mt-2 text-center text-sm text-gray-600" [ngSwitch]="currentMode">
-              <span *ngSwitchCase="'login'">Welcome back! Please sign in to your account</span>
-              <span *ngSwitchCase="'register'">Create an account to get started</span>
+            <div class="w-12 h-1 bg-gradient-to-r from-orange-500 to-red-500 mx-auto rounded-full mb-4"></div>
+            <p class="text-center text-sm text-gray-600" [ngSwitch]="currentMode">
+              <span *ngSwitchCase="'login'">Access your SendIT courier dashboard</span>
+              <span *ngSwitchCase="'register'">Join thousands shipping with weight-based pricing</span>
               <span *ngSwitchCase="'forgot-password'">Enter your email to receive a reset link</span>
-              <span *ngSwitchCase="'reset-password'">Enter your new password below</span>
+              <span *ngSwitchCase="'reset-password'">Create a secure password for your account</span>
             </p>
           </div>
 
           <!-- Success Message -->
-          <div *ngIf="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div *ngIf="successMessage" class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl shadow-sm">
             <div class="flex">
-              <svg class="h-5 w-5 text-green-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                       clip-rule="evenodd"/>
               </svg>
-              <p class="ml-3 text-sm text-green-800">{{ successMessage }}</p>
+              <p class="ml-3 text-sm font-medium text-green-800">{{ successMessage }}</p>
             </div>
           </div>
 
           <!-- Error Message -->
-          <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-sm">
             <div class="flex">
-              <svg class="h-5 w-5 text-red-400 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd"
                       d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                       clip-rule="evenodd"/>
               </svg>
-              <p class="ml-3 text-sm text-red-800">{{ errorMessage }}</p>
+              <p class="ml-3 text-sm font-medium text-red-800">{{ errorMessage }}</p>
             </div>
           </div>
 
@@ -121,26 +166,26 @@
           <form *ngIf="currentMode === 'login'" [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6">
             <!-- Email Field -->
             <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 formControlName="email"
                 autocomplete="email"
-                [class.border-red-500]="isFieldInvalid('login', 'email')"
+                [class.border-red-400]="isFieldInvalid('login', 'email')"
                 [class.focus:ring-red-500]="isFieldInvalid('login', 'email')"
                 [class.focus:border-red-500]="isFieldInvalid('login', 'email')"
-                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                placeholder="Enter your email">
-              <p *ngIf="isFieldInvalid('login', 'email')" class="mt-2 text-sm text-red-600">
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                placeholder="Enter your email address">
+              <p *ngIf="isFieldInvalid('login', 'email')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('login', 'email') }}
               </p>
             </div>
 
             <!-- Password Field -->
             <div>
-              <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div class="relative">
                 <input
                   id="password"
@@ -148,30 +193,25 @@
                   [type]="showPassword ? 'text' : 'password'"
                   formControlName="password"
                   autocomplete="current-password"
-                  [class.border-red-500]="isFieldInvalid('login', 'password')"
+                  [class.border-red-400]="isFieldInvalid('login', 'password')"
                   [class.focus:ring-red-500]="isFieldInvalid('login', 'password')"
                   [class.focus:border-red-500]="isFieldInvalid('login', 'password')"
-                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
+                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
                   placeholder="Enter your password">
                 <button
                   type="button"
                   (click)="togglePasswordVisibility()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-700 transition-colors duration-200">
-                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:text-orange-600">
+                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
-                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
                   </svg>
                 </button>
               </div>
-              <p *ngIf="isFieldInvalid('login', 'password')" class="mt-2 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('login', 'password')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('login', 'password') }}
               </p>
             </div>
@@ -179,7 +219,7 @@
             <!-- Forgot Password Link -->
             <div class="flex items-center justify-end">
               <button type="button" (click)="switchToForgotPassword()"
-                      class="text-sm font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                      class="text-sm font-semibold text-orange-600 hover:text-orange-500 transition-colors duration-200 focus:outline-none focus:underline">
                 Forgot your password?
               </button>
             </div>
@@ -189,24 +229,23 @@
               <button
                 type="submit"
                 [disabled]="loginForm.invalid || isLoading"
-                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
-                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
+                class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-4">
                   <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </span>
-                {{ isLoading ? 'Signing in...' : 'Sign in' }}
+                {{ isLoading ? 'Signing in...' : 'Sign In to SendIT' }}
               </button>
 
               <!-- Switch to Register -->
               <div class="text-center">
                 <p class="text-sm text-gray-600">
-                  Don't have an account?
+                  New to SendIT?
                   <button type="button" (click)="switchToRegister()"
-                          class="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200 ml-1">
-                    Sign up
+                          class="font-semibold text-orange-600 hover:text-orange-500 transition-colors duration-200 ml-1 focus:outline-none focus:underline">
+                    Create account
                   </button>
                 </p>
               </div>
@@ -214,68 +253,91 @@
           </form>
 
           <!-- Register Form -->
-          <form *ngIf="currentMode === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()"
-                class="space-y-5">
+          <form *ngIf="currentMode === 'register'" [formGroup]="registerForm" (ngSubmit)="onRegister()" class="space-y-5">
             <!-- Name Field -->
             <div>
-              <label for="register-name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label for="register-name" class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
               <input
                 id="register-name"
                 name="name"
                 type="text"
                 formControlName="name"
                 autocomplete="name"
-                [class.border-red-500]="isFieldInvalid('register', 'name')"
-                [class.focus:ring-red-500]="isFieldInvalid('register', 'name')"
-                [class.focus:border-red-500]="isFieldInvalid('register', 'name')"
-                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
+                [class.border-red-400]="isFieldInvalid('register', 'name')"
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
                 placeholder="Enter your full name">
-              <p *ngIf="isFieldInvalid('register', 'name')" class="mt-2 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('register', 'name')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('register', 'name') }}
               </p>
             </div>
 
             <!-- Email Field -->
             <div>
-              <label for="register-email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <label for="register-email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <input
                 id="register-email"
                 name="email"
                 type="email"
                 formControlName="email"
                 autocomplete="email"
-                [class.border-red-500]="isFieldInvalid('register', 'email')"
-                [class.focus:ring-red-500]="isFieldInvalid('register', 'email')"
-                [class.focus:border-red-500]="isFieldInvalid('register', 'email')"
-                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                placeholder="Enter your email">
-              <p *ngIf="isFieldInvalid('register', 'email')" class="mt-2 text-sm text-red-600">
+                [class.border-red-400]="isFieldInvalid('register', 'email')"
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                placeholder="Enter your email address">
+              <p *ngIf="isFieldInvalid('register', 'email')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('register', 'email') }}
               </p>
             </div>
 
             <!-- Phone Field -->
             <div>
-              <label for="register-phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <label for="register-phone" class="block text-sm font-semibold text-gray-700 mb-2">Phone Number</label>
               <input
                 id="register-phone"
                 name="phone"
                 type="tel"
                 formControlName="phone"
                 autocomplete="tel"
-                [class.border-red-500]="isFieldInvalid('register', 'phone')"
-                [class.focus:ring-red-500]="isFieldInvalid('register', 'phone')"
-                [class.focus:border-red-500]="isFieldInvalid('register', 'phone')"
-                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
+                [class.border-red-400]="isFieldInvalid('register', 'phone')"
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
                 placeholder="e.g. +254712345678">
-              <p *ngIf="isFieldInvalid('register', 'phone')" class="mt-2 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('register', 'phone')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('register', 'phone') }}
+              </p>
+            </div>
+
+            <!-- Country Field -->
+            <div>
+              <label for="register-country" class="block text-sm font-semibold text-gray-700 mb-2">Country</label>
+              <input
+                id="register-country"
+                name="country"
+                type="text"
+                formControlName="country"
+                readonly
+                class="appearance-none block w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none sm:text-sm text-gray-600 shadow-sm"
+                value="Kenya">
+            </div>
+
+            <!-- City Dropdown -->
+            <div>
+              <label for="register-city" class="block text-sm font-semibold text-gray-700 mb-2">City</label>
+              <select
+                id="register-city"
+                name="city"
+                formControlName="city"
+                [class.border-red-400]="isFieldInvalid('register', 'city')"
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 bg-gray-50 focus:bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm shadow-sm">
+                <option value="" disabled selected>Select your city</option>
+                <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+              </select>
+              <p *ngIf="isFieldInvalid('register', 'city')" class="mt-2 text-sm text-red-600 font-medium">
+                {{ getFieldError('register', 'city') }}
               </p>
             </div>
 
             <!-- Password Field -->
             <div>
-              <label for="register-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label for="register-password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div class="relative">
                 <input
                   id="register-password"
@@ -283,38 +345,30 @@
                   [type]="showPassword ? 'text' : 'password'"
                   formControlName="password"
                   autocomplete="new-password"
-                  [class.border-red-500]="isFieldInvalid('register', 'password')"
-                  [class.focus:ring-red-500]="isFieldInvalid('register', 'password')"
-                  [class.focus:border-red-500]="isFieldInvalid('register', 'password')"
-                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                  placeholder="Create a password">
+                  [class.border-red-400]="isFieldInvalid('register', 'password')"
+                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                  placeholder="Create a secure password">
                 <button
                   type="button"
                   (click)="togglePasswordVisibility()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-700 transition-colors duration-200">
-                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:text-orange-600">
+                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
-                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
                   </svg>
                 </button>
               </div>
-              <p *ngIf="isFieldInvalid('register', 'password')" class="mt-2 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('register', 'password')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('register', 'password') }}
               </p>
             </div>
 
             <!-- Confirm Password Field -->
             <div>
-              <label for="register-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">Confirm
-                Password</label>
+              <label for="register-confirm-password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
               <div class="relative">
                 <input
                   id="register-confirm-password"
@@ -322,32 +376,23 @@
                   [type]="showConfirmPassword ? 'text' : 'password'"
                   formControlName="confirmPassword"
                   autocomplete="new-password"
-                  [class.border-red-500]="isFieldInvalid('register', 'confirmPassword')"
-                  [class.focus:ring-red-500]="isFieldInvalid('register', 'confirmPassword')"
-                  [class.focus:border-red-500]="isFieldInvalid('register', 'confirmPassword')"
-                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
+                  [class.border-red-400]="isFieldInvalid('register', 'confirmPassword')"
+                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
                   placeholder="Confirm your password">
                 <button
                   type="button"
                   (click)="toggleConfirmPasswordVisibility()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center hover:text-gray-700 transition-colors duration-200">
-                  <svg *ngIf="!showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none"
-                       viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:text-orange-600">
+                  <svg *ngIf="!showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
-                  <svg *ngIf="showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none"
-                       viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  <svg *ngIf="showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
                   </svg>
                 </button>
               </div>
-              <p *ngIf="isFieldInvalid('register', 'confirmPassword')" class="mt-2 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('register', 'confirmPassword')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('register', 'confirmPassword') }}
               </p>
             </div>
@@ -357,23 +402,22 @@
               <button
                 type="submit"
                 [disabled]="registerForm.invalid || isLoading"
-                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
-                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
+                class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-4">
                   <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </span>
-                {{ isLoading ? 'Creating account...' : 'Create account' }}
+                {{ isLoading ? 'Creating Account...' : 'Create Account' }}
               </button>
 
-              <!-- Back to Login -->
+              <!-- Switch to Login -->
               <div class="text-center">
                 <p class="text-sm text-gray-600">
                   Already have an account?
                   <button type="button" (click)="switchToLogin()"
-                          class="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200 ml-1">
+                          class="font-semibold text-orange-600 hover:text-orange-500 transition-colors duration-200 ml-1 focus:outline-none focus:underline">
                     Sign in
                   </button>
                 </p>
@@ -382,23 +426,20 @@
           </form>
 
           <!-- Forgot Password Form -->
-          <form *ngIf="currentMode === 'forgot-password'" [formGroup]="forgotPasswordForm"
-                (ngSubmit)="onForgotPassword()" class="space-y-6">
+          <form *ngIf="currentMode === 'forgot-password'" [formGroup]="forgotPasswordForm" (ngSubmit)="onForgotPassword()" class="space-y-6">
             <!-- Email Field -->
             <div>
-              <label for="forgot-email" class="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+              <label for="forgot-email" class="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <input
                 id="forgot-email"
                 name="email"
                 type="email"
                 formControlName="email"
                 autocomplete="email"
-                [class.border-red-500]="isFieldInvalid('forgot-password', 'email')"
-                [class.focus:ring-red-500]="isFieldInvalid('forgot-password', 'email')"
-                [class.focus:border-red-500]="isFieldInvalid('forgot-password', 'email')"
-                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 sm:text-sm"
-                placeholder="Enter your email">
-              <p *ngIf="isFieldInvalid('forgot-password', 'email')" class="mt-2 text-sm text-red-600">
+                [class.border-red-400]="isFieldInvalid('forgot-password', 'email')"
+                class="appearance-none block w-full px-4 py-3 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                placeholder="Enter your email address">
+              <p *ngIf="isFieldInvalid('forgot-password', 'email')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('forgot-password', 'email') }}
               </p>
             </div>
@@ -408,157 +449,122 @@
               <button
                 type="submit"
                 [disabled]="forgotPasswordForm.invalid || isLoading"
-                class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200">
-                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
+                class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-4">
                   <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 </span>
-                {{ isLoading ? 'Sending...' : 'Send reset link' }}
+                {{ isLoading ? 'Sending Reset Link...' : 'Send Reset Link' }}
               </button>
 
-              <!-- Back to Login -->
+              <!-- Switch to Login -->
               <div class="text-center">
                 <p class="text-sm text-gray-600">
-                  Remember your password?
+                  Remembered your password?
                   <button type="button" (click)="switchToLogin()"
-                          class="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200 ml-1">
+                          class="font-semibold text-orange-600 hover:text-orange-500 transition-colors duration-200 ml-1 focus:outline-none focus:underline">
                     Sign in
                   </button>
                 </p>
               </div>
             </div>
           </form>
-          <!-- Reset Password Form -->
-          <form *ngIf="currentMode === 'reset-password'" [formGroup]="resetPasswordForm"
-                (ngSubmit)="onResetPassword()" class="space-y-6">
-            <!-- Token Field -->
-            <div>
-              <label for="reset-token" class="block text-sm font-medium text-gray-700">Reset Token</label>
-              <div class="mt-1">
-                <input
-                  id="reset-token"
-                  name="token"
-                  type="text"
-                  formControlName="token"
-                  [class.border-red-500]="isFieldInvalid('reset-password', 'token')"
-                  class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                  placeholder="Enter reset token from email">
-              </div>
-              <p *ngIf="isFieldInvalid('reset-password', 'token')" class="mt-1 text-sm text-red-600">
-                {{ getFieldError('reset-password', 'token') }}
-              </p>
-            </div>
 
+          <!-- Reset Password Form -->
+          <form *ngIf="currentMode === 'reset-password'" [formGroup]="resetPasswordForm" (ngSubmit)="onResetPassword()" class="space-y-6">
             <!-- New Password Field -->
             <div>
-              <label for="reset-password-field" class="block text-sm font-medium text-gray-700">New
-                Password</label>
-              <div class="mt-1 relative">
+              <label for="reset-password" class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+              <div class="relative">
                 <input
-                  id="reset-password-field"
+                  id="reset-password"
                   name="password"
                   [type]="showPassword ? 'text' : 'password'"
                   formControlName="password"
                   autocomplete="new-password"
-                  [class.border-red-500]="isFieldInvalid('reset-password', 'password')"
-                  class="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                  placeholder="Enter your new password">
+                  [class.border-red-400]="isFieldInvalid('reset-password', 'password')"
+                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                  placeholder="Enter new password">
                 <button
                   type="button"
                   (click)="togglePasswordVisibility()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:text-orange-600">
+                  <svg *ngIf="!showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
-                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  <svg *ngIf="showPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
                   </svg>
                 </button>
               </div>
-              <p *ngIf="isFieldInvalid('reset-password', 'password')" class="mt-1 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('reset-password', 'password')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('reset-password', 'password') }}
               </p>
             </div>
 
-            <!-- Confirm Password Field -->
+            <!-- Confirm New Password Field -->
             <div>
-              <label for="confirm-new-password" class="block text-sm font-medium text-gray-700">Confirm New
-                Password</label>
-              <div class="mt-1 relative">
+              <label for="reset-confirm-password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+              <div class="relative">
                 <input
-                  id="confirm-new-password"
+                  id="reset-confirm-password"
                   name="confirmPassword"
                   [type]="showConfirmPassword ? 'text' : 'password'"
                   formControlName="confirmPassword"
                   autocomplete="new-password"
-                  [class.border-red-500]="isFieldInvalid('reset-password', 'confirmPassword')"
-                  class="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-red-500 focus:border-red-500 sm:text-sm"
-                  placeholder="Confirm your new password">
+                  [class.border-red-400]="isFieldInvalid('reset-password', 'confirmPassword')"
+                  class="appearance-none block w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200 sm:text-sm bg-gray-50 focus:bg-white shadow-sm"
+                  placeholder="Confirm new password">
                 <button
                   type="button"
                   (click)="toggleConfirmPasswordVisibility()"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <svg *ngIf="!showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none"
-                       viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  class="absolute inset-y-0 right-0 pr-4 flex items-center hover:text-gray-700 transition-colors duration-200 focus:outline-none focus:text-orange-600">
+                  <svg *ngIf="!showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                   </svg>
-                  <svg *ngIf="showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none"
-                       viewBox="0 0 24 24"
-                       stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
+                  <svg *ngIf="showConfirmPassword" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"/>
                   </svg>
                 </button>
               </div>
-              <p *ngIf="isFieldInvalid('reset-password', 'confirmPassword')" class="mt-1 text-sm text-red-600">
+              <p *ngIf="isFieldInvalid('reset-password', 'confirmPassword')" class="mt-2 text-sm text-red-600 font-medium">
                 {{ getFieldError('reset-password', 'confirmPassword') }}
               </p>
             </div>
 
             <!-- Submit Button -->
-            <div>
+            <div class="space-y-4">
               <button
                 type="submit"
                 [disabled]="resetPasswordForm.invalid || isLoading"
-                class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed">
-            <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-                {{ isLoading ? 'Resetting...' : 'Reset password' }}
+                class="group relative w-full flex justify-center py-4 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <span *ngIf="isLoading" class="absolute left-0 inset-y-0 flex items-center pl-4">
+                  <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </span>
+                {{ isLoading ? 'Resetting Password...' : 'Reset Password' }}
               </button>
+
+              <!-- Switch to Login -->
+              <div class="text-center">
+                <p class="text-sm text-gray-600">
+                  Return to login?
+                  <button type="button" (click)="switchToLogin()"
+                          class="font-semibold text-orange-600 hover:text-orange-500 transition-colors duration-200 ml-1 focus:outline-none focus:underline">
+                    Sign in
+                  </button>
+                </p>
+              </div>
             </div>
           </form>
-        </div>
-
-        <!-- Additional Links -->
-        <div class="mt-6 text-center">
-          <p class="text-xs text-gray-500">
-            © 2025 ElimuHub. All rights reserved. |
-            <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a> |
-            <a href="#" class="text-blue-600 hover:text-blue-500">Terms of Service</a>
-          </p>
         </div>
       </div>
     </div>
   </div>
-
-
-
-
+</div>

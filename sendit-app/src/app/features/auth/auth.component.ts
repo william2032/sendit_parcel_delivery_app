@@ -18,7 +18,8 @@ import {AuthService} from '../../shared/services/auth.service';
     NgSwitchCase,
     NgIf,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgForOf
   ],
   styleUrls: ['./auth.component.scss']
 })
@@ -41,6 +42,14 @@ export class AuthComponent implements OnInit, OnDestroy {
   errorMessage = '';
   successMessage = '';
 
+  cities: string[] = [
+    'Nairobi',
+    'Chuka',
+    'Mombasa',
+    'Kisumu',
+    'Makueni',
+    'Nakuru',
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -178,7 +187,9 @@ export class AuthComponent implements OnInit, OnDestroy {
         email: formValue.email,
         password: formValue.password,
         phone: formValue.phone,
-        role: 'student'
+        city: formValue.city,
+        country: formValue.country,
+        role: 'customer'
       };
 
       this.authService.register(userData)
@@ -190,7 +201,7 @@ export class AuthComponent implements OnInit, OnDestroy {
             // Redirect to dashboard or previous page
             setTimeout(() => {
               this.router.navigate(['/']);
-            }, 1000);
+            }, 1500);
           },
           error: (error) => {
             this.isLoading = false;
