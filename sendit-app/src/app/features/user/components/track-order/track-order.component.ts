@@ -11,7 +11,6 @@ import {FooterComponent} from "../shared/footer/footer.component";
 
 declare var google: any;
 
-
 @Component({
   selector: 'app-track-order',
   standalone: true,
@@ -32,6 +31,8 @@ export class TrackOrderComponent implements OnInit {
   activeTab: string = 'sent';
   searchQuery: string = '';
   map: any;
+  directionsService: any;
+  directionsRenderer: any;
   currentMarkers: any[] = [];
   currentPolyline: any;
   selectedParcel: Parcel | null = null;
@@ -225,6 +226,17 @@ export class TrackOrderComponent implements OnInit {
         }
       ]
     });
+
+    // Initialize Directions Service and Renderer
+    this.directionsService = new google.maps.DirectionsService();
+    this.directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true, // We'll create our own custom markers
+      polylineOptions: {
+        strokeWeight: 4,
+        strokeOpacity: 0.8
+      }
+    });
+    this.directionsRenderer.setMap(this.map);
   }
 
   clearMapElements() {
@@ -232,7 +244,12 @@ export class TrackOrderComponent implements OnInit {
     this.currentMarkers.forEach(marker => marker.setMap(null));
     this.currentMarkers = [];
 
-    // Clear existing polyline
+    // Clear existing directions
+    if (this.directionsRenderer) {
+      this.directionsRenderer.setDirections({ routes: [] });
+    }
+
+    // Clear existing polyline (fallback)
     if (this.currentPolyline) {
       this.currentPolyline.setMap(null);
       this.currentPolyline = null;
@@ -243,34 +260,40 @@ export class TrackOrderComponent implements OnInit {
     this.clearMapElements();
     this.selectedParcel = parcel;
 
-    // If modal is open, close it and delay the scroll
+    // Handle modal and scrolling
     if (this.showModal) {
       this.showModal = false;
-
-      // Wait for modal animation + DOM removal to complete
       setTimeout(() => {
         this.mapSection?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300); // adjust if your modal has longer animation
+      }, 300);
     } else {
-      // Scroll immediately if modal isn't showing
       setTimeout(() => {
         this.mapSection?.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 0);
     }
 
+    // Create custom markers first
+    this.createCustomMarkers(parcel);
+
+    // Calculate and display the route
+    this.calculateAndDisplayRoute(parcel);
+  }
+
+  createCustomMarkers(parcel: Parcel) {
     // Create pickup marker (green)
     const pickupMarker = new google.maps.Marker({
       position: parcel.pickupLocation,
       map: this.map,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
+        scale: 12,
         fillColor: '#10B981',
         fillOpacity: 1,
         strokeColor: '#fff',
-        strokeWeight: 2
+        strokeWeight: 3
       },
-      title: `Pickup: ${parcel.pickupLocation.name}`
+      title: `Pickup: ${parcel.pickupLocation.name}`,
+      zIndex: 1000
     });
 
     // Create destination marker (blue)
@@ -279,13 +302,14 @@ export class TrackOrderComponent implements OnInit {
       map: this.map,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
+        scale: 12,
         fillColor: '#3B82F6',
         fillOpacity: 1,
         strokeColor: '#fff',
-        strokeWeight: 2
+        strokeWeight: 3
       },
-      title: `Destination: ${parcel.destination.name}`
+      title: `Destination: ${parcel.destination.name}`,
+      zIndex: 1000
     });
 
     // Create info windows
@@ -294,6 +318,7 @@ export class TrackOrderComponent implements OnInit {
         <div style="padding: 8px;">
           <h3 style="margin: 0 0 4px 0; color: #10B981;">Pickup Location</h3>
           <p style="margin: 0; color: #666;">${parcel.pickupLocation.name}</p>
+          <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">Package ID: ${parcel.id}</p>
         </div>
       `
     });
@@ -303,6 +328,7 @@ export class TrackOrderComponent implements OnInit {
         <div style="padding: 8px;">
           <h3 style="margin: 0 0 4px 0; color: #3B82F6;">Destination</h3>
           <p style="margin: 0; color: #666;">${parcel.destination.name}</p>
+          <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">Status: ${parcel.status}</p>
         </div>
       `
     });
@@ -320,21 +346,76 @@ export class TrackOrderComponent implements OnInit {
 
     this.currentMarkers.push(pickupMarker, destinationMarker);
 
-    // Create route line
+    // If parcel is in transit, show current location
+    if (parcel.status === 'In transit') {
+      this.showCurrentLocationOnRoute(parcel);
+    }
+  }
+
+  calculateAndDisplayRoute(parcel: Parcel) {
+    const request = {
+      origin: parcel.pickupLocation,
+      destination: parcel.destination,
+      travelMode: google.maps.TravelMode.DRIVING,
+      unitSystem: google.maps.UnitSystem.METRIC,
+      avoidHighways: false,
+      avoidTolls: false
+    };
+
+    this.directionsService.route(request, (result: any, status: any) => {
+      if (status === 'OK') {
+        // Set the route color based on status
+        const routeColor = this.getRouteColor(parcel.status);
+
+        // Update the directions renderer with custom styling
+        this.directionsRenderer.setOptions({
+          polylineOptions: {
+            strokeColor: routeColor,
+            strokeWeight: 5,
+            strokeOpacity: 0.8
+          }
+        });
+
+        this.directionsRenderer.setDirections(result);
+
+        // Optional: Add route information
+        this.displayRouteInfo(result, parcel);
+      } else {
+        console.error('Directions request failed due to ' + status);
+        // Fallback to straight line if directions fail
+        this.createFallbackRoute(parcel);
+      }
+    });
+  }
+
+  getRouteColor(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'completed':
+      case 'delivered':
+        return '#10B981'; // Green for completed
+      case 'in transit':
+        return '#F59E0B'; // Amber for in transit
+      case 'picked':
+        return '#3B82F6'; // Blue for picked
+      case 'cancelled':
+        return '#EF4444'; // Red for cancelled
+      default:
+        return '#6B7280'; // Gray for default
+    }
+  }
+
+  createFallbackRoute(parcel: Parcel) {
+    // Create a straight line as fallback
     this.currentPolyline = new google.maps.Polyline({
       path: [parcel.pickupLocation, parcel.destination],
       geodesic: true,
-      strokeColor: parcel.status === 'Completed' || parcel.status === 'Delivered' ? '#10B981' : '#3B82F6',
-      strokeOpacity: 1.0,
-      strokeWeight: 3
+      strokeColor: this.getRouteColor(parcel.status),
+      strokeOpacity: 0.8,
+      strokeWeight: 4,
+      strokeStyle: 'dashed' // Make it dashed to indicate it's not the actual route
     });
 
     this.currentPolyline.setMap(this.map);
-
-    // If parcel is in transit, show current location
-    if (parcel.status === 'In transit') {
-      this.showCurrentLocation(parcel);
-    }
 
     // Adjust map bounds to show both markers
     const bounds = new google.maps.LatLngBounds();
@@ -343,8 +424,58 @@ export class TrackOrderComponent implements OnInit {
     this.map.fitBounds(bounds);
   }
 
-  showCurrentLocation(parcel: Parcel) {
-    // Calculate a point roughly halfway between pickup and destination
+  displayRouteInfo(directionsResult: any, parcel: Parcel) {
+    if (directionsResult.routes && directionsResult.routes.length > 0) {
+      const route = directionsResult.routes[0];
+      const leg = route.legs[0];
+
+      // You can display this information in your UI
+      console.log('Route Distance:', leg.distance.text);
+      console.log('Route Duration:', leg.duration.text);
+
+      // Optional: Create an info window with route details
+      const routeInfoWindow = new google.maps.InfoWindow({
+        content: `
+          <div style="padding: 8px; min-width: 200px;">
+            <h3 style="margin: 0 0 8px 0; color: #374151;">Route Information</h3>
+            <p style="margin: 0; color: #666;"><strong>Package:</strong> ${parcel.id}</p>
+            <p style="margin: 4px 0; color: #666;"><strong>Distance:</strong> ${leg.distance.text}</p>
+            <p style="margin: 4px 0; color: #666;"><strong>Duration:</strong> ${leg.duration.text}</p>
+            <p style="margin: 4px 0; color: #666;"><strong>Status:</strong> <span style="color: ${this.getRouteColor(parcel.status)};">${parcel.status}</span></p>
+          </div>
+        `
+      });
+
+      // Position the info window at the midpoint of the route
+      const path = route.overview_path;
+      const midPoint = path[Math.floor(path.length / 2)];
+
+      // Add a small info marker at the midpoint (optional)
+      const infoMarker = new google.maps.Marker({
+        position: midPoint,
+        map: this.map,
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 6,
+          fillColor: '#374151',
+          fillOpacity: 0.8,
+          strokeColor: '#fff',
+          strokeWeight: 2
+        },
+        title: 'Route Info'
+      });
+
+      infoMarker.addListener('click', () => {
+        routeInfoWindow.open(this.map, infoMarker);
+      });
+
+      this.currentMarkers.push(infoMarker);
+    }
+  }
+
+  showCurrentLocationOnRoute(parcel: Parcel) {
+    // For in-transit packages, show current location marker
+    // This is a simplified version - in a real app, you'd get the actual current location
     const currentLat = (parcel.pickupLocation.lat + parcel.destination.lat) / 2;
     const currentLng = (parcel.pickupLocation.lng + parcel.destination.lng) / 2;
 
@@ -353,21 +484,24 @@ export class TrackOrderComponent implements OnInit {
       map: this.map,
       icon: {
         path: google.maps.SymbolPath.CIRCLE,
-        scale: 12,
+        scale: 15,
         fillColor: '#8B5CF6',
-        fillOpacity: 0.8,
+        fillOpacity: 0.9,
         strokeColor: '#fff',
         strokeWeight: 3
       },
-      title: 'Current Location'
+      title: 'Current Location',
+      zIndex: 1001,
+      animation: google.maps.Animation.BOUNCE // Add bounce animation
     });
 
     const currentInfoWindow = new google.maps.InfoWindow({
       content: `
         <div style="padding: 8px;">
-          <h3 style="margin: 0 0 4px 0; color: #8B5CF6;">Current Location</h3>
+          <h3 style="margin: 0 0 4px 0; color: #8B5CF6;">📍 Current Location</h3>
           <p style="margin: 0; color: #666;">Package ID: ${parcel.id}</p>
           <p style="margin: 4px 0 0 0; color: #666;">Status: ${parcel.status}</p>
+          <p style="margin: 4px 0 0 0; color: #666; font-size: 12px;">Last updated: Just now</p>
         </div>
       `
     });
@@ -376,12 +510,16 @@ export class TrackOrderComponent implements OnInit {
       currentInfoWindow.open(this.map, currentMarker);
     });
 
+    // Stop bouncing after 3 seconds
+    setTimeout(() => {
+      currentMarker.setAnimation(null);
+    }, 3000);
+
     this.currentMarkers.push(currentMarker);
   }
 
   setActiveTab(tab: string) {
     this.activeTab = tab;
-    // Show first parcel of the selected tab
     const parcels = this.getCurrentParcels();
     if (parcels.length > 0) {
       this.showParcelRoute(parcels[0]);
@@ -396,6 +534,7 @@ export class TrackOrderComponent implements OnInit {
     const currentParcels = this.getCurrentParcels();
     return currentParcels.filter(p => p.status === status);
   }
+
   getCompletedParcels(): Parcel[] {
     const currentParcels = this.getCurrentParcels();
     return currentParcels.filter(p => p.status === 'Completed' || p.status === 'Delivered');
