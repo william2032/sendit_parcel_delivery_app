@@ -14,8 +14,8 @@ export class HeroSectionComponent {
   ) {}
   onJoinUs(): void {
     // Handle join us button click
-    console.log('Join us clicked');
-    // Add your navigation logic here
+    this.router.navigate(['/register']);
+
   }
 
   onLogin(): void {

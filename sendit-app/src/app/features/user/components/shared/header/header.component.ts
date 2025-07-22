@@ -33,6 +33,12 @@ export class HeaderComponent {
     document.body.classList.add('modal-open');
   }
 
+  onJoinUs(): void {
+    // Handle join us button click
+    this.router.navigate(['/register']);
+
+  }
+
   closeAccountModal() {
     this.showAccountModal = false;
     document.body.classList.remove('modal-open');

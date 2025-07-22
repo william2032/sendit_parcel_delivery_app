@@ -9,6 +9,7 @@ import {OrdersLayoutComponent} from './features/admin/layouts/orders/orders-layo
 import {DeliveryLayoutComponent} from './features/admin/layouts/delivery/delivery-layout.component';
 import {PhoneVerifyLayoutComponent} from './features/auth/layouts/phone-verify/phone-verify-layout.component';
 import {AuthComponent} from './features/auth/auth.component';
+import {SupportComponent} from './shared/components/support/support.component';
 
 export const routes: Routes = [
   {
@@ -18,6 +19,7 @@ export const routes: Routes = [
     ]
   },
   {path: 'home/track-order', component: TrackOrderComponent},
+  {path: 'home/customer-support', component: SupportComponent},
 
   //otp verification
   {path: 'auth/verify-phone', component: PhoneVerifyLayoutComponent},
