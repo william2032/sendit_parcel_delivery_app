@@ -4,30 +4,18 @@
 @apiPrefix = /auth
 
 ### Variables for testing (update these with actual values)
-@testEmail = test@example.com
-@testPassword = password123
+@testEmail = lukebetika@gmail.com
+@testPassword = password456
 @testName = John Doe
 @testPhone = +254798666512
-@testCity = New York
-@testCountry = USA
-@token = your_jwt_token_here
-@emailVerificationToken = your_email_verification_token_here
+@testCity = Chuka
+@testCountry = Kenya
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRnYTNod2swMDAwdGJzczBkM3N2czJnIiwiZW1haWwiOiJsdWtlYmV0aWthQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1MzI5NDIwNCwiZXhwIjoxNzUzMjk3ODA0fQ.dSlJESz-MPNkwo1VqxFcqAbSeX5ynB7yVwhKHN_QCWU
+@emailVerificationToken = 289895
 @phoneOtp = 123456
 
 ###
 # 1. REGISTER USER
-POST {{baseUrl}}{{apiPrefix}}/register
-Content-Type: application/json
-
-{
-  "name": "{{testName}}",
-  "email": "{{testEmail}}",
-  "password": "{{testPassword}}",
-  "phone": "{{testPhone}}",
-  "city": "{{testCity}}",
-  "country": "{{testCountry}}",
-  "verifyEmail": true
-}
 
 ###
 # 2. REGISTER USER (without email verification)
@@ -35,13 +23,13 @@ POST {{baseUrl}}{{apiPrefix}}/register
 Content-Type: application/json
 
 {
-  "name": "Jane Smith",
-  "email": "jane@example.com",
+  "name": "Luke",
+  "email": "lukebetika@gmail.com",
   "password": "password456",
   "phone": "+254987654321",
   "city": "Chuka",
-  "country": "Kenya",
-  "verifyEmail": false
+  "profileImage": "https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png",
+  "country": "Kenya"
 }
 
 ###
@@ -66,8 +54,9 @@ Content-Type: application/json
 }
 
 ###
-# 5. VERIFY EMAIL (optional)
-GET {{baseUrl}}{{apiPrefix}}/verify-email?token={{emailVerificationToken}}
+# 5. VERIFY EMAIL
+POST {{baseUrl}}{{apiPrefix}}/verify-email?token={{emailVerificationToken}}
+Authorization: Bearer {{token}}
 
 ###
 # 6. VERIFY PHONE (required for login)
@@ -81,7 +70,7 @@ Authorization: Bearer {{token}}
 
 ###
 # 7. RESEND PHONE OTP
-POST {{baseUrl}}{{apiPrefix}}/resend-phone-otp
+POST {{baseUrl}}{{apiPrefix}}/resend-email-otp
 Authorization: Bearer {{token}}
 
 ###
@@ -136,40 +125,7 @@ Content-Type: application/json
 ### TESTING SCENARIOS
 ### ================================
 
-###
-# SCENARIO 1: Complete Registration Flow
-# 1. Register user with email verification
-POST {{baseUrl}}{{apiPrefix}}/register
-Content-Type: application/json
-
-{
-  "name": "Complete Flow User",
-  "email": "complete@example.com",
-  "password": "password123",
-  "phone": "+1555000123",
-  "city": "Chicago",
-  "country": "USA",
-  "verifyEmail": true
-}
-
-# 2. Try to login (should fail - phone not verified)
-# 3. Verify phone using OTP from above registration
-# 4. Login successfully
-# 5. Access protected routes
-
-###
-# SCENARIO 2: Test Duplicate Registration
-POST {{baseUrl}}{{apiPrefix}}/register
-Content-Type: application/json
-
-{
-  "name": "Duplicate Email",
-  "email": "{{testEmail}}",
-  "password": "password123",
-  "phone": "+1555000999",
-  "city": "Miami",
-  "country": "USA"
-}
+##
 
 ###
 # SCENARIO 3: Test Duplicate Phone
@@ -195,55 +151,3 @@ Authorization: Bearer {{token}}
   "otp": "000000"
 }
 
-###
-# SCENARIO 5: Test Expired Token Access
-GET {{baseUrl}}{{apiPrefix}}/profile
-Authorization: Bearer expired_or_invalid_token_here
-
-### ================================
-### QUICK TEST VARIABLES
-### ================================
-
-# Update these after running tests:
-# @token = paste_jwt_token_from_registration_or_login_response
-# @emailVerificationToken = paste_token_from_registration_response_or_email
-# @phoneOtp = paste_otp_received_via_sms
-
-### ================================
-### NOTES FOR TESTING
-### ================================
-
-# 1. Start with user registration
-# 2. Copy the JWT token from registration response to @token variable
-# 3. If you enabled email verification, check email for verification token
-# 4. You'll need to implement SMS service to get actual OTP for phone verification
-# 5. After phone verification, you can successfully login
-# 6. Use the login token for protected endpoints
-
-### ================================
-### EXPECTED RESPONSES
-### ================================
-
-# Registration Success:
-# {
-#   "message": "Registration successful! Please check your email and Please verify your phone number with the OTP sent to +1234567890",
-#   "user": { user object },
-#   "access_token": "jwt_token_here",
-#   "token_type": "Bearer",
-#   "expires_in": 3600
-# }
-
-# Login Success:
-# {
-#   "message": "Login successful",
-#   "user": { user object },
-#   "access_token": "jwt_token_here",
-#   "token_type": "Bearer",
-#   "expires_in": 3600
-# }
-
-# Phone Verification Success:
-# {
-#   "success": true,
-#   "message": "Phone number verified successfully"
-# }

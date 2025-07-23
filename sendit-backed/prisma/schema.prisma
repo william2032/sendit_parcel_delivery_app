@@ -108,7 +108,8 @@ model DriverLocation {
 
 model OtpSession {
   id          String   @id @default(cuid())
-  phoneNumber String
+  phoneNumber String?
+  email       String
   otp         String
   sessionId   String   @unique
   expiresAt   DateTime

@@ -39,7 +39,4 @@ export class RegisterUserDto {
     @IsString({message: 'Country must be a string'})
     country?: string;
 
-    @IsOptional()
-    @IsBoolean({ message: 'verifyEmail must be a boolean' })
-    verifyEmail?: boolean;
 }

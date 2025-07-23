@@ -13,8 +13,8 @@ export interface User {
     profilePicture: string | null;
     city: string | null;
     country: string | null;
-    isEmailVerified: boolean;
-    isPhoneVerified: boolean;
+    emailVerified: boolean;
+    phoneVerified: boolean;
     role: UserRole;
     createdAt: Date;
     updatedAt: Date;

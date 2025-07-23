@@ -6,7 +6,6 @@ import {
     UnauthorizedException
 } from '@nestjs/common';
 import {JwtService} from '@nestjs/jwt';
-
 import * as bcrypt from 'bcrypt';
 import {ConfigService} from '@nestjs/config';
 import {IAuthService, JwtPayload, LoginResponse, RegisterResponse} from 'src/users/interfaces/auth.interface';
@@ -18,7 +17,8 @@ import {UserResponse} from "../users/interfaces/user.interface";
 import {LoginUserDto} from "./dtos/auth.dto";
 import {PasswordResetService} from "./services/password-reset.service";
 import {MailerService} from "../mailer/mailer.service";
-
+import {$Enums} from "../../generated/prisma";
+import UserRole = $Enums.UserRole;
 
 @Injectable()
 export class AuthService implements IAuthService {
@@ -28,16 +28,14 @@ export class AuthService implements IAuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly passwordResetService: PasswordResetService,
-        private mailerService: MailerService,
-
-    ) {
-    }
+        private readonly mailerService: MailerService,
+    ) {}
 
     async register(registerDto: RegisterUserDto): Promise<RegisterResponse> {
-        // Validate phone number is provided (mandatory)
-        if (!registerDto.phone || registerDto.phone.trim() === '') {
-            throw new BadRequestException('Phone number is required');
-        }
+        // Keep phone number optional for future implementation
+        // if (!registerDto.phone || registerDto.phone.trim() === '') {
+        //     throw new BadRequestException('Phone number is required');
+        // }
 
         // Check if user already exists
         const existingUser = await this.userService.findByEmail(registerDto.email);
@@ -45,29 +43,36 @@ export class AuthService implements IAuthService {
             throw new ConflictException('User with this email already exists');
         }
 
-        // Check if phone number already exists
-        const existingPhone = await this.prisma.user.findFirst({
-            where: {phone: registerDto.phone, deletedAt: null}
-        });
-        if (existingPhone) {
-            throw new ConflictException('User with this phone number already exists');
-        }
+        // Keep phone number check for future implementation
+        // const existingPhone = await this.prisma.user.findFirst({
+        //     where: {phone: registerDto.phone, deletedAt: null}
+        // });
+        // if (existingPhone) {
+        //     throw new ConflictException('User with this phone number already exists');
+        // }
 
         try {
             // Hash password
             const saltRounds = 12;
             const hashedPassword = await bcrypt.hash(registerDto.password, saltRounds);
 
-            // Create user with email verification pending (user can choose to verify email or not)
+            // Create user with email verification pending
             const user = await this.prisma.user.create({
                 data: {
-                    ...registerDto,
+                    name: registerDto.name,
                     email: registerDto.email.toLowerCase(),
+                    phone: registerDto.phone,
                     password: hashedPassword,
-                    // Email verification is optional (user choice)
+                    city: registerDto.city || null,
+                    country: registerDto.country || null,
+                    profileImage: null,
+                    role: registerDto.role || UserRole.CUSTOMER,
+                    isActive: true,
                     emailVerified: false,
-                    // Phone verification starts as false but is mandatory before full access
                     phoneVerified: false,
+                    emailVerifyToken: null,
+                    resetTokenExpiresAt: null,
+                    deletedAt: null,
                 },
                 select: {
                     id: true,
@@ -82,21 +87,29 @@ export class AuthService implements IAuthService {
                     updatedAt: true,
                 },
             });
-            //send email
+
+            // Send welcome email
             await this.mailerService.sendWelcomeEmail(user.email, user.name);
 
-            // Generate email verification token if email verification is requested
-            if (registerDto.verifyEmail) {
-                const emailToken = this.generateVerificationToken();
-                await this.prisma.user.update({
-                    where: {id: user.id},
-                    data: {emailVerifyToken: emailToken},
-                });
-                // Send email verification (implement email service)
-                // await this.emailService.sendEmailVerification(user.email, emailToken);
-            }
+            // Generate email verification OTP
+            const emailOtp = this.generateOTP();
+            const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-            // Generate phone verification OTP (mandatory)
+            await this.prisma.otpSession.create({
+                data: {
+                    userId: user.id,
+                    otp: emailOtp,
+                    sessionId: randomUUID(),
+                    type: 'EMAIL_VERIFICATION',
+                    expiresAt: otpExpiresAt,
+                    email: registerDto.email,
+                },
+            });
+
+            await this.mailerService.sendOtpEmail(user.email, user.name, emailOtp);
+
+            // Keep phone OTP code for future implementation
+            /*
             const phoneOtp = this.generateOTP();
             const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -104,21 +117,20 @@ export class AuthService implements IAuthService {
                 data: {
                     userId: user.id,
                     otp: phoneOtp,
-                    sessionId:  randomUUID(),
+                    sessionId: randomUUID(),
                     type: 'PHONE_VERIFICATION',
                     expiresAt: otpExpiresAt,
                     phoneNumber: registerDto.phone,
                 },
             });
-
-            // Send SMS with OTP (implement SMS service)
             // await this.smsService.sendOTP(registerDto.phone, phoneOtp);
+            */
 
             const userResponse = this.mapToUserResponse(user);
             const access_token = await this.generateJwtToken(userResponse);
 
             return {
-                message: `Registration successful! ${registerDto.verifyEmail ? 'Please check your email and ' : ''}Please verify your phone number with the OTP sent to ${registerDto.phone}`,
+                message: `Registration successful! Please verify your email with the OTP sent to ${registerDto.email}`,
                 user: userResponse,
                 access_token,
                 token_type: 'Bearer',
@@ -138,10 +150,10 @@ export class AuthService implements IAuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check if phone is verified (mandatory)
+        // Check if email is verified - FIXED: Use correct property name
         const fullUser = await this.userService.findByEmail(loginDto.email);
-        if (!fullUser?.isPhoneVerified) {
-            throw new UnauthorizedException('Please verify your phone number before logging in');
+        if (!fullUser?.emailVerified) {
+            throw new UnauthorizedException('Please verify your email before logging in');
         }
 
         // Check if user is active
@@ -179,18 +191,7 @@ export class AuthService implements IAuthService {
             return null;
         }
 
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            profilePicture: user.profilePicture,
-            city: user.city,
-            country: user.country,
-            role: user.role,
-            createdAt: user.createdAt,
-            updatedAt: user.updatedAt,
-        };
+        return this.mapToUserResponse(user);
     }
 
     async generateJwtToken(user: UserResponse): Promise<string> {
@@ -224,33 +225,78 @@ export class AuthService implements IAuthService {
         return this.mapToUserResponse(user);
     }
 
+    async verifyEmail(otp: string, email?: string): Promise<{ success: boolean; message: string }> {
+        try {
+            console.log('Verifying email with OTP:', otp, 'and email:', email); // Debug log
 
-    // Additional methods for verification
-    async verifyEmail(token: string): Promise<{ success: boolean; message: string }> {
-        const user = await this.prisma.user.findFirst({
-            where: {
-                emailVerifyToken: token,
-                deletedAt: null,
-            },
-        });
+            if (!otp) {
+                throw new BadRequestException('OTP is required');
+            }
 
-        if (!user) {
-            throw new NotFoundException('Invalid or expired verification token');
+            const otpSession = await this.prisma.otpSession.findFirst({
+                where: {
+                    otp,
+                    ...(email ? { email } : {}),
+                    type: 'EMAIL_VERIFICATION',
+                    verified: false,
+                    expiresAt: {
+                        gte: new Date(),
+                    },
+                },
+                include: {
+                    user: true, // Include user to get userId
+                },
+            });
+
+            console.log('OTP Session:', otpSession); // Debug log
+
+            if (!otpSession) {
+                return {
+                    success: false,
+                    message: 'Invalid or expired OTP.',
+                };
+            }
+
+            if (!otpSession.userId) {
+                return {
+                    success: false,
+                    message: 'No user associated with this OTP session.',
+                };
+            }
+
+            await this.prisma.otpSession.update({
+                where: { id: otpSession.id },
+                data: { verified: true },
+            });
+
+            await this.prisma.user.update({
+                where: { id: otpSession.userId },
+                data: { emailVerified: true },
+            });
+
+            return {
+                success: true,
+                message: 'Email successfully verified!',
+            };
+        } catch (err) {
+            console.error('Email verification error:', {
+                message: err.message,
+                name: err.name,
+                stack: err.stack,
+            }); // Debug log
+            if (err instanceof BadRequestException) {
+                return {
+                    success: false,
+                    message: err.message,
+                };
+            }
+            return {
+                success: false,
+                message: 'Email verification failed.',
+            };
         }
-
-        await this.prisma.user.update({
-            where: {id: user.id},
-            data: {
-                emailVerified: true,
-                emailVerifyToken: null,
-            },
-        });
-
-        return {
-            success: true,
-            message: 'Email verified successfully',
-        };
     }
+
 
     async verifyPhone(userId: string, otp: string): Promise<{ success: boolean; message: string }> {
         const otpSession = await this.prisma.otpSession.findFirst({
@@ -258,7 +304,7 @@ export class AuthService implements IAuthService {
                 userId,
                 otp,
                 type: 'PHONE_VERIFICATION',
-                verified : false,
+                verified: false,
                 expiresAt: {
                     gte: new Date(),
                 },
@@ -271,14 +317,14 @@ export class AuthService implements IAuthService {
 
         // Mark OTP as verified
         await this.prisma.otpSession.update({
-            where: {id: otpSession.id},
-            data: {verified : true},
+            where: { id: otpSession.id },
+            data: { verified: true },
         });
 
         // Update user phone verification status
         await this.prisma.user.update({
-            where: {id: userId},
-            data: {phoneVerified: true},
+            where: { id: userId },
+            data: { phoneVerified: true },
         });
 
         return {
@@ -286,13 +332,61 @@ export class AuthService implements IAuthService {
             message: 'Phone number verified successfully',
         };
     }
+
     async resetPassword(email: string): Promise<{ message: string }> {
         return this.passwordResetService.requestPasswordReset(email);
     }
 
+    async resendEmailOTP(userId: string): Promise<{ success: boolean; message: string }> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user || !user.email) {
+            throw new NotFoundException('User or email not found');
+        }
+
+        if (user.emailVerified) {
+            throw new BadRequestException('Email is already verified');
+        }
+
+        // Invalidate previous OTP sessions
+        await this.prisma.otpSession.updateMany({
+            where: {
+                userId,
+                type: 'EMAIL_VERIFICATION',
+                verified: false,
+            },
+            data: { verified: true },
+        });
+
+        // Generate new OTP
+        const emailOtp = this.generateOTP();
+        const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        await this.prisma.otpSession.create({
+            data: {
+                userId,
+                otp: emailOtp,
+                sessionId: randomUUID(),
+                type: 'EMAIL_VERIFICATION',
+                expiresAt: otpExpiresAt,
+                email: user.email,
+            },
+        });
+
+        // Send email with new OTP - FIXED: Pass user name
+        await this.mailerService.sendOtpEmail(user.email, user.name, emailOtp);
+
+        return {
+            success: true,
+            message: 'New OTP sent to your email',
+        };
+    }
+
     async resendPhoneOTP(userId: string): Promise<{ success: boolean; message: string }> {
         const user = await this.prisma.user.findUnique({
-            where: {id: userId},
+            where: { id: userId },
         });
 
         if (!user || !user.phone) {
@@ -308,9 +402,9 @@ export class AuthService implements IAuthService {
             where: {
                 userId,
                 type: 'PHONE_VERIFICATION',
-                verified : false,
+                verified: false,
             },
-            data: {verified : true},
+            data: { verified: true },
         });
 
         // Generate new OTP
@@ -321,10 +415,11 @@ export class AuthService implements IAuthService {
             data: {
                 userId,
                 otp: phoneOtp,
-                sessionId:  randomUUID(),
+                sessionId: randomUUID(),
                 type: 'PHONE_VERIFICATION',
                 expiresAt: otpExpiresAt,
                 phoneNumber: user.phone,
+                email: user.email,
             },
         });
 
@@ -337,7 +432,6 @@ export class AuthService implements IAuthService {
         };
     }
 
-    // Helper methods
     private mapToUserResponse(user: any): UserResponse {
         return {
             id: user.id,
