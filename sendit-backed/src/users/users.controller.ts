@@ -10,7 +10,6 @@ import {
     HttpStatus,
     UseGuards,
     Query,
-    ParseUUIDPipe,
     ValidationPipe,
 } from '@nestjs/common';
 import {
@@ -118,9 +117,8 @@ export class UsersController {
     @ApiOperation({summary: 'Get user by ID'})
     @ApiParam({
         name: 'id',
-        description: 'User ID',
+        description: 'User ID (CUID)',
         type: 'string',
-        format: 'uuid',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -132,7 +130,7 @@ export class UsersController {
         description: 'User not found',
     })
     async findOne(
-        @Param('id', ParseUUIDPipe) id: string,
+        @Param('id') id: string,
     ): Promise<{
         success: boolean;
         message: string;
@@ -151,9 +149,8 @@ export class UsersController {
     @ApiOperation({summary: 'Update user'})
     @ApiParam({
         name: 'id',
-        description: 'User ID',
+        description: 'User ID (CUID)',
         type: 'string',
-        format: 'uuid',
     })
     @ApiBody({type: UpdateUserDto})
     @ApiResponse({
@@ -170,7 +167,7 @@ export class UsersController {
         description: 'Email or phone already in use',
     })
     async update(
-        @Param('id', ParseUUIDPipe) id: string,
+        @Param('id') id: string,
         @Body(ValidationPipe) updateUserDto: UpdateUserDto,
     ): Promise<{
         success: boolean;
@@ -192,9 +189,8 @@ export class UsersController {
     @ApiOperation({summary: 'Delete user (soft delete)'})
     @ApiParam({
         name: 'id',
-        description: 'User ID',
+        description: 'User ID (CUID)',
         type: 'string',
-        format: 'uuid',
     })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -205,7 +201,7 @@ export class UsersController {
         description: 'User not found',
     })
     async remove(
-        @Param('id', ParseUUIDPipe) id: string,
+        @Param('id') id: string,
     ): Promise<{
         success: boolean;
         message: string;

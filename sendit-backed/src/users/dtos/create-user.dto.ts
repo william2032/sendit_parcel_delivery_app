@@ -29,7 +29,7 @@ export class CreateUserDto {
     name: string;
     @IsOptional()
     @IsString()
-    profilePicture?: string;
+    profileImage?: string;
 
     @IsOptional()
     @IsString()
