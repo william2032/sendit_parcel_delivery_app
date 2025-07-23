@@ -3,9 +3,14 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
-  role: string;
-  createdAt?: string;
-  updatedAt?: string;
+  role: 'ADMIN' | 'CUSTOMER' | 'DRIVER';
+  city?: string;
+  country?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  emailVerified: boolean;
+  phoneVerified: boolean;
 }
 
 export interface LoginRequest {

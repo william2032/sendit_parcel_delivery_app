@@ -42,151 +42,576 @@ export class TrackOrderComponent implements OnInit {
   sentParcels: Parcel[] = [
     {
       id: '#AHCAG8',
+      trackingNumber: '#AHCAG8',
       address: 'Westlands, Nairobi',
       date: '04 Sep 2019',
       status: 'In transit',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.2634, lng: 36.8118, name: 'Westlands' },
-      weight: 2.0,
+      createdAt: '2019-09-04T08:00:00Z',
+      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      destination: { lat: -1.2634, lng: 36.8118, name: 'Westlands', address: 'Waiyaki Way' },
+      currentLocation: { lat: -1.2777, lng: 36.8168, address: 'En route to Westlands' },
+      senderId: 'S001',
+      sender: {
+        id: 'S001',
+        name: 'David Steward',
+        phone: '+254712345678',
+        email: 'david.steward@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'David Steward',
       senderPhone: '+254712345678',
+      senderEmail: 'david.steward@example.com',
+      receiverId: 'R001',
+      receiver: {
+        id: 'R001',
+        name: 'John Doe',
+        phone: '+254798765432',
+        email: 'john.doe@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'John Doe',
       receiverPhone: '+254798765432',
+      receiverEmail: 'john.doe@example.com',
+      driverId: 'D001',
       deliveryTime: '15 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-09-04 09:00', description: 'Package picked up from sender' },
-        { status: 'In transit', location: 'Nairobi CBD', timestamp: '2019-09-04 10:30', description: 'Package in transit to destination' }
-      ]
+      estimatedDeliveryDate: '2019-09-05T23:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE001',
+          parcelId: '#AHCAG8',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-09-04T09:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE002',
+          parcelId: '#AHCAG8',
+          type: 'LOCATION_UPDATE',
+          status: 'In transit',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2777, lng: 36.8168 },
+          timestamp: '2019-09-04T10:30:00Z',
+          description: 'Package in transit to destination',
+          automated: true
+        }
+      ],
+      price: 1500,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: false,
+        recipientDelivery: false,
+        driverAssignment: true
+      },
+      weight: 2.0,
+      weightCategory: 'LIGHT'
     },
     {
       id: '#AHCAG9',
+      trackingNumber: '#AHCAG9',
       address: 'Karen, Nairobi',
       date: '28 May 2019',
       status: 'Picked',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.3197, lng: 36.7085, name: 'Karen' },
-      weight: 1.5,
+      createdAt: '2019-05-28T13:00:00Z',
+      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      destination: { lat: -1.3197, lng: 36.7085, name: 'Karen', address: 'Ngong Road' },
+      senderId: 'S002',
+      sender: {
+        id: 'S002',
+        name: 'Sarah Johnson',
+        phone: '+254723456789',
+        email: 'sarah.johnson@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Sarah Johnson',
       senderPhone: '+254723456789',
+      senderEmail: 'sarah.johnson@example.com',
+      receiverId: 'R002',
+      receiver: {
+        id: 'R002',
+        name: 'Mike Wilson',
+        phone: '+254756789012',
+        email: 'mike.wilson@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Mike Wilson',
       receiverPhone: '+254756789012',
+      receiverEmail: 'mike.wilson@example.com',
+      driverId: 'D002',
       deliveryTime: '12 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-05-28 14:00', description: 'Package picked up from sender' }
-      ]
+      estimatedDeliveryDate: '2019-05-29T01:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE003',
+          parcelId: '#AHCAG9',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-05-28T14:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        }
+      ],
+      price: 1200,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: false,
+        recipientDelivery: false,
+        driverAssignment: true
+      },
+      weight: 1.5,
+      weightCategory: 'LIGHT'
     },
     {
       id: '#AHCAG10',
+      trackingNumber: '#AHCAG10',
       address: 'Kiambu Town',
       date: '23 Nov 2019',
       status: 'Cancelled',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.1714, lng: 36.8356, name: 'Kiambu Town' },
-      weight: 0.8,
+      createdAt: '2019-11-23T10:00:00Z',
+      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      destination: { lat: -1.1714, lng: 36.8356, name: 'Kiambu Town', address: 'Kiambu Road' },
+      senderId: 'S003',
+      sender: {
+        id: 'S003',
+        name: 'Peter Mwangi',
+        phone: '+254734567890',
+        email: 'peter.mwangi@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Peter Mwangi',
       senderPhone: '+254734567890',
+      senderEmail: 'peter.mwangi@example.com',
+      receiverId: 'R003',
+      receiver: {
+        id: 'R003',
+        name: 'Grace Wanjiku',
+        phone: '+254767890123',
+        email: 'grace.wanjiku@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Grace Wanjiku',
       receiverPhone: '+254767890123',
+      receiverEmail: 'grace.wanjiku@example.com',
       deliveryTime: '8 hrs',
-      trackingHistory: [
-        { status: 'Cancelled', location: 'Nairobi CBD', timestamp: '2019-11-23 11:00', description: 'Package cancelled by sender' }
-      ]
+      estimatedDeliveryDate: '2019-11-23T18:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE004',
+          parcelId: '#AHCAG10',
+          type: 'CANCELLED',
+          status: 'Cancelled',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-11-23T11:00:00Z',
+          description: 'Package cancelled by sender',
+          automated: false
+        }
+      ],
+      price: 800,
+      notificationsSent: {
+        customerPickup: false,
+        customerDelivery: false,
+        recipientDelivery: false,
+        driverAssignment: false
+      },
+      weight: 0.8,
+      weightCategory: 'ULTRA_LIGHT'
     },
     {
       id: '#AHCAG11',
+      trackingNumber: '#AHCAG11',
       address: 'Thika Town',
       date: '03 Feb 2019',
       status: 'Completed',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.0332, lng: 37.0692, name: 'Thika Town' },
-      weight: 3.2,
+      createdAt: '2019-02-03T07:00:00Z',
+      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      destination: { lat: -1.0332, lng: 37.0692, name: 'Thika Town', address: 'Thika Road' },
+      senderId: 'S004',
+      sender: {
+        id: 'S004',
+        name: 'Alice Nyong',
+        phone: '+254745678901',
+        email: 'alice.nyong@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Alice Nyong',
       senderPhone: '+254745678901',
+      senderEmail: 'alice.nyong@example.com',
+      receiverId: 'R004',
+      receiver: {
+        id: 'R004',
+        name: 'James Kariuki',
+        phone: '+254778901234',
+        email: 'james.kariuki@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'James Kariuki',
       receiverPhone: '+254778901234',
+      receiverEmail: 'james.kariuki@example.com',
+      driverId: 'D003',
       deliveryTime: '18 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-02-03 08:00', description: 'Package picked up from sender' },
-        { status: 'In transit', location: 'Thika Road', timestamp: '2019-02-03 14:00', description: 'Package in transit' },
-        { status: 'Delivered', location: 'Thika Town', timestamp: '2019-02-04 02:00', description: 'Package delivered successfully' }
-      ]
+      estimatedDeliveryDate: '2019-02-04T01:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE005',
+          parcelId: '#AHCAG11',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-02-03T08:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE006',
+          parcelId: '#AHCAG11',
+          type: 'LOCATION_UPDATE',
+          status: 'In transit',
+          location: 'Thika Road',
+          coordinates: { lat: -1.1626, lng: 36.9455 },
+          timestamp: '2019-02-03T14:00:00Z',
+          description: 'Package in transit',
+          automated: true
+        },
+        {
+          id: 'TE007',
+          parcelId: '#AHCAG11',
+          type: 'DELIVERED',
+          status: 'Delivered',
+          location: 'Thika Town',
+          coordinates: { lat: -1.0332, lng: 37.0692 },
+          timestamp: '2019-02-04T02:00:00Z',
+          description: 'Package delivered successfully',
+          automated: true
+        }
+      ],
+      price: 2500,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: true,
+        recipientDelivery: true,
+        driverAssignment: true
+      },
+      weight: 3.2,
+      weightCategory: 'MEDIUM'
     },
     {
       id: '#AHCAG12',
+      trackingNumber: '#AHCAG12',
       address: 'Mombasa Road',
       date: '29 Jul 2019',
       status: 'Completed',
-      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      destination: { lat: -1.3733, lng: 36.8644, name: 'Mombasa Road' },
-      weight: 5.5,
+      createdAt: '2019-07-29T08:00:00Z',
+      pickupLocation: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      destination: { lat: -1.3733, lng: 36.8644, name: 'Mombasa Road', address: 'Mombasa Road' },
+      senderId: 'S005',
+      sender: {
+        id: 'S005',
+        name: 'Robert Kimani',
+        phone: '+254756789012',
+        email: 'robert.kimani@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Robert Kimani',
       senderPhone: '+254756789012',
+      senderEmail: 'robert.kimani@example.com',
+      receiverId: 'R005',
+      receiver: {
+        id: 'R005',
+        name: 'Mary Achieng',
+        phone: '+254789012345',
+        email: 'mary.achieng@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Mary Achieng',
       receiverPhone: '+254789012345',
+      receiverEmail: 'mary.achieng@example.com',
+      driverId: 'D004',
       deliveryTime: '10 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Nairobi CBD', timestamp: '2019-07-29 09:00', description: 'Package picked up from sender' },
-        { status: 'Delivered', location: 'Mombasa Road', timestamp: '2019-07-29 19:00', description: 'Package delivered successfully' }
-      ]
+      estimatedDeliveryDate: '2019-07-29T18:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE008',
+          parcelId: '#AHCAG12',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-07-29T09:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE009',
+          parcelId: '#AHCAG12',
+          type: 'DELIVERED',
+          status: 'Delivered',
+          location: 'Mombasa Road',
+          coordinates: { lat: -1.3733, lng: 36.8644 },
+          timestamp: '2019-07-29T19:00:00Z',
+          description: 'Package delivered successfully',
+          automated: true
+        }
+      ],
+      price: 3500,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: true,
+        recipientDelivery: true,
+        driverAssignment: true
+      },
+      weight: 5.5,
+      weightCategory: 'HEAVY'
     }
   ];
 
   receivedParcels: Parcel[] = [
     {
       id: '#RHCAG9',
+      trackingNumber: '#RHCAG9',
       address: 'Mombasa CBD',
       date: '15 Jun 2019',
       status: 'Delivered',
-      pickupLocation: { lat: -4.0435, lng: 39.6682, name: 'Mombasa CBD' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      weight: 1.2,
+      createdAt: '2019-06-15T09:00:00Z',
+      pickupLocation: { lat: -4.0435, lng: 39.6682, name: 'Mombasa CBD', address: 'Nkrumah Road' },
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      senderId: 'S006',
+      sender: {
+        id: 'S006',
+        name: 'Ahmed Hassan',
+        phone: '+254790123456',
+        email: 'ahmed.hassan@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Ahmed Hassan',
       senderPhone: '+254790123456',
+      senderEmail: 'ahmed.hassan@example.com',
+      receiverId: 'R006',
+      receiver: {
+        id: 'R006',
+        name: 'Catherine Wanjiru',
+        phone: '+254712345678',
+        email: 'catherine.wanjiru@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Catherine Wanjiru',
       receiverPhone: '+254712345678',
+      receiverEmail: 'catherine.wanjiru@example.com',
+      driverId: 'D005',
       deliveryTime: '24 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Mombasa CBD', timestamp: '2019-06-15 10:00', description: 'Package picked up from sender' },
-        { status: 'Delivered', location: 'Nairobi CBD', timestamp: '2019-06-16 10:00', description: 'Package delivered successfully' }
-      ]
+      estimatedDeliveryDate: '2019-06-16T09:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE010',
+          parcelId: '#RHCAG9',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Mombasa CBD',
+          coordinates: { lat: -4.0435, lng: 39.6682 },
+          timestamp: '2019-06-15T10:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE011',
+          parcelId: '#RHCAG9',
+          type: 'DELIVERED',
+          status: 'Delivered',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-06-16T10:00:00Z',
+          description: 'Package delivered successfully',
+          automated: true
+        }
+      ],
+      price: 2000,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: true,
+        recipientDelivery: true,
+        driverAssignment: true
+      },
+      weight: 1.2,
+      weightCategory: 'LIGHT'
     },
     {
       id: '#RHCAG10',
+      trackingNumber: '#RHCAG10',
       address: 'Kisumu Port',
       date: '10 Jul 2019',
       status: 'Delivered',
-      pickupLocation: { lat: -0.0917, lng: 34.7680, name: 'Kisumu Port' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      weight: 0.7,
+      createdAt: '2019-07-10T11:00:00Z',
+      pickupLocation: { lat: -0.0917, lng: 34.7680, name: 'Kisumu Port', address: 'Oginga Odinga Street' },
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      senderId: 'S007',
+      sender: {
+        id: 'S007',
+        name: 'Daniel Ochieng',
+        phone: '+254723456789',
+        email: 'daniel.ochieng@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Daniel Ochieng',
       senderPhone: '+254723456789',
+      senderEmail: 'daniel.ochieng@example.com',
+      receiverId: 'R007',
+      receiver: {
+        id: 'R007',
+        name: 'Francis Maina',
+        phone: '+254756789012',
+        email: 'francis.maina@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Francis Maina',
       receiverPhone: '+254756789012',
+      receiverEmail: 'francis.maina@example.com',
+      driverId: 'D006',
       deliveryTime: '30 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Kisumu Port', timestamp: '2019-07-10 12:00', description: 'Package picked up from sender' },
-        { status: 'Delivered', location: 'Nairobi CBD', timestamp: '2019-07-11 18:00', description: 'Package delivered successfully' }
-      ]
+      estimatedDeliveryDate: '2019-07-11T17:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE012',
+          parcelId: '#RHCAG10',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Kisumu Port',
+          coordinates: { lat: -0.0917, lng: 34.7680 },
+          timestamp: '2019-07-10T12:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE013',
+          parcelId: '#RHCAG10',
+          type: 'DELIVERED',
+          status: 'Delivered',
+          location: 'Nairobi CBD',
+          coordinates: { lat: -1.2921, lng: 36.8219 },
+          timestamp: '2019-07-11T18:00:00Z',
+          description: 'Package delivered successfully',
+          automated: true
+        }
+      ],
+      price: 1800,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: true,
+        recipientDelivery: true,
+        driverAssignment: true
+      },
+      weight: 0.7,
+      weightCategory: 'ULTRA_LIGHT'
     },
     {
       id: '#RHCAG11',
+      trackingNumber: '#RHCAG11',
       address: 'Eldoret Depot',
       date: '20 Aug 2019',
       status: 'In transit',
-      pickupLocation: { lat: 0.5143, lng: 35.2698, name: 'Eldoret Depot' },
-      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD' },
-      weight: 2.8,
+      createdAt: '2019-08-20T07:00:00Z',
+      pickupLocation: { lat: 0.5143, lng: 35.2698, name: 'Eldoret Depot', address: 'Uganda Road' },
+      destination: { lat: -1.2921, lng: 36.8219, name: 'Nairobi CBD', address: 'Kenyatta Avenue' },
+      currentLocation: { lat: -0.3887, lng: 36.0455, address: 'Nakuru' },
+      senderId: 'S008',
+      sender: {
+        id: 'S008',
+        name: 'Lucy Chepkemoi',
+        phone: '+254734567890',
+        email: 'lucy.chepkemoi@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       senderName: 'Lucy Chepkemoi',
       senderPhone: '+254734567890',
+      senderEmail: 'lucy.chepkemoi@example.com',
+      receiverId: 'R008',
+      receiver: {
+        id: 'R008',
+        name: 'Samuel Njoroge',
+        phone: '+254767890123',
+        email: 'samuel.njoroge@example.com',
+        joinedDate: '01 Jan 2019',
+        status: 'Active',
+        profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      },
       receiverName: 'Samuel Njoroge',
       receiverPhone: '+254767890123',
+      receiverEmail: 'samuel.njoroge@example.com',
+      driverId: 'D007',
       deliveryTime: '22 hrs',
-      trackingHistory: [
-        { status: 'Picked up', location: 'Eldoret Depot', timestamp: '2019-08-20 08:00', description: 'Package picked up from sender' },
-        { status: 'In transit', location: 'Nakuru', timestamp: '2019-08-20 16:00', description: 'Package in transit to destination' }
-      ]
+      estimatedDeliveryDate: '2019-08-21T05:00:00Z',
+      trackingEvents: [
+        {
+          id: 'TE014',
+          parcelId: '#RHCAG11',
+          type: 'PICKED_UP',
+          status: 'Picked up',
+          location: 'Eldoret Depot',
+          coordinates: { lat: 0.5143, lng: 35.2698 },
+          timestamp: '2019-08-20T08:00:00Z',
+          description: 'Package picked up from sender',
+          automated: true
+        },
+        {
+          id: 'TE015',
+          parcelId: '#RHCAG11',
+          type: 'LOCATION_UPDATE',
+          status: 'In transit',
+          location: 'Nakuru',
+          coordinates: { lat: -0.3887, lng: 36.0455 },
+          timestamp: '2019-08-20T16:00:00Z',
+          description: 'Package in transit to destination',
+          automated: true
+        }
+      ],
+      price: 2200,
+      notificationsSent: {
+        customerPickup: true,
+        customerDelivery: false,
+        recipientDelivery: false,
+        driverAssignment: true
+      },
+      weight: 2.8,
+      weightCategory: 'MEDIUM'
     }
   ];
+
+
 
   constructor(private googleMapsService: GoogleMapsService) {}
 

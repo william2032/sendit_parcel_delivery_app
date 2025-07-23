@@ -10,6 +10,7 @@ import {DeliveryLayoutComponent} from './features/admin/layouts/delivery/deliver
 import {PhoneVerifyLayoutComponent} from './features/auth/layouts/phone-verify/phone-verify-layout.component';
 import {AuthComponent} from './features/auth/auth.component';
 import {SupportComponent} from './shared/components/support/support.component';
+import {DriverComponent} from './features/driver/driver.component';
 
 export const routes: Routes = [
   {
@@ -18,11 +19,15 @@ export const routes: Routes = [
       {path: 'account-settings', component: AccountComponent},
     ]
   },
+
   {path: 'home/track-order', component: TrackOrderComponent},
   {path: 'home/customer-support', component: SupportComponent},
 
+
   //otp verification
   {path: 'auth/verify-phone', component: PhoneVerifyLayoutComponent},
+  //drivers
+  {path: 'auth/dashboard-driver', component:DriverComponent},
 
   {
     path: 'auth/admin',
@@ -34,7 +39,6 @@ export const routes: Routes = [
       {path: 'orders', component: OrdersLayoutComponent},
       {path: 'make-delivery', component: DeliveryLayoutComponent},
       {path: 'account-settings', component: AccountComponent},
-
     ]
   },
 
