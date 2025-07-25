@@ -188,7 +188,7 @@ model Parcel {
 
   // Pricing
   quote    Float
-  currency String @default("USD")
+  currency String @default("KES")
 
   // Soft Delete
   isActive  Boolean   @default(true)
