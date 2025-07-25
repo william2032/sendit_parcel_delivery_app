@@ -6,7 +6,7 @@ export class GeocodingService {
     private readonly logger = new Logger(GeocodingService.name);
 
     constructor(@Inject('OPENCAGE_CONFIG') private config: { apiKey: string }) {
-        this.logger.log(`OpenCage API Key: ${this.config.apiKey}`);
+        // this.logger.log(`OpenCage API Key: ${this.config.apiKey}`);
     }
 
     async geocodeAddress(address: string): Promise<GeocodeResponseDto> {

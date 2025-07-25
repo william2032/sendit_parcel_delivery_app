@@ -7,9 +7,11 @@ import { AuthModule } from './auth/auth.module';
 import { AppMailerModule } from './mailer/mailer.module';
 import { ParcelsModule } from './parcels/parcels.module';
 import { LocationModule } from './location/location.module';
+import { DriversModule } from './drivers/drivers.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, AppMailerModule, ParcelsModule, LocationModule ],
+  imports: [PrismaModule, UsersModule, AuthModule, AppMailerModule, ParcelsModule, LocationModule, DriversModule, AdminModule ],
   controllers: [AppController],
   providers: [AppService],
 })

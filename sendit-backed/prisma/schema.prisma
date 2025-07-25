@@ -29,6 +29,7 @@ enum ParcelStatus {
   DELIVERED
   COMPLETED
   CANCELLED
+  ARRIVED_AT_DESTINATION
 }
 
 enum WeightCategory {
@@ -50,6 +51,7 @@ enum TrackingEventType {
   COMPLETED
   CANCELLED
   EXCEPTION
+  ARRIVED_AT_DESTINATION
 }
 
 model User {

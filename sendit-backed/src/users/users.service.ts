@@ -209,7 +209,7 @@ export class UsersService implements IuserService {
         });
 
         // Here you would typically send an email with the reset token
-        // await this.emailService.sendPasswordResetEmail(user.email, resetToken);
+        // await this.mailerService.sendPasswordResetEmail(user.email, resetToken);
     }
 
     // Helper methods

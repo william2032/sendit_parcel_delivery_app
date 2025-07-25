@@ -59,6 +59,26 @@ export class ParcelsController {
     async findOne(@Param('id') id: string): Promise<ParcelI> {
         return this.parcelService.findOne(id);
     }
+    @Get('sent/:userId')
+    @ApiOperation({ summary: 'Get parcels sent by a specific user' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Sent parcels retrieved successfully' })
+    async getSentParcels(
+        @Param('userId') userId: string,
+        @Query() query: ParcelQueryDto
+    ): Promise<PaginatedResponse<ParcelI>> {
+        return this.parcelService.findAll({ ...query, senderId: userId });
+    }
+
+    @Get('received/:userId')
+    @ApiOperation({ summary: 'Get parcels received by a specific user' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Received parcels retrieved successfully' })
+    async getReceivedParcels(
+        @Param('userId') userId: string,
+        @Query() query: ParcelQueryDto
+    ): Promise<PaginatedResponse<ParcelI>> {
+        return this.parcelService.findAll({ ...query, receiverId: userId });
+    }
+
 
     @Patch(':id')
     @ApiOperation({ summary: 'Update parcel' })

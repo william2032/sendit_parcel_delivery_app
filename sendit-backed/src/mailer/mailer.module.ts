@@ -19,7 +19,7 @@ import { MailerService } from './mailer.service';
         },
       },
       defaults: {
-        from: '"SafariRentalsCustomer Service" <noreply@senditcustomerservice.com>',
+        from: '"SendItCourier Customer Service" <noreply@senditcustomerservice.com>',
       },
       template: {
         dir: join(process.cwd(), 'src', 'mailer', 'templates'),
