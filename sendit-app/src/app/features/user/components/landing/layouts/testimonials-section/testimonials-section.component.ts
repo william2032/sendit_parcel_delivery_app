@@ -22,29 +22,30 @@ export class TestimonialsSectionComponent {
   testimonials: Testimonial[] = [
     {
       id: 1,
-      name: 'Jane Martin',
-      company: 'Acceleration Company',
+      name: 'Joy  Mwende',
+      company: 'Mama Mboga Supplies',
       avatar: 'https://vectorwiz.com/wp-content/uploads/2023/06/Advertising.webp',
-      quote: 'Leverage agile frameworks to provide a robust synopsis for strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.',
+      quote: 'SendIT has made it so easy for me to deliver fresh produce to my customers across Nairobi. Their service is reliable and the pricing is perfect for small businesses like mine.',
       rating: 5
     },
     {
       id: 2,
-      name: 'Kathleen Smith',
-      company: 'Fuel Company',
+      name: 'Kathleen Njeri',
+      company: 'Kenya Printworks',
       avatar: 'https://vectorwiz.com/wp-content/uploads/2023/06/Professional-Photoshop-Image-Masking-Services-in-24-Hrs.webp',
-      quote: 'Leverage agile frameworks to provide a robust synopsis for strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.',
+      quote: 'We use SendIT daily to send printed materials to clients across Kenya. Their real-time tracking and fast deliveries have transformed our operations.',
       rating: 5
     },
     {
       id: 3,
-      name: 'John Martin',
-      company: 'Acceleration Company',
+      name: 'Max Matei',
+      company: 'Ecom Express Kenya',
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      quote: 'Leverage agile frameworks to provide a robust synopsis for strategy foster collaborative thinking to further the overall value proposition. Organically grow the holistic world view of disruptive innovation via workplace diversity and empowerment.',
+      quote: 'From Mombasa to Kisumu, SendIT has never let us down. We’ve tried other couriers, but none match their speed, communication, and pricing.',
       rating: 5
     }
   ];
+
 
   getStars(rating: number): number[] {
     return Array(rating).fill(0);

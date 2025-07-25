@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {CommonModule} from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-hero-section',
@@ -8,15 +9,18 @@ import {CommonModule} from '@angular/common';
   styleUrl: './hero-section.component.scss'
 })
 export class HeroSectionComponent {
+  constructor(
+    private router: Router,
+  ) {}
   onJoinUs(): void {
     // Handle join us button click
-    console.log('Join us clicked');
-    // Add your navigation logic here
+    this.router.navigate(['/register']);
+
   }
 
   onLogin(): void {
     // Handle login button click
-    console.log('Login clicked');
-    // Add your navigation logic here
+    this.router.navigate(['/login']);
+
   }
 }

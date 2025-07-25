@@ -1,0 +1,32 @@
+### Create a new location
+POST http://localhost:3000/locations
+Content-Type: application/json
+
+{
+  "name": "Nairobi Central Office",
+  "address": "Kenyatta Avenue, Nairobi, Kenya"
+}
+
+### Get all locations (with optional pagination & search)
+GET http://localhost:3000/locations?page=1&limit=10&search=Nairobi
+
+### Geocode an address
+GET http://localhost:3000/locations/geocode?address=Kenyatta Avenue, Nairobi, Kenya
+
+### Find nearby locations
+GET http://localhost:3000/locations/nearby?latitude=-1.2921&longitude=36.8219&radius=10
+
+### Get a location by ID
+GET http://localhost:3000/locations/{{locationId}}
+
+### Update a location
+PUT http://localhost:3000/locations/{{locationId}}
+Content-Type: application/json
+
+{
+  "name": "Updated Nairobi Office",
+  "address": "Moi Avenue, Nairobi, Kenya"
+}
+
+### Delete a location
+DELETE http://localhost:3000/locations/{{locationId}}

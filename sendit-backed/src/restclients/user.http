@@ -1,0 +1,58 @@
+### Base setup
+@BASE_URL = http://localhost:3000
+@TOKEN = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRnYTNod2swMDAwdGJzczBkM3N2czJnIiwiZW1haWwiOiJsdWtlYmV0aWthQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1MzMwOTQ4MSwiZXhwIjoxNzUzMzEzMDgxfQ.NN3BohaesxO-P9Ir4PXb0mjaefnwrnlVK6fcnlYyo0M
+@USER_ID = cmdga3hwk0000tbss0d3svs2g
+
+### Create a new user (Admin only)
+POST {{BASE_URL}}/users
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "StrongPassword123",
+  "name": "Test User",
+  "phone": "+254712345678",
+  "role": "CUSTOMER",
+  "city": "Nairobi",
+  "country": "Kenya"
+}
+
+###
+
+### Get all users (Admin only)
+GET {{BASE_URL}}/users?limit=10&offset=0
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Get a specific user by ID
+GET {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Update a user
+PATCH {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "profileImage": "https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png"
+}
+
+###
+
+### Delete a user (soft delete, Admin only)
+DELETE {{BASE_URL}}/users/{{USER_ID}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### Request password reset
+POST {{BASE_URL}}/users/reset-password
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com"
+}

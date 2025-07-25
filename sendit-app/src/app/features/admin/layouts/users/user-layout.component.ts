@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {CommonModule, NgForOf} from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {User} from '../../../../shared/models/users.interface';
+import {UserI} from '../../../../shared/models/users.interface';
 
 @Component({
   selector: 'app-users',
@@ -15,74 +15,82 @@ export class UserLayoutComponent implements OnInit {
   totalPages = 1;
   totalEntries = 0;
 
-  users: User[] = [
+  users: UserI[] = [
     {
-      id: 1,
+      id: '1',
       name: 'Robert Fox',
+      phone: '+254712345678',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 2,
+      id: '2',
       name: 'Robert Fox',
+      phone: '+254723456789',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 3,
+      id: '3',
       name: 'Robert Fox',
+      phone: '+254734567890',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 4,
+      id: '4',
       name: 'Talobi Manna',
+      phone: '+254745678901',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 5,
+      id: '5',
       name: 'Brooklyn Simmons',
+      phone: '+254756789012',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 6,
+      id: '6',
       name: 'Devon Lane',
+      phone: '+254767890123',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 7,
+      id: '7',
       name: 'Devon Lane',
+      phone: '+254778901234',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Active',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     },
     {
-      id: 8,
+      id: '8',
       name: 'Devon Lane',
+      phone: '+254789012345',
       email: 'debbie.baker@example.com',
       joinedDate: '23 Jul 2025',
       status: 'Inactive',
-      avatar: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
+      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
     }
   ];
 
-  filteredUsers: User[] = [];
+  filteredUsers: UserI[] = [];
 
   ngOnInit() {
     this.filterUsers();

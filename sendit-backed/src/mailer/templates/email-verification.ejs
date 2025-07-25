@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Your SendItCourier Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .otp {
+            font-size: 24px;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            background-color: #28a745;
+            color: #fff;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            font-size: 12px;
+            color: #888;
+            margin-top: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Verify Your Email, <%= name %>!</h2>
+
+    <p>Thank you for registering with <strong><%= appName %></strong>. To complete your email verification, please use the following One-Time Password (OTP):</p>
+
+    <div class="otp">
+        <%= otp %>
+    </div>
+
+    <p>This OTP is valid for <strong><%= expiresIn %> minutes</strong>. Please enter it in the verification form on our platform to activate your account.</p>
+
+    <div style="text-align: center;">
+        <a href="#" class="button">Go to Verification</a>
+    </div>
+
+    <p>If you didn’t request this OTP or need assistance, please contact our support team.</p>
+
+    <p>Welcome aboard,<br />
+        The <%= appName %> Team</p>
+</div>
+
+<div class="footer">
+    © <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.
+</div>
+</body>
+</html>

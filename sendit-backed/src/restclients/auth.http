@@ -1,0 +1,153 @@
+### Auth API Testing
+### Base URL - Update this to your actual server URL
+@baseUrl = http://localhost:3000
+@apiPrefix = /auth
+
+### Variables for testing (update these with actual values)
+@testEmail = lukebetika@gmail.com
+@testPassword = password456
+@testName = John Doe
+@testPhone = +254798666512
+@testCity = Chuka
+@testCountry = Kenya
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRnYTNod2swMDAwdGJzczBkM3N2czJnIiwiZW1haWwiOiJsdWtlYmV0aWthQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1MzI5NDIwNCwiZXhwIjoxNzUzMjk3ODA0fQ.dSlJESz-MPNkwo1VqxFcqAbSeX5ynB7yVwhKHN_QCWU
+@emailVerificationToken = 289895
+@phoneOtp = 123456
+
+###
+# 1. REGISTER USER
+
+###
+# 2. REGISTER USER (without email verification)
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Luke",
+  "email": "lukebetika@gmail.com",
+  "password": "password456",
+  "phone": "+254987654321",
+  "city": "Chuka",
+  "profileImage": "https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png",
+  "country": "Kenya"
+}
+
+###
+# 3. REGISTER USER (missing phone - should fail)
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Invalid User",
+  "email": "invalid@example.com",
+  "password": "password789"
+}
+
+###
+# 4. LOGIN USER (should fail - phone not verified)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+###
+# 5. VERIFY EMAIL
+POST {{baseUrl}}{{apiPrefix}}/verify-email?token={{emailVerificationToken}}
+Authorization: Bearer {{token}}
+
+###
+# 6. VERIFY PHONE (required for login)
+POST {{baseUrl}}{{apiPrefix}}/verify-phone
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "otp": "{{phoneOtp}}"
+}
+
+###
+# 7. RESEND PHONE OTP
+POST {{baseUrl}}{{apiPrefix}}/resend-email-otp
+Authorization: Bearer {{token}}
+
+###
+# 8. LOGIN USER (after phone verification)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "{{testPassword}}"
+}
+
+###
+# 9. LOGIN USER (invalid credentials)
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}",
+  "password": "wrongpassword"
+}
+
+###
+# 10. GET USER PROFILE
+GET {{baseUrl}}{{apiPrefix}}/profile
+Authorization: Bearer {{token}}
+
+###
+# 11. REFRESH TOKEN
+POST {{baseUrl}}{{apiPrefix}}/refresh-token
+Authorization: Bearer {{token}}
+
+###
+# 12. FORGOT PASSWORD
+POST {{baseUrl}}{{apiPrefix}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{testEmail}}"
+}
+
+###
+# 13. FORGOT PASSWORD (non-existent email)
+POST {{baseUrl}}{{apiPrefix}}/forgot-password
+Content-Type: application/json
+
+{
+  "email": "nonexistent@example.com"
+}
+
+### ================================
+### TESTING SCENARIOS
+### ================================
+
+##
+
+###
+# SCENARIO 3: Test Duplicate Phone
+POST {{baseUrl}}{{apiPrefix}}/register
+Content-Type: application/json
+
+{
+  "name": "Duplicate Phone",
+  "email": "uniqueemail@example.com",
+  "password": "password123",
+  "phone": "{{testPhone}}",
+  "city": "Seattle",
+  "country": "USA"
+}
+
+###
+# SCENARIO 4: Test Invalid OTP
+POST {{baseUrl}}{{apiPrefix}}/verify-phone
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "otp": "000000"
+}
+

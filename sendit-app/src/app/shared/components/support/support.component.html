@@ -1,0 +1,185 @@
+<app-header></app-header>
+<div class="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative overflow-hidden">
+  <!-- Background Pattern -->
+  <div class="absolute inset-0 opacity-10">
+    <svg class="w-full h-full" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
+          <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" stroke-width="0.5"/>
+        </pattern>
+      </defs>
+      <rect width="100" height="100" fill="url(#grid)" />
+    </svg>
+  </div>
+
+  <!-- Main Content -->
+  <div class="relative z-10 pt-16 pb-8">
+    <!-- Header Section -->
+    <div class="text-center mb-12">
+      <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-8 font-gilroy">
+        How can we help?
+      </h1>
+
+      <!-- Search Bar -->
+      <div class="max-w-2xl mx-auto px-4">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            class="w-full pl-12 pr-4 py-4 bg-white rounded-full shadow-lg border-0 focus:ring-2 focus:ring-blue-300 focus:outline-none text-gray-700 placeholder-gray-500 font-gilroy font-medium"
+            placeholder="Search Order Number Or Customer Name"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Cards Grid -->
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Customer Lookup -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-blue-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Customer Lookup</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Search and view customer profiles, delivery history, and track all parcel shipments across different destinations.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                Look up customer
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Logs -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-green-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Audit Logs</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Monitor all courier activities, parcel movements, delivery status updates, and weight category changes.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                View audit logs
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manage Users -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-purple-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Manage Users</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Add, update, and manage customer accounts, courier staff profiles, and user permissions for the SendIT platform.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                Add & update users
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Open Issues -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-red-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Open Issues</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Track and resolve delivery issues, damaged parcels, missing shipments, and customer complaints related to courier services.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                View open issues
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support Docs -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-yellow-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Support Docs</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Access documentation on courier quotes, weight categories, delivery procedures, and SendIT service guidelines.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                View support docs
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Manage Companies -->
+        <div class="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+          <div class="flex items-start mb-6">
+            <div class="bg-indigo-100 p-3 rounded-xl mr-4">
+              <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-gray-900 mb-3 font-gilroy">Manage Companies</h3>
+              <p class="text-gray-600 font-gilroy font-medium mb-4">
+                Manage corporate accounts, bulk shipping contracts, business delivery preferences, and enterprise courier services.
+              </p>
+              <button class="text-blue-600 font-semibold hover:text-blue-700 transition-colors duration-200 font-gilroy flex items-center">
+                View companies
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>

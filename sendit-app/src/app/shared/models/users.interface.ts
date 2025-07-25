@@ -1,10 +1,11 @@
-export  interface User {
-  id: number;
+export  interface UserI {
+  id: string;
   name: string;
+  phone: string;
   email: string;
   joinedDate: string;
   status: 'Active' | 'Inactive';
-  avatar?: string;
+  profileImage?: string;
 }
 
 export interface Customer {
