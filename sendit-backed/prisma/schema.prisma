@@ -213,12 +213,13 @@ model TrackingEvent {
   type        TrackingEventType
   status      ParcelStatus
   description String
+  notes       String?
 
   // Location where event occurred
   locationId String?
   location   Location? @relation(fields: [locationId], references: [id])
-
-  timestamp DateTime @default(now())
+  automated  Boolean   @default(true)
+  timestamp  DateTime  @default(now())
 
   // Driver who updated the status
   updatedBy String?

@@ -62,7 +62,6 @@ export interface Parcel {
 
   weight: number;
   weightCategory: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
-
 }
 
 export interface TrackingEvent {
@@ -79,7 +78,7 @@ export interface TrackingEvent {
   description: string;
   notes?: string;
   driverId?: string;
-  automated: boolean; // Whether this was an automated update or manual
+  automated: boolean;
 }
 
 export interface DeliveryOrder {
