@@ -130,7 +130,7 @@ export class MailerService {
         try {
             await this.mailerService.sendMail({
                 to,
-                subject: `📦 Your SendIt Parcel ${trackingNumber} Has Been Delivered!`,
+                subject: ` Your SendIt Parcel ${trackingNumber} Has Been Delivered!`,
                 template: 'parcel-delivered',
                 context: {
                     name,
@@ -303,6 +303,5 @@ export class MailerService {
             throw error;
         }
     }
-
 
 }

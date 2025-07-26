@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parcel Picked Up</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #8b5cf6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .pickup-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #8b5cf6;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .pickup-icon::after {
+            content: '📦';
+            font-size: 28px;
+        }
+        h1 {
+            color: #1a202c;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .tracking-number {
+            background-color: #faf5ff;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #8b5cf6;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .pickup-details {
+            background-color: #faf5ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #d8b4fe;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 140px;
+        }
+        .detail-value {
+            color: #2d3748;
+            text-align: right;
+            max-width: 60%;
+        }
+        .status-badge {
+            background-color: #d1fae5;
+            color: #047857;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .driver-info {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .driver-info h3 {
+            margin-top: 0;
+            color: #1e40af;
+        }
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 25px 0;
+            padding: 20px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+        }
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 60%;
+            width: 80%;
+            height: 2px;
+            background-color: #e2e8f0;
+        }
+        .progress-step:last-child::after {
+            display: none;
+        }
+        .progress-step.completed::after {
+            background-color: #10b981;
+        }
+        .step-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .step-circle.completed {
+            background-color: #10b981;
+            color: white;
+        }
+        .step-circle.current {
+            background-color: #8b5cf6;
+            color: white;
+        }
+        .step-label {
+            font-size: 11px;
+            text-align: center;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #ffffff;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+        .footer {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .support-info {
+            background-color: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #f6ad55;
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 25px; }
+            .detail-row { flex-direction: column; }
+            .detail-value { text-align: left; margin-top: 5px; }
+            .detail-label { min-width: auto; }
+            .progress-indicator { flex-direction: column; gap: 15px; }
+            .progress-step::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="pickup-icon"></div>
+        <h1>Package Picked Up!</h1>
+    </div>
+
+    <p>Hi <%= name %>,</p>
+
+    <p>Great news! Your package has been picked up and is now on its way to the destination. 📦🚚</p>
+
+    <div class="tracking-number">
+        Tracking Number: <%= trackingNumber %>
+    </div>
+
+    <div class="pickup-details">
+        <div class="detail-row">
+            <span class="detail-label">Pickup Location:</span>
+            <span class="detail-value"><%= pickupLocation %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Pickup Time:</span>
+            <span class="detail-value"><%= pickupTime %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value"><span class="status-badge">● In Transit</span></span>
+        </div>
+    </div>
+
+    <% if (driverName && driverPhone) { %>
+        <div class="driver-info">
+            <h3>🚚 Your Driver</h3>
+            <p><strong>Driver:</strong> <%= driverName %></p>
+            <p><strong>Contact:</strong> <a href="tel:<%= driverPhone %>" style="color: #1e40af;"><%= driverPhone %></a></p>
+        </div>
+    <% } %>
+
+    <div class="progress-indicator">
+        <div class="progress-step completed">
+            <div class="step-circle completed">✓</div>
+            <div class="step-label">Order Placed</div>
+        </div>
+        <div class="progress-step completed">
+            <div class="step-circle completed">✓</div>
+            <div class="step-label">Picked Up</div>
+        </div>
+        <div class="progress-step">
+            <div class="step-circle current">●</div>
+            <div class="step-label">In Transit</div>
+        </div>
+        <div class="progress-step">
+            <div class="step-circle">4</div>
+            <div class="step-label">Delivered</div>
+        </div>
+    </div>
+
+    <p>Your package is now in safe hands and on its way to the delivery address. We'll keep you updated with real-time tracking information as it progresses.</p>
+
+    <div style="text-align: center;">
+        <a href="<%= trackingUrl %>" class="button">Track Your Package</a>
+    </div>
+
+    <p>Thank you for choosing <%= appName %>. We're committed to delivering your package safely and on time!</p>
+
+    <div class="support-info">
+        <strong>Need Help?</strong><br>
+        If you have any questions about your shipment, contact our support team at
+        <a href="mailto:<%= supportEmail %>" style="color: #d69e2e;"><%= supportEmail %></a>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.<br>
+    This email was sent regarding tracking number <%= trackingNumber %>
+</div>
+</body>
+</html>

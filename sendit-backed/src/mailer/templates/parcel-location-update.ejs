@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Package Location Update</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #3182ce;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .location-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #3182ce;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .location-icon::after {
+            content: '📍';
+            font-size: 28px;
+        }
+        h1 {
+            color: #1a202c;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .tracking-number {
+            background-color: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3182ce;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .location-update {
+            background-color: #ebf8ff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #bee3f8;
+            position: relative;
+        }
+        .location-update::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: -8px;
+            width: 16px;
+            height: 16px;
+            background-color: #3182ce;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+        }
+        .current-location {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2b6cb0;
+            margin-bottom: 10px;
+        }
+        .update-time {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .estimated-arrival {
+            background-color: #f0fff4;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #48bb78;
+            margin-top: 15px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3182ce, #63b3ed);
+            width: 65%;
+            border-radius: 4px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3182ce, #2c5aa0);
+            color: #ffffff;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(49, 130, 206, 0.3);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4);
+        }
+        .footer {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .support-info {
+            background-color: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #f6ad55;
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="location-icon"></div>
+        <h1>Package on the Move!</h1>
+    </div>
+
+    <p>Hi <%= name %>,</p>
+
+    <p>Your package is making progress! Here's the latest location update for your shipment. </p>
+
+    <div class="tracking-number">
+        Tracking Number: <%= trackingNumber %>
+    </div>
+
+    <div class="location-update">
+        <div class="current-location">
+             Current Location: <%= location %>
+        </div>
+        <div class="update-time">
+            Last Updated: <%= updateTime %>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+
+        <% if (estimatedArrival) { %>
+            <div class="estimated-arrival">
+                <strong>🕒 Estimated Arrival:</strong> <%= estimatedArrival %>
+            </div>
+        <% } %>
+    </div>
+
+    <p>Your package is on its way and we'll continue to keep you updated with real-time location information as it moves closer to its destination.</p>
+
+    <div style="text-align: center;">
+        <a href="<%= trackingUrl %>" class="button">Track Your Package</a>
+    </div>
+
+    <p>Thank you for choosing <%= appName %>. We're committed to keeping you informed every step of the way!</p>
+
+    <div class="support-info">
+        <strong>Questions?</strong><br>
+        Contact our support team at <a href="mailto:<%= supportEmail %>" style="color: #d69e2e;"><%= supportEmail %></a> if you need assistance.
+    </div>
+</div>
+
+<div class="footer">
+    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.<br>
+    This email was sent regarding tracking number <%= trackingNumber %>
+</div>
+</body>
+</html>

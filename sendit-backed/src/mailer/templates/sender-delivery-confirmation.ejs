@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delivery Confirmation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #059669;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #059669, #10b981);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.3);
+        }
+        .success-icon::after {
+            content: '✅';
+            font-size: 36px;
+        }
+        h1 {
+            color: #1a202c;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .completion-badge {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #047857;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 15px 0;
+            display: inline-block;
+            border: 2px solid #10b981;
+        }
+        .tracking-number {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #059669;
+            margin: 25px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.1);
+        }
+        .delivery-summary {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border: 1px solid #bbf7d0;
+            position: relative;
+        }
+        .delivery-summary::before {
+            content: '🎉';
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 24px;
+            background-color: white;
+            padding: 5px;
+            border-radius: 50%;
+        }
+        .summary-title {
+            color: #047857;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #bbf7d0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #065f46;
+            min-width: 140px;
+        }
+        .detail-value {
+            color: #047857;
+            text-align: right;
+            max-width: 60%;
+            font-weight: 500;
+        }
+        .recipient-highlight {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .delivery-timeline {
+            background-color: #f8fafc;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #6b7280;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #10b981;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 3px solid #ffffff;
+            box-shadow: 0 0 0 2px #10b981;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-status {
+            font-weight: 600;
+            color: #047857;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #6b7280;
+        }
+        .celebration-section {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            border-radius: 12px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .celebration-section::before {
+            content: '🎊🎉🎊';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+        }
+        .celebration-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #92400e;
+            margin-top: 20px;
+        }
+        .rating-section {
+            background-color: #fef7ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            border-left: 4px solid #a855f7;
+            text-align: center;
+        }
+        .rating-section h3 {
+            color: #7c2d12;
+            margin-top: 0;
+        }
+        .stars {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: #ffffff;
+            padding: 16px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 10px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            font-size: 16px;
+        }
+        .button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4);
+        }
+        .button.secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+        .button.secondary:hover {
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.4);
+        }
+        .footer {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .support-info {
+            background-color: #f0f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #3182ce;
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 25px; }
+            .detail-row { flex-direction: column; }
+            .detail-value { text-align: left; margin-top: 5px; }
+            .detail-label { min-width: auto; }
+            .button { display: block; margin: 10px 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="success-icon"></div>
+        <h1>Mission Accomplished!</h1>
+        <div class="completion-badge">✨ Delivery Complete ✨</div>
+    </div>
+
+    <p>Hi <%= senderName %>,</p>
+
+    <div class="celebration-section">
+        <div class="celebration-text">
+            Your package has been successfully delivered! 🎉
+        </div>
+    </div>
+
+    <div class="tracking-number">
+        Tracking Number: <%= trackingNumber %>
+    </div>
+
+    <div class="delivery-summary">
+        <div class="summary-title">📋 Delivery Summary</div>
+        <div class="detail-row">
+            <span class="detail-label">Delivered To:</span>
+            <span class="detail-value"><span class="recipient-highlight"><%= receiverName %></span></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Delivery Address:</span>
+            <span class="detail-value"><%= deliveryAddress %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Delivery Time:</span>
+            <span class="detail-value"><%= deliveryTime %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Final Status:</span>
+            <span class="detail-value" style="color: #059669; font-weight: 700;">✅ Successfully Delivered</span>
+        </div>
+    </div>
+
+    <div class="delivery-timeline">
+        <h3 style="margin-top: 0; color: #374151;">📈 Journey Complete</h3>
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <div class="timeline-status">Package Shipped</div>
+                <div class="timeline-time">From your location</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <div class="timeline-status">In Transit</div>
+                <div class="timeline-time">En route to destination</div>
+            </div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+                <div class="timeline-status">Successfully Delivered</div>
+                <div class="timeline-time">Received by <%= receiverName %></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rating-section">
+        <h3>🌟 How was your experience?</h3>
+        <p>We'd love to hear about your shipping experience with us!</p>
+        <div class="stars">⭐⭐⭐⭐⭐</div>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="<%= trackingUrl %>" class="button">View Complete Journey</a>
+        <a href="#" class="button secondary">Ship Another Package</a>
+    </div>
+
+    <p>Thank you for choosing <%= appName %> for your shipping needs. Your trust in our service means everything to us, and we look forward to serving you again!</p>
+
+    <div class="support-info">
+        <strong>We're Here to Help!</strong><br>
+        Have feedback or need assistance with future shipments? Contact us at
+        <a href="mailto:<%= supportEmail %>" style="color: #3182ce;"><%= supportEmail %></a>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.<br>
+    Delivery confirmation for tracking number <%= trackingNumber %>
+</div>
+</body>
+</html>

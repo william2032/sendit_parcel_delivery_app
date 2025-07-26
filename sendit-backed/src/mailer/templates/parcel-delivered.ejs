@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parcel Delivered Successfully</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8fafc;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid #10b981;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .success-icon::after {
+            content: '✓';
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        h1 {
+            color: #1a202c;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .tracking-number {
+            background-color: #f7fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3182ce;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .delivery-details {
+            background-color: #f0fff4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #c6f6d5;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        .detail-value {
+            color: #2d3748;
+            text-align: right;
+            max-width: 60%;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #3182ce, #2c5aa0);
+            color: #ffffff;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 25px 0;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(49, 130, 206, 0.3);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(49, 130, 206, 0.4);
+        }
+        .footer {
+            font-size: 14px;
+            color: #718096;
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+        .support-info {
+            background-color: #fef5e7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 25px;
+            border-left: 4px solid #f6ad55;
+        }
+        @media (max-width: 480px) {
+            body { padding: 10px; }
+            .container { padding: 25px; }
+            .detail-row { flex-direction: column; }
+            .detail-value { text-align: left; margin-top: 5px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="success-icon"></div>
+        <h1>Package Delivered!</h1>
+    </div>
+
+    <p>Hi <%= name %>,</p>
+
+    <p>Great news! Your package has been successfully delivered. 📦✅</p>
+
+    <div class="tracking-number">
+        Tracking Number: <%= trackingNumber %>
+    </div>
+
+    <div class="delivery-details">
+        <div class="detail-row">
+            <span class="detail-label">Delivery Address:</span>
+            <span class="detail-value"><%= address %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Delivery Time:</span>
+            <span class="detail-value"><%= deliveryTime %></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value" style="color: #10b981; font-weight: 600;">✓ Delivered</span>
+        </div>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="<%= trackingUrl %>" class="button">View Delivery Details</a>
+    </div>
+
+    <p>Thank you for choosing <%= appName %> for your shipping needs. We hope to serve you again soon!</p>
+
+    <div class="support-info">
+        <strong>Need Help?</strong><br>
+        If you have any questions about your delivery, please contact our support team at
+        <a href="mailto:<%= supportEmail %>" style="color: #d69e2e;"><%= supportEmail %></a>
+    </div>
+</div>
+
+<div class="footer">
+    &copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.<br>
+    This email was sent regarding tracking number <%= trackingNumber %>
+</div>
+</body>
+</html>
