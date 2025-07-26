@@ -10,7 +10,7 @@ export class AdminGuard implements CanActivate {
 
   canActivate(): boolean {
     const user = this.authService.getCurrentUser();
-    if (user && user.role.toUpperCase() === 'ADMIN') {
+    if (user && user?.role?.toUpperCase() === 'ADMIN') {
       return true;
     }
     this.router.navigate(['login']);

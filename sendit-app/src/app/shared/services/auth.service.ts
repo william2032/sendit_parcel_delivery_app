@@ -18,6 +18,8 @@ export class AuthService {
   private readonly API_URL = environment.apiUrl;
   private userSubject = new BehaviorSubject<User | null>(null);
   private logoutSubject = new Subject<void>();
+  private accessToken: string | null = null;
+  private userId: string | null = null;
 
   private httpOptions = {
     headers: new HttpHeaders({
@@ -31,6 +33,20 @@ export class AuthService {
     this.loadUserFromStorage();
   }
 
+  // Store tokens after registration
+  setAuthData(accessToken: string, userId: string): void {
+    this.accessToken = accessToken;
+    this.userId = userId;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('userId', userId);
+  }
+
+  clearAuthData(): void {
+    this.accessToken = null;
+    this.userId = null;
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userId');
+  }
   get logout$(): Observable<void> {
     return this.logoutSubject.asObservable();
   }
@@ -68,7 +84,6 @@ export class AuthService {
   register(userData: RegisterRequest): Observable<AuthResponse> {
     const fixedUserData = {
       ...userData,
-      role: userData.role?.toUpperCase() || 'CUSTOMER'
     };
     return this.http.post<AuthResponse>(`${this.API_URL}/auth/register`, fixedUserData, this.httpOptions)
       .pipe(
@@ -153,6 +168,28 @@ export class AuthService {
         this.userSubject.next(user);
       }
     }
+  }
+
+  // New OTP verification method
+  verifyOtp(otp: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.accessToken || localStorage.getItem('accessToken')}`
+    });
+    const body = {
+      userId: this.userId || localStorage.getItem('userId'),
+      otp
+    };
+    return this.http.post(`${this.API_URL}/auth/verify-email`, body, { headers });
+  }
+
+  resendOtp(): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.accessToken || localStorage.getItem('accessToken')}`
+    });
+    const body = {
+      userId: this.userId || localStorage.getItem('userId')
+    };
+    return this.http.post(`${this.API_URL}/auth/resend-otp`, body, { headers });
   }
 
   private handleError(error: any): Observable<never> {

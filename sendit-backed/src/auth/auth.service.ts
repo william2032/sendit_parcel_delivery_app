@@ -225,7 +225,7 @@ export class AuthService implements IAuthService {
         return this.mapToUserResponse(user);
     }
 
-    async verifyEmail(otp: string, email?: string): Promise<{ success: boolean; message: string }> {
+    async verifyEmail(otp: string, email?: string, userId?: string): Promise<{ success: boolean; message: string }> {
         try {
             console.log('Verifying email with OTP:', otp, 'and email:', email); // Debug log
 

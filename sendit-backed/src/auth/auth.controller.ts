@@ -138,15 +138,14 @@ export class AuthController {
         description: 'Invalid or expired OTP',
     })
     async verifyEmail(
-        @Query('token') otp: string,
+        @Body() body: { userId: string, otp: string },
         @Req() req: AuthenticatedRequest,
     ): Promise<{
         success: boolean;
         message: string;
     }> {
         const email = req.user?.email;
-
-        return this.authService.verifyEmail(otp, email);
+        return this.authService.verifyEmail(body.otp, email, body.userId);
     }
 
 

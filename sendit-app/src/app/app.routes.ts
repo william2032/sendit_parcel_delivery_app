@@ -11,6 +11,7 @@ import {PhoneVerifyLayoutComponent} from './features/auth/layouts/phone-verify/p
 import {AuthComponent} from './features/auth/auth.component';
 import {SupportComponent} from './shared/components/support/support.component';
 import {DriverComponent} from './features/driver/driver.component';
+import {VerifyEmailComponent} from './shared/components/verify-email/verify-email.component';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
 
   //otp verification
   {path: 'auth/verify-phone', component: PhoneVerifyLayoutComponent},
+
   //drivers
   {path: 'auth/dashboard-driver', component:DriverComponent},
 

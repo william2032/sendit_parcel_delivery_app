@@ -3,7 +3,7 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
-  role: 'ADMIN' | 'CUSTOMER' | 'DRIVER';
+  role?: 'ADMIN' | 'CUSTOMER' | 'DRIVER';
   city?: string;
   country?: string;
   isActive: boolean;
@@ -23,7 +23,6 @@ export interface RegisterRequest {
   password: string;
   name: string;
   phone?: string;
-  role?: string;
   city?: string;
   country?: string;
 }

@@ -7,6 +7,7 @@ import {takeUntil} from 'rxjs/operators';
 import {NgForOf, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 import {LoginRequest,ForgotPasswordRequest, RegisterRequest, ResetPasswordRequest} from '../../shared/models/user.models';
 import {AuthService} from '../../shared/services/auth.service';
+import {VerifyEmailComponent} from '../../shared/components/verify-email/verify-email.component';
 
 
 @Component({
@@ -19,15 +20,19 @@ import {AuthService} from '../../shared/services/auth.service';
     NgIf,
     FormsModule,
     ReactiveFormsModule,
-    NgForOf
+    VerifyEmailComponent
   ],
   styleUrls: ['./auth.component.scss']
 })
 export class AuthComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  private modalCloseCount = 0;
+  private maxModalAttempts = 3;
+  private modalReopenTimeout: any;
 
   // Form modes
   currentMode: string | null = 'login';
+  userEmail = '';
 
   // Forms
   loginForm!: FormGroup;
@@ -41,15 +46,7 @@ export class AuthComponent implements OnInit, OnDestroy {
   showConfirmPassword = false;
   errorMessage = '';
   successMessage = '';
-
-  cities: string[] = [
-    'Nairobi',
-    'Chuka',
-    'Mombasa',
-    'Kisumu',
-    'Makueni',
-    'Nakuru',
-  ];
+  showOtpModal = false;
 
   constructor(
     private fb: FormBuilder,
@@ -90,6 +87,8 @@ export class AuthComponent implements OnInit, OnDestroy {
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
       phone: [''],
+      city: ['', [Validators.required, Validators.minLength(2)]],
+      country: ['Kenya', [Validators.required, Validators.minLength(2)]]
     }, {validators: this.passwordMatchValidator});
 
 
@@ -189,7 +188,6 @@ export class AuthComponent implements OnInit, OnDestroy {
         phone: formValue.phone,
         city: formValue.city,
         country: formValue.country,
-        role: 'customer'
       };
 
       this.authService.register(userData)
@@ -197,15 +195,18 @@ export class AuthComponent implements OnInit, OnDestroy {
         .subscribe({
           next: (response) => {
             this.isLoading = false;
-            this.successMessage = response.message;
-            // Redirect to dashboard or previous page
-            setTimeout(() => {
-              this.router.navigate(['/']);
-            }, 1500);
+            if (response.message.includes('successful')) {
+              this.authService.setAuthData(response.access_token, response.user.id);
+              this.showOtpModal = true;
+              this.successMessage = 'Registration successful! Please verify your email.';
+              this.registerForm.reset({ country: 'Kenya' });
+            } else {
+              this.errorMessage = response.message || 'Registration failed. Please try again.';
+            }
           },
           error: (error) => {
             this.isLoading = false;
-            this.errorMessage = error.message;
+            this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
           }
         });
     }
@@ -263,6 +264,8 @@ export class AuthComponent implements OnInit, OnDestroy {
     }
   }
 
+
+
   // Utility methods
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
@@ -272,10 +275,6 @@ export class AuthComponent implements OnInit, OnDestroy {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  private clearMessages(): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-  }
 
   // Form validation helpers
   isFieldInvalid(formName: string, fieldName: string): boolean {
@@ -330,5 +329,63 @@ export class AuthComponent implements OnInit, OnDestroy {
       'token': 'Reset Token'
     };
     return labels[fieldName] || fieldName;
+  }
+
+
+  onOtpVerified(otp: string): void {
+    // Call your OTP verification API
+    this.authService.verifyOtp(otp)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.showOtpModal = false;
+            this.successMessage = 'Email verified successfully! Welcome to SendIT.';
+            setTimeout(() => {
+              this.router.navigate(['/home']);
+            }, 2000);
+          } else {
+            this.errorMessage = 'Invalid verification code. Please try again.';
+          }
+        },
+        error: (error) => {
+          this.errorMessage = error.error?.message || 'Invalid verification code. Please try again.';
+        }
+      });
+  }
+
+  onResendOtp(): void {
+    this.authService.resendOtp()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          this.successMessage = 'New verification code sent to your email.';
+        },
+        error: (error) => {
+          this.errorMessage = 'Failed to resend code. Please try again.';
+        }
+      });
+  }
+
+  onCloseOtpModal(): void {
+    this.showOtpModal = false;
+    this.modalCloseCount++;
+
+    if (this.modalCloseCount < this.maxModalAttempts) {
+      // Reopen modal after 3 seconds
+      this.modalReopenTimeout = setTimeout(() => {
+        this.showOtpModal = true;
+        this.errorMessage = `Email verification is required to complete registration. Attempt ${this.modalCloseCount + 1} of ${this.maxModalAttempts}`;
+      }, 3000);
+    } else {
+      // After 3 attempts, show final warning
+      this.errorMessage = 'Email verification is required. Please verify your email to continue.';
+      this.modalCloseCount = 0; // Reset for future attempts
+    }
+  }
+
+  clearMessages(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
   }
 }
