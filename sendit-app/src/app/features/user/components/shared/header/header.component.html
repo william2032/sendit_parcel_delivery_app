@@ -1,11 +1,13 @@
 <header class="bg-white shadow-sm z-50 sticky top-0">
   <!-- Account Modal -->
-  <div *ngIf="showAccountModal" class="fixed inset-0 mt-[130px] bg-black bg-opacity-50  flex items-center justify-center z-50">
-    <div class=" bg-gray-400 p-6 rounded-lg shadow-xl max-w-2xl w-full relative">
+  <div *ngIf="showAccountModal"
+       class="fixed inset-0 mt-[130px] bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-gray-400 p-6 rounded-lg shadow-xl max-w-2xl w-full relative">
       <button class="absolute top-2 right-2 text-gray-600" (click)="closeAccountModal()">✕</button>
       <app-account></app-account>
     </div>
   </div>
+
   <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex justify-between items-center h-16">
       <!-- Logo -->
@@ -18,16 +20,14 @@
       <!-- Desktop Navigation -->
       <div class="hidden md:block">
         <div class="ml-6 flex items-center gap-6">
-          <!-- Use a shared class or Angular binding to handle "active" -->
           <a routerLink="/home"
              routerLinkActive="bg-gray-900 text-white"
              [routerLinkActiveOptions]="{ exact: true }"
-             class="text-gray-700
-               px-4 py-2 rounded-md hover:bg-gray-900 text-sm font-gilroy font-medium  transition-colors">
+             class="text-gray-700 px-4 py-2 rounded-md hover:bg-gray-900 text-sm font-gilroy font-medium transition-colors">
             Home
           </a>
           <button (click)="scrollToServices()"
-             class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors cursor-pointer">
+                  class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors cursor-pointer">
             Services
           </button>
           <a routerLink="/home/track-order"
@@ -35,9 +35,8 @@
              class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
             Track
           </a>
-          <button (click)="openAccountModal()"
-             routerLinkActive="bg-gray-900 text-white"
-             class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
+          <button *ngIf="isLoggedIn" (click)="openAccountModal()"
+                  class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
             Account
           </button>
           <a routerLink="/home/customer-support"
@@ -48,11 +47,106 @@
         </div>
       </div>
 
-      <!-- Join us button -->
+      <!-- User Profile Section (when logged in) or Join Us button (when not logged in) -->
       <div class="hidden md:block">
+        <!-- When user is logged in -->
+        <div *ngIf="isLoggedIn" class="flex items-center gap-4">
+          <!-- User Profile -->
+          <div
+            class="group flex items-center gap-3 cursor-pointer transition-all duration-300 hover:bg-gray-50 rounded-lg p-2 -m-2">
+            <!-- Profile Image with Status Indicator -->
+            <div class="relative">
+              <img
+                [src]="currentUser?.profilePicture || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'"
+                [alt]="(currentUser?.name || 'User') + ' profile'"
+                class="w-12 h-12 rounded-full object-cover border-3 border-white shadow-lg hover:shadow-xl transition-all duration-300 transform group-hover:scale-105 ring-2 ring-gray-100 group-hover:ring-orange-200">
+
+              <!-- Online Status Indicator -->
+              <div
+                class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-400 border-2 border-white rounded-full shadow-sm animate-pulse"></div>
+            </div>
+
+            <!-- User Name with Dropdown Arrow -->
+            <div class="flex items-center gap-2">
+              <div class="flex flex-col">
+          <span
+            class="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition-colors duration-200 leading-tight">
+            {{ currentUser?.name || 'CUSTOMER' }}
+          </span>
+                <span class="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-200">
+            Online
+          </span>
+              </div>
+
+              <!-- Dropdown Arrow -->
+              <!--              <svg class="w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-all duration-200 transform group-hover:rotate-180"-->
+              <!--                   fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+              <!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>-->
+              <!--              </svg>-->
+            </div>
+          </div>
+
+          <!-- Logout Button (Enhanced) -->
+          <button (click)="onLogout()"
+                  class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-transparent hover:border-red-200">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="hidden lg:inline">Logout</span>
+          </button>
+        </div>
+
+        <!-- Dropdown Menu (Optional - for future implementation) -->
+        <!--        <div class="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 hidden group-hover:block transition-all duration-200 transform origin-top-right">-->
+        <!--          &lt;!&ndash; User Info Section &ndash;&gt;-->
+        <!--          <div class="px-4 py-3 border-b border-gray-100">-->
+        <!--            <div class="flex items-center gap-3">-->
+        <!--              <img-->
+        <!--                [src]="currentUser?.profilePicture || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=60&h=60&fit=crop&crop=face'"-->
+        <!--                [alt]="(currentUser?.name || 'User') + ' profile'"-->
+        <!--                class="w-10 h-10 rounded-full object-cover">-->
+        <!--              <div>-->
+        <!--                <p class="text-sm font-semibold text-gray-900">{{ currentUser?.name || 'Guest' }}</p>-->
+        <!--                <p class="text-xs text-gray-500">{{ currentUser?.email || 'guest@example.com' }}</p>-->
+        <!--              </div>-->
+        <!--            </div>-->
+        <!--          </div>-->
+
+        <!--          &lt;!&ndash; Menu Items &ndash;&gt;-->
+        <!--          <div class="py-1">-->
+        <!--            <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors duration-200">-->
+        <!--              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+        <!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>-->
+        <!--              </svg>-->
+        <!--              View Profile-->
+        <!--            </a>-->
+        <!--            <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-orange-600 transition-colors duration-200">-->
+        <!--              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+        <!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>-->
+        <!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>-->
+        <!--              </svg>-->
+        <!--              Settings-->
+        <!--            </a>-->
+        <!--            <div class="border-t border-gray-100 my-1"></div>-->
+        <!--            <button-->
+        <!--              (click)="onLogout()"-->
+        <!--              class="flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 w-full text-left">-->
+        <!--              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+        <!--                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>-->
+        <!--              </svg>-->
+        <!--              Sign Out-->
+        <!--            </button>-->
+        <!--          </div>-->
+        <!--        </div>-->
+
+      </div>
+
+      <!-- When user is not logged in -->
+      <div *ngIf="!isLoggedIn" class="flex items-center gap-3">
         <button (click)="onJoinUs()"
-                class="bg-gray-100  text-gray-900 hover:bg-gray-600 px-10 py-2 hover:text-white rounded-md text-sm font-gilroy font-medium transition-colors cursor-pointer">
-        Join Us
+                class="bg-gray-100 text-gray-900 hover:bg-gray-600 px-6 py-2 hover:text-white rounded-md text-sm font-gilroy font-medium transition-colors cursor-pointer">
+          Join Us
         </button>
       </div>
 
@@ -62,8 +156,7 @@
           type="button"
           class="bg-gray-100 inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500"
           (click)="toggleMobileMenu()"
-          aria-expanded="false"
-        >
+          aria-expanded="false">
           <span class="sr-only">Open main menu</span>
           <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
                aria-hidden="true">
@@ -72,37 +165,71 @@
         </button>
       </div>
     </div>
-
     <!-- Mobile menu -->
     <div class="md:hidden" [class.hidden]="!isMobileMenuOpen">
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
-        <a href="#" class="bg-gray-900 text-white block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+        <a routerLink="/home"
+           routerLinkActive="bg-gray-900 text-white"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Home
         </a>
-        <a href="#"
-           class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+        <button (click)="scrollToServices()"
+                class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
           Services
-        </a>
-       <a routerLink="/home/track-order"
-              routerLinkActive="bg-gray-900 text-white"
+        </button>
+        <a routerLink="/home/track-order"
+           routerLinkActive="bg-gray-900 text-white"
            class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Track
         </a>
-        <a routerLink="/home/account-settings"
+
+        <!-- Mobile: When logged in -->
+        <div *ngIf="isLoggedIn">
+          <div class="flex items-center gap-3 px-3 py-2">
+            <div class="relative">
+              <img *ngIf="currentUser?.profilePicture"
+                   [src]="currentUser?.profilePicture"
+                   [alt]="(currentUser?.name || 'User') + ' profile'"
+                   class="w-8 h-8 rounded-full object-cover border-2 border-gray-300">
+              <div *ngIf="!currentUser?.profilePicture"
+                   class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-medium">
+                {{ getUserInitials() }}
+              </div>
+            </div>
+            <span class="text-gray-700 text-base font-gilroy font-medium">
+              {{ currentUser?.name }}
+            </span>
+          </div>
+          <button (click)="onLogout()"
+                  class="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
+            Logout
+          </button>
+        </div>
+
+
+        <!-- Mobile: When not logged in -->
+        <div *ngIf="!isLoggedIn">
+          <button (click)="openAccountModal()"
+                  class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
+            Account
+          </button>
+          <button (click)="onLogin()"
+                  class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
+            Login
+          </button>
+          <button (click)="onJoinUs()"
+                  class="bg-gray-100 text-gray-700 block px-4 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
+            Join Us
+          </button>
+        </div>
+
+        <a routerLink="/home/customer-support"
            routerLinkActive="bg-gray-900 text-white"
            class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
-          Account
-        </a>
-        <a href="#"
-           class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
           Support
-        </a>
-        <a href="#" class="bg-gray-100 text-gray-700 block px-4 py-2 rounded-md text-base font-gilroy font-medium">
-          Join us
         </a>
       </div>
     </div>
   </nav>
 </header>
-
-

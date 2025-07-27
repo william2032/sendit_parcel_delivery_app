@@ -55,16 +55,16 @@ enum TrackingEventType {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String
-  phone        String?
-  password     String
-  profileImage String?
-  role         UserRole @default(CUSTOMER)
-  city         String?
-  country      String?
-  isActive     Boolean  @default(true)
+  id             String   @id @default(cuid())
+  email          String   @unique
+  name           String
+  phone          String?
+  password       String
+  profilePicture String?
+  role           UserRole @default(CUSTOMER)
+  city           String?
+  country        String?
+  isActive       Boolean  @default(true)
 
   // Timestamps
   createdAt DateTime  @default(now())

@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Router, RouterLink, RouterLinkActive} from '@angular/router';
 import {ScrollService} from '../../../../../shared/services/scroll-service';
 import {AccountComponent} from '../../../../../shared/components/account/account.component';
+import {Subscription} from 'rxjs';
+import {AuthService} from '../../../../../shared/services/auth.service';
+import {User} from '../../../../../shared/models/user.models';
 
 @Component({
   selector: 'app-header',
@@ -11,10 +14,31 @@ import {AccountComponent} from '../../../../../shared/components/account/account
   styleUrl: './header.component.scss'
 })
 
-export class HeaderComponent {
+export class HeaderComponent implements OnInit, OnDestroy{
   showAccountModal = false;
+  isMobileMenuOpen = false;
+  currentUser: User | null = null;
+  isLoggedIn = false;
+  private userSubscription: Subscription = new Subscription();
 
-  constructor(private scrollService: ScrollService, private router: Router) {}
+
+  constructor(private scrollService: ScrollService, private router: Router, private authService: AuthService) {}
+  ngOnInit() {
+    // Subscribe to user changes
+    this.userSubscription = this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      this.isLoggedIn = this.authService.isLoggedIn();
+    });
+
+    // Initialize current user state
+    this.currentUser = this.authService.getCurrentUser();
+    this.isLoggedIn = this.authService.isLoggedIn();
+  }
+
+  ngOnDestroy() {
+    this.userSubscription.unsubscribe();
+  }
+
   scrollToServices() {
     if (this.router.url === '/home') {
       this.scrollService.requestScrollToServices();
@@ -23,7 +47,6 @@ export class HeaderComponent {
       this.router.navigate(['/home']);
     }
   }
-  isMobileMenuOpen = false;
 
   toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
@@ -39,9 +62,22 @@ export class HeaderComponent {
 
   }
 
+  onLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
+  onLogout(): void {
+    this.authService.logout();
+    this.router.navigate(['/home']);
+  }
+
   closeAccountModal() {
     this.showAccountModal = false;
     document.body.classList.remove('modal-open');
   }
 
+  getUserInitials(): string {
+    if (!this.currentUser?.name) return '';
+    return this.currentUser.name.charAt(0).toUpperCase();
+  }
 }

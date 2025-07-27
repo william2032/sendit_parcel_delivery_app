@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
+  profilePicture?: string;
   role?: 'ADMIN' | 'CUSTOMER' | 'DRIVER';
   city?: string;
   country?: string;

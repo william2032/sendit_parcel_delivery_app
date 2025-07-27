@@ -17,6 +17,8 @@ import {
 export class AuthService {
   private readonly API_URL = environment.apiUrl;
   private userSubject = new BehaviorSubject<User | null>(null);
+  public user$ = this.userSubject.asObservable();
+
   private logoutSubject = new Subject<void>();
   private accessToken: string | null = null;
   private userId: string | null = null;
@@ -25,7 +27,9 @@ export class AuthService {
     headers: new HttpHeaders({
       'Content-Type': 'application/json'
     })
+
   };
+  // In your auth service
 
 
   constructor(private http: HttpClient, private router: Router) {

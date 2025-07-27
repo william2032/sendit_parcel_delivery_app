@@ -95,7 +95,7 @@ export class UsersService implements IuserService {
             email: user.email,
             password: user.password,
             phone: user.phone || '',
-            profilePicture: user.profileImage,
+            profilePicture: user.profilePicture,
             city: user.city,
             country: user.country,
             emailVerified: user.emailVerified,

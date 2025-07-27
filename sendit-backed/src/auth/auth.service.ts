@@ -65,7 +65,7 @@ export class AuthService implements IAuthService {
                     password: hashedPassword,
                     city: registerDto.city || null,
                     country: registerDto.country || null,
-                    profileImage: null,
+                    profilePicture: null,
                     role: registerDto.role || UserRole.CUSTOMER,
                     isActive: true,
                     emailVerified: false,
@@ -79,7 +79,7 @@ export class AuthService implements IAuthService {
                     name: true,
                     email: true,
                     phone: true,
-                    profileImage: true,
+                    profilePicture: true,
                     city: true,
                     country: true,
                     role: true,
@@ -150,7 +150,6 @@ export class AuthService implements IAuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        // Check if email is verified - FIXED: Use correct property name
         const fullUser = await this.userService.findByEmail(loginDto.email);
         if (!fullUser?.emailVerified) {
             throw new UnauthorizedException('Please verify your email before logging in');
@@ -438,7 +437,7 @@ export class AuthService implements IAuthService {
             name: user.name,
             email: user.email,
             phone: user.phone || '',
-            profilePicture: user.profileImage,
+            profilePicture: user.profilePicture,
             city: user.city,
             country: user.country,
             role: user.role,
