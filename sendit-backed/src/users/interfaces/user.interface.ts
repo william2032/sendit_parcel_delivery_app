@@ -53,6 +53,9 @@ export class UserResponse {
 
     @ApiProperty()
     isActive: boolean;
+
+    @ApiProperty()
+    deletedAt?: boolean;
 }
 
 

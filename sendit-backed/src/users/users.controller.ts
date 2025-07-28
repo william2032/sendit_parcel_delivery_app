@@ -76,13 +76,17 @@ export class UsersController {
     @UseGuards(RolesGuard)
     @Roles(UserRole.ADMIN)
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({summary: 'Get all users'})
+    @ApiOperation({ summary: 'Get all users including deleted, optionally filter only deleted' })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: 'Users retrieved successfully',
+        description: 'Users retrieved successfully (including deleted)',
         type: [UserResponse],
     })
-    async findAll(@Query('limit') limit?: string, @Query('offset') offset?: string): Promise<{
+    async findAll(
+        @Query('limit') limit?: string,
+        @Query('offset') offset?: string,
+        @Query('onlyDeleted') onlyDeleted?: string,
+    ): Promise<{
         success: boolean;
         message: string;
         data: UserResponse[];
@@ -90,25 +94,61 @@ export class UsersController {
             total: number;
             limit: number;
             offset: number;
+            onlyDeleted: boolean;
         };
     }> {
-        const users = await this.userService.findAll();
+        const onlyDeletedBool = onlyDeleted === 'true';
 
-        // Apply pagination if parameters provided
+        let users: UserResponse[];
+
+        if (onlyDeletedBool) {
+            users = await this.userService.getDeletedUsers();
+        } else {
+            // Pass includeDeleted: true to fetch both active and deleted users
+            users = await this.userService.findAll(true);
+        }
+
         const limitNum = limit ? parseInt(limit, 10) : users.length;
         const offsetNum = offset ? parseInt(offset, 10) : 0;
-
         const paginatedUsers = users.slice(offsetNum, offsetNum + limitNum);
 
         return {
             success: true,
-            message: 'Users retrieved successfully',
+            message: onlyDeletedBool
+                ? 'Only deleted users retrieved successfully'
+                : 'All users (including deleted) retrieved successfully',
             data: paginatedUsers,
             meta: {
                 total: users.length,
                 limit: limitNum,
                 offset: offsetNum,
+                onlyDeleted: onlyDeletedBool,
             },
+        };
+    }
+
+    @Get('deleted')
+    @UseGuards(RolesGuard)
+    @Roles(UserRole.ADMIN)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({summary: 'Get only deleted users'})
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Deleted users retrieved successfully',
+        type: [UserResponse],
+    })
+    async getDeletedUsers(): Promise<{
+        success: boolean;
+        message: string;
+        data: UserResponse[];
+    }> {
+        // You can create this method in your service
+        const deletedUsers = await this.userService.getDeletedUsers();
+
+        return {
+            success: true,
+            message: 'Deleted users retrieved successfully',
+            data: deletedUsers,
         };
     }
 
