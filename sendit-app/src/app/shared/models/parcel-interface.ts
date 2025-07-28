@@ -1,4 +1,5 @@
 import {UserI} from './users.interface';
+import {LocationI} from './location.interface';
 
 export interface Parcel {
   id: string;
@@ -83,11 +84,42 @@ export interface TrackingEvent {
 
 export interface DeliveryOrder {
   id: string;
-  deliveryAddress: string;
+  trackingNumber: string;
+  address: string; // This appears to be the destination address
   date: string;
+  status: 'PENDING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
+  createdAt: string;
+  pickupLocation: LocationI;
+  destination: LocationI;
+  senderId: string;
+  sender: UserI;
+  senderName: string;
+  senderPhone: string;
+  senderEmail: string;
+  receiverId: string | null;
+  receiverName: string;
+  receiverPhone: string;
+  receiverEmail: string;
+  driverId: string | null;
+  driver?: UserI;
+  deliveryTime: string;
+  estimatedDeliveryDate: string;
+  trackingEvents: TrackingEvent[];
+  price: number;
+  notificationsSent: NotificationsSent;
   weight: number;
-  quote: string;
-  status: 'Completed' | 'Picked' | 'In Transit' | 'Pending';
+  weightCategory: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
+
+  deliveryAddress?: string; // Maps to destination.address
+  quote?: string; // Will be computed from weight/price
+}
+
+export interface ParcelApiResponse {
+  data: DeliveryOrder[];
+  total?: number;
+  page?: number;
+  totalPages?: number;
+  message?: string;
 }
 
 export interface DeliveryFormData {
@@ -117,4 +149,43 @@ export interface DriverStats {
   totalEarnings: number;
   rating: number;
   totalDeliveries: number;
+}
+
+export interface NotificationsSent {
+  customerPickup: boolean;
+  customerDelivery: boolean;
+  recipientDelivery: boolean;
+  driverAssignment: boolean;
+}
+
+export interface CreateParcelRequest {
+  pickupLocation: LocationI;
+  destination: LocationI;
+  senderName: string;
+  senderPhone: string;
+  senderEmail: string;
+  receiverName: string;
+  receiverPhone: string;
+  receiverEmail: string;
+  weight: number;
+  price: number;
+  estimatedDeliveryDate?: string;
+  notes?: string;
+}
+
+
+export interface UpdateParcelRequest {
+  pickupLocation?: LocationI;
+  destination?: LocationI;
+  senderName?: string;
+  senderPhone?: string;
+  senderEmail?: string;
+  receiverName?: string;
+  receiverPhone?: string;
+  receiverEmail?: string;
+  weight?: number;
+  price?: number;
+  status?: 'PENDING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
+  estimatedDeliveryDate?: string;
+  driverId?: string;
 }

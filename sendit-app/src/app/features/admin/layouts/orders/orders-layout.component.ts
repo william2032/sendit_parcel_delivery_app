@@ -1,12 +1,12 @@
-import {Component, OnInit} from '@angular/core';
-import {DeliveryOrder} from '../../../../shared/models/parcel-interface';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { DeliveryOrder } from '../../../../shared/models/parcel-interface';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { AdminService } from '../../../../shared/services/admin.service';
 
 @Component({
   selector: 'app-orders',
   imports: [CommonModule, FormsModule],
-
   templateUrl: './orders-layout.component.html',
   styleUrl: './orders-layout.component.scss'
 })
@@ -14,7 +14,9 @@ export class OrdersLayoutComponent implements OnInit {
   math = Math;
   orders: DeliveryOrder[] = [];
   filteredOrders: DeliveryOrder[] = [];
-  isRefreshing: boolean = false
+  isRefreshing: boolean = false;
+  isLoading: boolean = false;
+  error: string | null = null;
 
   // Filter states
   selectedWeightCategory: string = '';
@@ -43,86 +45,31 @@ export class OrdersLayoutComponent implements OnInit {
     'Freight'
   ];
 
-  statuses = ['Completed', 'Picked', 'In Transit', 'Pending'];
+  statuses = ['PENDING', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
 
-  constructor() {}
+  constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadOrders();
   }
 
-  // This method will be replaced with actual backend service call
   loadOrders(): void {
-    // Mock data - replace with actual service call
-    this.orders = [
-      {
-        id: '00001',
-        deliveryAddress: '089 Kutch Green Apt. 448',
-        date: '04 Sep 2025',
-        weight: 3.5,
-        quote: '2.1 - 5 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00002',
-        deliveryAddress: '979 Immanuel Ferry Suite 526',
-        date: '04 Sep 2025',
-        weight: 1.2,
-        quote: '0.6 - 2 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00003',
-        deliveryAddress: '8587 Frida Ports',
-        date: '04 Sep 2025',
-        weight: 4.2,
-        quote: '2.1 - 5 kg',
-        status: 'Picked'
-      },
-      {
-        id: '00004',
-        deliveryAddress: '768 Destiny Lake Suite 600',
-        date: '04 Sep 2025',
-        weight: 3.8,
-        quote: '2.1 - 5 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00005',
-        deliveryAddress: '042 Mylene Throughway',
-        date: '04 Sep 2025',
-        weight: 8.5,
-        quote: '5.1 - 10 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00006',
-        deliveryAddress: '543 Weimann Mountain',
-        date: '04 Sep 2025',
-        weight: 4.1,
-        quote: '2.1 - 5 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00007',
-        deliveryAddress: 'New Scottieberg',
-        date: '04 Sep 2025',
-        weight: 3.2,
-        quote: '2.1 - 5 kg',
-        status: 'Completed'
-      },
-      {
-        id: '00008',
-        deliveryAddress: 'New Jon',
-        date: '04 Sep 2025',
-        weight: 25.0,
-        quote: 'Above 20 kg',
-        status: 'In Transit'
-      }
-    ];
+    this.isLoading = true;
+    this.error = null;
 
-    this.filteredOrders = [...this.orders];
-    this.totalItems = this.orders.length;
+    this.adminService.getAllParcels().subscribe({
+      next: (orders) => {
+        this.orders = orders;
+        this.filteredOrders = [...this.orders];
+        this.totalItems = this.orders.length;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to load orders';
+        this.isLoading = false;
+        console.error('Error loading orders:', error);
+      }
+    });
   }
 
   openUpdateModal(order: DeliveryOrder): void {
@@ -156,22 +103,28 @@ export class OrdersLayoutComponent implements OnInit {
 
     this.isUpdating = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      // Find and update the order in the orders array
-      const index = this.orders.findIndex(order => order.id === this.selectedOrder!.id);
-      if (index !== -1) {
-        this.orders[index] = { ...this.selectedOrder! };
-        this.applyFilters(); // Refresh filtered orders
+    this.adminService.updateParcel(this.selectedOrder.id, this.selectedOrder).subscribe({
+      next: (updatedOrder) => {
+        // Find and update the order in the orders array
+        const index = this.orders.findIndex(order => order.id === updatedOrder.id);
+        if (index !== -1) {
+          this.orders[index] = updatedOrder;
+          this.applyFilters(); // Refresh filtered orders
+        }
+
+        this.isUpdating = false;
+        this.editMode = false;
+        this.originalOrder = { ...updatedOrder };
+
+        // Show success message
+        console.log('Order updated successfully');
+      },
+      error: (error) => {
+        this.isUpdating = false;
+        this.error = error.message || 'Failed to update order';
+        console.error('Error updating order:', error);
       }
-
-      this.isUpdating = false;
-      this.editMode = false;
-      this.originalOrder = { ...this.selectedOrder! };
-
-      // Show success message (you can implement a toast notification here)
-      console.log('Order updated successfully');
-    }, 1000);
+    });
   }
 
   confirmDelete(): void {
@@ -187,19 +140,25 @@ export class OrdersLayoutComponent implements OnInit {
 
     this.isDeleting = true;
 
-    // Simulate API call
-    setTimeout(() => {
-      // Remove the order from the orders array
-      this.orders = this.orders.filter(order => order.id !== this.selectedOrder!.id);
-      this.applyFilters(); // Refresh filtered orders
+    this.adminService.deleteParcel(this.selectedOrder.id).subscribe({
+      next: () => {
+        // Remove the order from the orders array
+        this.orders = this.orders.filter(order => order.id !== this.selectedOrder!.id);
+        this.applyFilters(); // Refresh filtered orders
 
-      this.isDeleting = false;
-      this.showDeleteConfirmation = false;
-      this.closeUpdateModal();
+        this.isDeleting = false;
+        this.showDeleteConfirmation = false;
+        this.closeUpdateModal();
 
-      // Show success message (you can implement a toast notification here)
-      console.log('Order deleted successfully');
-    }, 1000);
+        // Show success message
+        console.log('Order deleted successfully');
+      },
+      error: (error) => {
+        this.isDeleting = false;
+        this.error = error.message || 'Failed to delete order';
+        console.error('Error deleting order:', error);
+      }
+    });
   }
 
   getWeightCategory(weight: number): string {
@@ -211,20 +170,47 @@ export class OrdersLayoutComponent implements OnInit {
     return 'Freight';
   }
 
+  // Map backend weight category to display string
+  getWeightCategoryDisplay(weightCategory: string): string {
+    const categoryMap: { [key: string]: string } = {
+      'ULTRA_LIGHT': 'Ultra Light Parcel',
+      'LIGHT': 'Light Parcel',
+      'MEDIUM': 'Medium Parcel',
+      'HEAVY': 'Heavy Parcel',
+      'EXTRA_HEAVY': 'Extra Heavy Parcel',
+      'FREIGHT': 'Freight'
+    };
+    return categoryMap[weightCategory] || weightCategory;
+  }
+
   getStatusClass(status: string): string {
     const baseClasses = 'px-3 py-1 rounded-full text-sm font-medium';
     switch (status) {
-      case 'Completed':
+      case 'DELIVERED':
         return `${baseClasses} bg-teal-100 text-teal-800`;
-      case 'Picked':
+      case 'PICKED_UP':
         return `${baseClasses} bg-red-100 text-red-800`;
-      case 'In Transit':
+      case 'IN_TRANSIT':
         return `${baseClasses} bg-orange-100 text-orange-800`;
-      case 'Pending':
+      case 'PENDING':
         return `${baseClasses} bg-yellow-100 text-yellow-800`;
+      case 'CANCELLED':
+        return `${baseClasses} bg-gray-100 text-gray-800`;
       default:
         return `${baseClasses} bg-gray-100 text-gray-800`;
     }
+  }
+
+  // Map backend status to display string
+  getStatusDisplay(status: string): string {
+    const statusMap: { [key: string]: string } = {
+      'PENDING': 'Pending',
+      'PICKED_UP': 'Picked Up',
+      'IN_TRANSIT': 'In Transit',
+      'DELIVERED': 'Delivered',
+      'CANCELLED': 'Cancelled'
+    };
+    return statusMap[status] || status;
   }
 
   onWeightCategoryChange(category: string): void {
@@ -244,13 +230,13 @@ export class OrdersLayoutComponent implements OnInit {
 
   handleWeightCategoryChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    this. onWeightCategoryChange(value);
+    this.onWeightCategoryChange(value);
   }
 
   applyFilters(): void {
     this.filteredOrders = this.orders.filter(order => {
       const matchesCategory = !this.selectedWeightCategory ||
-        this.getWeightCategory(order.weight) === this.selectedWeightCategory;
+        this.getWeightCategoryDisplay(order.weightCategory) === this.selectedWeightCategory;
       const matchesStatus = !this.selectedStatus || order.status === this.selectedStatus;
 
       return matchesCategory && matchesStatus;
@@ -299,12 +285,65 @@ export class OrdersLayoutComponent implements OnInit {
   // Method to refresh data from backend
   refreshOrders(): void {
     this.isRefreshing = true;
+    this.error = null;
 
-    // Simulate API call delay
-    setTimeout(() => {
-      this.loadOrders();
-      this.isRefreshing = false;
-    }, 1000); // Adjust delay as needed
+    this.adminService.getAllParcels().subscribe({
+      next: (orders) => {
+        this.orders = orders;
+        this.applyFilters(); // Refresh filtered orders
+        this.isRefreshing = false;
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to refresh orders';
+        this.isRefreshing = false;
+        console.error('Error refreshing orders:', error);
+      }
+    });
+  }
+
+  // Bulk operations methods
+  updateParcelStatus(parcelId: string, status: string): void {
+    this.adminService.updateParcelStatus(parcelId, status).subscribe({
+      next: (updatedOrder) => {
+        const index = this.orders.findIndex(order => order.id === updatedOrder.id);
+        if (index !== -1) {
+          this.orders[index] = updatedOrder;
+          this.applyFilters();
+        }
+        console.log('Status updated successfully');
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to update status';
+        console.error('Error updating status:', error);
+      }
+    });
+  }
+
+  // Load orders with server-side filtering
+  loadOrdersWithFilters(): void {
+    this.isLoading = true;
+    this.error = null;
+
+    const filters = {
+      status: this.selectedStatus || undefined,
+      page: this.currentPage,
+      limit: this.itemsPerPage
+    };
+
+    this.adminService.getParcelsWithFilters(filters).subscribe({
+      next: (response) => {
+        this.orders = response.parcels;
+        this.filteredOrders = [...this.orders];
+        this.totalItems = response.total;
+        this.currentPage = response.page;
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to load orders';
+        this.isLoading = false;
+        console.error('Error loading orders with filters:', error);
+      }
+    });
   }
 
   protected readonly HTMLSelectElement = HTMLSelectElement;
