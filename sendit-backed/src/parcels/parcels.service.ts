@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {Injectable, NotFoundException, BadRequestException, ForbiddenException} from '@nestjs/common';
 import {
     AssignDriverDto,
     CoordinatesDto,
@@ -159,27 +159,64 @@ export class ParcelsService {
         return this.transformToParcelInterface(parcel);
     }
 
-    async update(id: string, updateParcelDto: UpdateParcelDto): Promise<ParcelI> {
+    async update(id: string, updateParcelDto: UpdateParcelDto, user: { id: string; role: string }): Promise<ParcelI> {
         const existingParcel = await this.prisma.parcel.findFirst({
-            where: { id, isActive: true }
+            where: { id, isActive: true },
+            include: { sender: true, receiver: true, pickupLocation: true, destinationLocation: true },
         });
 
         if (!existingParcel) {
             throw new NotFoundException(`Parcel with ID ${id} not found`);
         }
 
+        // Restrict status update to COMPLETED to admins only
+        if (updateParcelDto.status === 'COMPLETED' && user.role !== 'ADMIN') {
+            throw new ForbiddenException('Only admins can set status to COMPLETED');
+        }
+
+        // Calculate price based on weight category
+        let quote: number | undefined;
+        if (updateParcelDto.weightCategory) {
+            const priceMap = {
+                ULTRA_LIGHT: 10,
+                LIGHT: 20,
+                MEDIUM: 30,
+                HEAVY: 50,
+                EXTRA_HEAVY: 80,
+                FREIGHT: 120,
+            };
+            quote = priceMap[updateParcelDto.weightCategory];
+        }
+
+        // Prepare update data for the parcel
         const updateData: Prisma.ParcelUpdateInput = {
             ...(updateParcelDto.receiverName && { receiverName: updateParcelDto.receiverName }),
             ...(updateParcelDto.receiverPhone && { receiverPhone: updateParcelDto.receiverPhone }),
             ...(updateParcelDto.receiverEmail && { receiverEmail: updateParcelDto.receiverEmail }),
             ...(updateParcelDto.senderPhone && { senderPhone: updateParcelDto.senderPhone }),
             ...(updateParcelDto.weight && { weight: updateParcelDto.weight }),
-            ...(updateParcelDto.weightCategory && { weightCategory: updateParcelDto.weightCategory as PrismaWeightCategory }),
-            ...(updateParcelDto.quote && { quote: updateParcelDto.quote }),
+            ...(updateParcelDto.weightCategory && { weightCategory: updateParcelDto.weightCategory }),
+            ...(quote !== undefined && { quote }),
             ...(updateParcelDto.estimatedDeliveryTime && {
-                estimatedDeliveryTime: new Date(updateParcelDto.estimatedDeliveryTime)
+                estimatedDeliveryTime: new Date(updateParcelDto.estimatedDeliveryTime),
             }),
+            ...(updateParcelDto.status && { status: updateParcelDto.status }),
         };
+
+
+        // Update or create pickup location
+        if (updateParcelDto.pickupAddress) {
+            updateData.pickupLocation = {
+                update: { address: updateParcelDto.pickupAddress },
+            };
+        }
+
+        // Update or create destination location
+        if (updateParcelDto.destinationAddress) {
+            updateData.destinationLocation = {
+                update: { address: updateParcelDto.destinationAddress },
+            };
+        }
 
         const updatedParcel = await this.prisma.parcel.update({
             where: { id },
@@ -191,9 +228,9 @@ export class ParcelsService {
                 pickupLocation: true,
                 destinationLocation: true,
                 trackingEvents: {
-                    orderBy: { createdAt: 'desc' }
-                }
-            }
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
         });
 
         return this.transformToParcelInterface(updatedParcel);

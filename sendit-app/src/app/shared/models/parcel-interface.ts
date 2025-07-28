@@ -175,17 +175,16 @@ export interface CreateParcelRequest {
 
 
 export interface UpdateParcelRequest {
-  pickupLocation?: LocationI;
-  destination?: LocationI;
   senderName?: string;
   senderPhone?: string;
   senderEmail?: string;
   receiverName?: string;
   receiverPhone?: string;
   receiverEmail?: string;
+  pickupAddress?: string;
+  destinationAddress?: string;
   weight?: number;
-  price?: number;
-  status?: 'PENDING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
-  estimatedDeliveryDate?: string;
-  driverId?: string;
+  weightCategory?: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
+  status?: 'PENDING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED';
+  estimatedDeliveryTime?: string;
 }

@@ -75,8 +75,8 @@ export class AdminService {
     }
 
     // Update parcel
-    updateParcel(parcelId: string, parcelData: DeliveryOrder): Observable<DeliveryOrder> {
-        return this.http.put<{ data: DeliveryOrder }>(`${this.API_URL}/parcels/${parcelId}`, parcelData).pipe(
+    updateParcel(parcelId: string, parcelData: UpdateParcelRequest): Observable<DeliveryOrder> {
+        return this.http.patch<{ data: DeliveryOrder }>(`${this.API_URL}/parcels/${parcelId}`, parcelData).pipe(
             map(response => this.mapParcelData(response.data)),
             catchError(this.handleError)
         );

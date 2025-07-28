@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { DeliveryOrder } from '../../../../shared/models/parcel-interface';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { AdminService } from '../../../../shared/services/admin.service';
+import {Component, OnInit} from '@angular/core';
+import {DeliveryOrder} from '../../../../shared/models/parcel-interface';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {AdminService} from '../../../../shared/services/admin.service';
 
 @Component({
   selector: 'app-orders',
@@ -47,7 +47,8 @@ export class OrdersLayoutComponent implements OnInit {
 
   statuses = ['PENDING', 'PICKED_UP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED'];
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService) {
+  }
 
   ngOnInit(): void {
     this.loadOrders();
@@ -73,8 +74,8 @@ export class OrdersLayoutComponent implements OnInit {
   }
 
   openUpdateModal(order: DeliveryOrder): void {
-    this.selectedOrder = { ...order }; // Create a copy
-    this.originalOrder = { ...order }; // Store original for cancel
+    this.selectedOrder = {...order}; // Create a copy
+    this.originalOrder = {...order}; // Store original for cancel
     this.showUpdateModal = true;
     this.editMode = false;
   }
@@ -93,7 +94,7 @@ export class OrdersLayoutComponent implements OnInit {
 
   cancelEdit(): void {
     if (this.originalOrder && this.selectedOrder) {
-      this.selectedOrder = { ...this.originalOrder };
+      this.selectedOrder = {...this.originalOrder};
     }
     this.editMode = false;
   }
@@ -103,7 +104,34 @@ export class OrdersLayoutComponent implements OnInit {
 
     this.isUpdating = true;
 
-    this.adminService.updateParcel(this.selectedOrder.id, this.selectedOrder).subscribe({
+    const categoryMap: { [key: string]: string } = {
+      'Ultra Light Parcel': 'ULTRA_LIGHT',
+      'Light Parcel': 'LIGHT',
+      'Medium Parcel': 'MEDIUM',
+      'Heavy Parcel': 'HEAVY',
+      'Extra Heavy Parcel': 'EXTRA_HEAVY',
+      'Freight': 'FREIGHT'
+    };
+
+    // Create update payload with only allowed fields
+    const updatePayload: any = {
+      senderName: this.selectedOrder.senderName,
+      senderPhone: this.selectedOrder.senderPhone,
+      senderEmail: this.selectedOrder.senderEmail,
+      receiverName: this.selectedOrder.receiverName,
+      receiverPhone: this.selectedOrder.receiverPhone,
+      receiverEmail: this.selectedOrder.receiverEmail,
+      pickupAddress: this.selectedOrder.pickupLocation?.address,
+      destinationAddress: this.selectedOrder.destination?.address,
+      weight: this.selectedOrder.weight,
+      weightCategory: categoryMap[this.selectedOrder.weightCategory] || this.selectedOrder.weightCategory,
+      status: this.selectedOrder.status,
+      estimatedDeliveryTime: this.selectedOrder.estimatedDeliveryDate
+        ? new Date(this.selectedOrder.estimatedDeliveryDate).toISOString()
+        : null,
+    };
+
+    this.adminService.updateParcel(this.selectedOrder.id, updatePayload).subscribe({
       next: (updatedOrder) => {
         // Find and update the order in the orders array
         const index = this.orders.findIndex(order => order.id === updatedOrder.id);
@@ -114,10 +142,10 @@ export class OrdersLayoutComponent implements OnInit {
 
         this.isUpdating = false;
         this.editMode = false;
-        this.originalOrder = { ...updatedOrder };
+        this.originalOrder = {...updatedOrder};
 
         // Show success message
-        console.log('Order updated successfully');
+        alert('Order updated successfully');
       },
       error: (error) => {
         this.isUpdating = false;
@@ -127,12 +155,16 @@ export class OrdersLayoutComponent implements OnInit {
     });
   }
 
-  confirmDelete(): void {
+  confirmDelete(order: DeliveryOrder | null): void {
+    this.selectedOrder = order;
     this.showDeleteConfirmation = true;
+    this.showUpdateModal = false;
   }
+
 
   cancelDelete(): void {
     this.showDeleteConfirmation = false;
+    this.selectedOrder = null;
   }
 
   deleteOrder(): void {

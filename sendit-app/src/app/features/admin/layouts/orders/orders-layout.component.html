@@ -108,34 +108,64 @@
     <table class="min-w-full bg-white border border-gray-200 rounded-md">
       <thead class="bg-gray-50">
       <tr>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight Category</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tracking Number</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sender</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Receiver</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pickup Location</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Driver</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
       </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
       <tr *ngFor="let order of paginatedOrders" class="hover:bg-gray-50">
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.id }}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.senderName }}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ getWeightCategoryDisplay(order.weightCategory) }}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">{{ order.trackingNumber.substring(0, 8) }}...</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">{{ order.senderName }}</div>
+          <div class="text-sm text-gray-500">{{ order.senderPhone }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">{{ order.receiverName }}</div>
+          <div class="text-sm text-gray-500">{{ order.receiverPhone }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.pickupLocation?.name || 'N/A' }}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.destination?.name || 'N/A' }}</td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <div class="text-sm text-gray-900">{{ order.weight }}kg</div>
+          <div class="text-sm text-gray-500">{{ getWeightCategoryDisplay(order.weightCategory) }}</div>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">KSh {{ order.price }}</td>
         <td class="px-6 py-4 whitespace-nowrap">
           <span [ngClass]="getStatusClass(order.status)">{{ getStatusDisplay(order.status) }}</span>
         </td>
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.driver?.name || 'Unassigned' }}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.createdAt | date:'short' }}</td>
         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-          <button (click)="openUpdateModal(order)" class="text-blue-600 hover:text-blue-800 mr-4">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </button>
-          <button (click)="openUpdateModal(order); confirmDelete()" class="text-red-600 hover:text-red-800">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
+          <div class="flex items-center space-x-2">
+            <!-- Modern Edit Button -->
+            <button
+              (click)="openUpdateModal(order)"
+              class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-all duration-200 transform hover:scale-105 shadow-sm">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              Edit
+            </button>
+
+            <!-- Modern Delete Button -->
+            <button
+              (click)="confirmDelete(order)"
+              class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-xs font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all duration-200 transform hover:scale-105 shadow-sm">
+              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+              </svg>
+              Delete
+            </button>
+          </div>
         </td>
       </tr>
       </tbody>
@@ -186,88 +216,295 @@
 
   <!-- Update Modal -->
   <div *ngIf="showUpdateModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-gray-900">{{ editMode ? 'Edit Order' : 'Order Details' }}</h2>
+    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-screen overflow-y-auto">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-900">{{ editMode ? 'Edit Order' : 'Order Details' }}</h2>
         <button (click)="closeUpdateModal()" class="text-gray-600 hover:text-gray-800">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
       </div>
-      <div *ngIf="selectedOrder">
-        <div class="space-y-4">
+
+      <div *ngIf="selectedOrder" class="space-y-6">
+        <!-- Basic Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700">Order ID</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Order ID</label>
             <input
               type="text"
               [value]="selectedOrder.id"
               readonly
-              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Sender Name</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tracking Number</label>
             <input
-              *ngIf="editMode"
               type="text"
-              [(ngModel)]="selectedOrder.senderName"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              [value]="selectedOrder.trackingNumber"
+              readonly
+              class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm font-mono"
             />
-            <p *ngIf="!editMode" class="text-sm text-gray-900">{{ selectedOrder.senderName }}</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Weight Category</label>
-            <p *ngIf="!editMode" class="text-sm text-gray-900">{{ getWeightCategoryDisplay(selectedOrder.weightCategory) }}</p>
-            <select
-              *ngIf="editMode"
-              [(ngModel)]="selectedOrder.weightCategory"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option *ngFor="let category of weightCategories" [value]="category">{{ category }}</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Status</label>
-            <p *ngIf="!editMode" class="text-sm text-gray-900">{{ getStatusDisplay(selectedOrder.status) }}</p>
-            <select
-              *ngIf="editMode"
-              [(ngModel)]="selectedOrder.status"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option *ngFor="let status of statuses" [value]="status">{{ getStatusDisplay(status) }}</option>
-            </select>
           </div>
         </div>
-        <div class="mt-6 flex justify-end gap-2">
+
+        <!-- Sender Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Sender Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sender Name</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.senderName"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.senderName }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sender Phone</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.senderPhone"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.senderPhone }}</p>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Sender Email</label>
+              <input
+                *ngIf="editMode"
+                type="email"
+                [(ngModel)]="selectedOrder.senderEmail"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.senderEmail }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Receiver Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Receiver Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Receiver Name</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.receiverName"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.receiverName }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Receiver Phone</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.receiverPhone"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.receiverPhone }}</p>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">Receiver Email</label>
+              <input
+                *ngIf="editMode"
+                type="email"
+                [(ngModel)]="selectedOrder.receiverEmail"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.receiverEmail }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Location Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Location</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.pickupLocation.name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.pickupLocation?.name }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.destination.name"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.destination?.name }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.pickupLocation.address"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.pickupLocation?.address }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Destination Address</label>
+              <input
+                *ngIf="editMode"
+                type="text"
+                [(ngModel)]="selectedOrder.destination.address"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.destination?.address }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Package Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Package Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+              <input
+                *ngIf="editMode"
+                type="number"
+                step="0.1"
+                [(ngModel)]="selectedOrder.weight"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ selectedOrder.weight }} kg</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Weight Category</label>
+              <select
+                *ngIf="editMode"
+                [(ngModel)]="selectedOrder.weightCategory"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option *ngFor="let category of weightCategories" [value]="category">{{ category }}</option>
+              </select>
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">{{ getWeightCategoryDisplay(selectedOrder.weightCategory) }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Price (KSh)</label>
+              <input
+                *ngIf="editMode"
+                type="number"
+                [(ngModel)]="selectedOrder.price"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">KSh {{ selectedOrder.price }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Status and Driver Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Status & Assignment</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                *ngIf="editMode"
+                [(ngModel)]="selectedOrder.status"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option *ngFor="let status of statuses" [value]="status">{{ getStatusDisplay(status) }}</option>
+              </select>
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">
+                <span [ngClass]="getStatusClass(selectedOrder.status)">{{ getStatusDisplay(selectedOrder.status) }}</span>
+              </p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Assigned Driver</label>
+              <p class="text-sm text-gray-900 py-2">{{ selectedOrder.driver?.name || 'Unassigned' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timing Information -->
+        <div class="border-t pt-4">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Timing Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Created At</label>
+              <p class="text-sm text-gray-900 py-2">{{ selectedOrder.createdAt | date:'medium' }}</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Estimated Delivery Date</label>
+              <input
+                *ngIf="editMode"
+                type="datetime-local"
+                [(ngModel)]="selectedOrder.estimatedDeliveryDate"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <p *ngIf="!editMode" class="text-sm text-gray-900 py-2">
+                {{ selectedOrder.estimatedDeliveryDate ? (selectedOrder.estimatedDeliveryDate | date:'medium') : 'Not set' }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="border-t pt-6 flex justify-end gap-3">
           <button
             *ngIf="!editMode"
             (click)="enableEditMode()"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
           >
-            Edit
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+            Edit Order
           </button>
+
           <button
             *ngIf="editMode"
             (click)="saveOrder()"
             [disabled]="isUpdating"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ isUpdating ? 'Saving...' : 'Save' }}
+            <svg *ngIf="!isUpdating" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <svg *ngIf="isUpdating" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isUpdating ? 'Saving...' : 'Save Changes' }}
           </button>
+
           <button
             *ngIf="editMode"
             (click)="cancelEdit()"
-            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            class="inline-flex items-center px-4 py-2 bg-gray-500 text-white text-sm font-medium rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
           >
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
             Cancel
           </button>
+
           <button
             *ngIf="!editMode"
-            (click)="confirmDelete()"
-            class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            (click)="confirmDelete(selectedOrder)"
+            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm"
           >
-            Delete
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            Delete Order
           </button>
         </div>
       </div>
@@ -277,22 +514,38 @@
   <!-- Delete Confirmation Modal -->
   <div *ngIf="showDeleteConfirmation" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-md">
-      <h2 class="text-lg font-bold text-gray-900 mb-4">Confirm Deletion</h2>
-      <p class="text-sm text-gray-700 mb-6">Are you sure you want to delete this order? This action cannot be undone.</p>
-      <div class="flex justify-end gap-2">
-        <button
-          (click)="cancelDelete()"
-          class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-        >
-          Cancel
-        </button>
-        <button
-          (click)="deleteOrder()"
-          [disabled]="isDeleting"
-          class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {{ isDeleting ? 'Deleting...' : 'Delete' }}
-        </button>
+      <div class="flex items-center mb-4">
+        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+          <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+        </div>
+      </div>
+      <div class="text-center">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Confirm Deletion</h3>
+        <p class="text-sm text-gray-500 mb-6">Are you sure you want to delete this order? This action cannot be undone and all associated data will be permanently removed.</p>
+        <div class="flex justify-center gap-3">
+          <button
+            (click)="cancelDelete()"
+            class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+          >
+            Cancel
+          </button>
+          <button
+            (click)="deleteOrder()"
+            [disabled]="isDeleting"
+            class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg *ngIf="!isDeleting" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            <svg *ngIf="isDeleting" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            {{ isDeleting ? 'Deleting...' : 'Delete Order' }}
+          </button>
+        </div>
       </div>
     </div>
   </div>

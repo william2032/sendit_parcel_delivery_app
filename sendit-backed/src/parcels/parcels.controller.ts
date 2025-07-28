@@ -8,7 +8,7 @@ import {
     Delete,
     Query,
     UseGuards,
-    HttpStatus
+    HttpStatus, Req
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import {ParcelsService} from "./parcels.service";
@@ -95,9 +95,10 @@ export class ParcelsController {
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
     async update(
         @Param('id') id: string,
-        @Body() updateParcelDto: UpdateParcelDto
+        @Body() updateParcelDto: UpdateParcelDto,
+        @Req() req,
     ): Promise<ParcelI> {
-        return this.parcelService.update(id, updateParcelDto);
+        return this.parcelService.update(id, updateParcelDto, req.user);
     }
 
     @Patch(':id/assign-driver')
