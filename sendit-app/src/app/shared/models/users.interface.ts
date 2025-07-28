@@ -4,7 +4,7 @@ export  interface UserI {
   phone: string;
   email: string;
   createdAt: string;
-  role: 'ADMIN' | 'DRIVER' | 'CUSTOMER';
+  role: string;
   isActive:boolean;
   deletedAt?: string | null;
   profilePicture?: string;

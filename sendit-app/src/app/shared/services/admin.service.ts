@@ -41,7 +41,7 @@ export class AdminService {
   }
 
   updateUserRole(userId: string, role: string): Observable<UserI> {
-    return this.http.patch<UserI>(`${this.API_URL}/users/${userId}/role`, { role }).pipe(
+    return this.http.patch<UserI>(`${this.API_URL}/users/${userId}`, { role }).pipe(
       catchError(this.handleError)
     );
   }

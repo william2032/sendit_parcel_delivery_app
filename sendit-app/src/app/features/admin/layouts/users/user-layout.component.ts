@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {CommonModule, NgForOf} from '@angular/common';
+import { CommonModule, NgForOf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {UserI} from '../../../../shared/models/users.interface';
-import {AdminService} from '../../../../shared/services/admin.service';
-import {firstValueFrom} from 'rxjs';
+import { UserI } from '../../../../shared/models/users.interface';
+import { AdminService } from '../../../../shared/services/admin.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-users',
@@ -19,6 +19,10 @@ export class UserLayoutComponent implements OnInit {
   totalEntries = 0;
   loading = false;
   error: string | null = null;
+  editingRoleUserId: string | null = null;
+  isModalOpen = false;
+  modalTitle = '';
+  modalMessage = '';
 
   users: UserI[] = [];
   selectedUsers: Set<string> = new Set();
@@ -28,18 +32,6 @@ export class UserLayoutComponent implements OnInit {
 
   get allUsersCount(): number {
     return this.users.length;
-  }
-
-  get adminUsersCount(): number {
-    return this.users.filter(user => user.role === 'ADMIN').length;
-  }
-
-  get driverUsersCount(): number {
-    return this.users.filter(user => user.role === 'DRIVER').length;
-  }
-
-  get customerUsersCount(): number {
-    return this.users.filter(user => user.role === 'CUSTOMER').length;
   }
 
   get activeUsersCount(): number {
@@ -62,7 +54,6 @@ export class UserLayoutComponent implements OnInit {
 
     try {
       const response = await firstValueFrom(this.adminService.getAllUsers());
-      // Handle both direct array response and wrapped response
       if (Array.isArray(response)) {
         this.users = response;
       } else {
@@ -100,7 +91,7 @@ export class UserLayoutComponent implements OnInit {
 
     this.totalEntries = this.filteredUsers.length;
     this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
-    this.currentPage = 1; // Reset to first page when filtering
+    this.currentPage = 1;
     this.selectedUsers.clear();
     this.selectAll = false;
   }
@@ -134,7 +125,6 @@ export class UserLayoutComponent implements OnInit {
     }
   }
 
-  // Selection methods
   toggleSelectAll() {
     this.selectAll = !this.selectAll;
     const currentPageUsers = this.getPaginatedUsers();
@@ -153,7 +143,6 @@ export class UserLayoutComponent implements OnInit {
       this.selectedUsers.add(userId);
     }
 
-    // Update selectAll status
     const currentPageUsers = this.getPaginatedUsers();
     this.selectAll = currentPageUsers.every(user => this.selectedUsers.has(user.id));
   }
@@ -162,23 +151,28 @@ export class UserLayoutComponent implements OnInit {
     return this.selectedUsers.has(userId);
   }
 
-  // User management methods - Updated to use firstValueFrom instead of toPromise()
+  toggleEditRole(userId: string) {
+    this.editingRoleUserId = this.editingRoleUserId === userId ? null : userId;
+  }
+
   async updateUserRole(userId: string, role: string) {
     try {
       this.loading = true;
       await firstValueFrom(this.adminService.updateUserRole(userId, role));
 
-      // Update local user data
       const userIndex = this.users.findIndex(user => user.id === userId);
       if (userIndex !== -1) {
-        this.users[userIndex].role = role as any;
+        this.users[userIndex].role = role; // Removed 'as any' assuming User interface supports role
         this.filterUsers();
+      } else {
+        console.warn(`User with ID ${userId} not found in local users array`);
       }
-
-      console.log(`User ${userId} role updated to ${role}`);
+      this.editingRoleUserId = null;
+      this.showModal('Success', `User ${userId} role updated to ${role}`);
     } catch (error: any) {
-      this.error = error.message || 'Failed to update user role';
-      console.error('Error updating user role:', error);
+      const errorMessage = error.message || 'An unexpected error occurred while updating the user role';
+      this.error = errorMessage;
+      this.showModal('Error', errorMessage);
     } finally {
       this.loading = false;
     }
@@ -189,7 +183,6 @@ export class UserLayoutComponent implements OnInit {
       this.loading = true;
       await firstValueFrom(this.adminService.updateUserStatus(userId, isActive));
 
-      // Update local user data
       const userIndex = this.users.findIndex(user => user.id === userId);
       if (userIndex !== -1) {
         this.users[userIndex].isActive = isActive;
@@ -214,7 +207,6 @@ export class UserLayoutComponent implements OnInit {
       this.loading = true;
       await firstValueFrom(this.adminService.deleteUser(userId));
 
-      // Remove user from local data
       this.users = this.users.filter(user => user.id !== userId);
       this.selectedUsers.delete(userId);
       this.filterUsers();
@@ -227,6 +219,7 @@ export class UserLayoutComponent implements OnInit {
       this.loading = false;
     }
   }
+
 
   async bulkDeleteSelected() {
     if (this.selectedUsers.size === 0) {
@@ -246,7 +239,6 @@ export class UserLayoutComponent implements OnInit {
 
       await Promise.all(deletePromises);
 
-      // Remove deleted users from local data
       this.users = this.users.filter(user => !this.selectedUsers.has(user.id));
       this.selectedUsers.clear();
       this.selectAll = false;
@@ -282,7 +274,6 @@ export class UserLayoutComponent implements OnInit {
     this.updateUserStatus(userId, isActive);
   }
 
-  // Utility methods
   getDisplayRange(): { start: number; end: number } {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
     const end = Math.min(start + this.itemsPerPage - 1, this.totalEntries);
@@ -297,7 +288,22 @@ export class UserLayoutComponent implements OnInit {
     this.error = null;
   }
 
-  // Helper method to format date
+  showModal(title: string, message: string) {
+    this.modalTitle = title;
+    this.modalMessage = message;
+    this.isModalOpen = true;
+    setTimeout(() => this.closeModal(), 3000);
+  }
+
+  closeModal() {
+    this.isModalOpen = false;
+  }
+
+  onModalClick(event: MouseEvent) {
+    if ((event.target as HTMLElement).className === 'modal') {
+      this.closeModal();
+    }
+  }
   formatDate(dateString: string): string {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
