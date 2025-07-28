@@ -9,10 +9,9 @@ import {
     UseGuards,
     Request,
     HttpStatus,
-    ParseUUIDPipe,
     ValidationPipe,
     UsePipes,
-    NotFoundException, Req
+    Req,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -24,7 +23,8 @@ import {
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-
+import { RolesGuard } from "../auth/guards/roles.guards";
+import { Roles } from "../auth/decorators/role-decorator";
 import { UserRole } from 'generated/prisma';
 import {
     AdminCreateParcelDto,
@@ -32,30 +32,43 @@ import {
     DriverSearchDto,
     BulkDriverAssignmentDto,
     AdminParcelQueryDto,
-    UpdateParcelStatusDto
+    UpdateParcelStatusDto,
+    SingleDriverAssignmentDto
 } from './dtos/admin.dto';
 
 import {
-    SenderSearchResult,
     AvailableDriver,
     AdminParcelResponse,
-    AdminDashboardStats
+    AdminDashboardStats, SenderSearchResult
 } from './interfaces/admin.interface';
 
 import { PaginatedResponse } from '../parcels/interfaces/parcel.interface';
-import {RolesGuard} from "../auth/guards/roles.guards";
-import {Roles} from "../auth/decorators/role-decorator";
 import {
-    AdminDashboardStatsResponse, AdminParcelResponseClass,
+    AdminDashboardStatsResponse,
+    AdminParcelResponseClass,
     AvailableDriverResponse,
     SenderSearchResponse
 } from "./dtos/admin-response.dto";
+import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
+
+@Injectable()
+export class ParseCUIDPipe implements PipeTransform<string, string> {
+    transform(value: string, metadata: ArgumentMetadata): string {
+        const cuidRegex = /^c[0-9a-z]{24}$/i;
+
+        if (!cuidRegex.test(value)) {
+            throw new BadRequestException(`Invalid CUID format: ${value}`);
+        }
+
+        return value;
+    }
+}
 
 @ApiTags('Admin')
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
-@Roles(UserRole.ADMIN)
+@Roles(UserRole.ADMIN) // This ensures only ADMIN role can access all routes
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
@@ -86,7 +99,7 @@ export class AdminController {
 
     @Get('senders/:senderId')
     @ApiOperation({ summary: 'Get detailed information about a specific sender' })
-    @ApiParam({ name: 'senderId', description: 'Sender ID' })
+    @ApiParam({ name: 'senderId', description: 'Sender CUID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Sender details retrieved successfully',
@@ -97,7 +110,7 @@ export class AdminController {
         description: 'Sender not found'
     })
     async getSenderDetails(
-        @Param('senderId', ParseUUIDPipe) senderId: string
+        @Param('senderId', ParseCUIDPipe) senderId: string
     ): Promise<SenderSearchResult> {
         return this.adminService.getSenderDetails(senderId);
     }
@@ -125,7 +138,7 @@ export class AdminController {
     @ApiResponse({
         status: HttpStatus.CREATED,
         description: 'Parcel created successfully',
-        type:  AdminParcelResponseClass
+        type: AdminParcelResponseClass
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
@@ -148,8 +161,8 @@ export class AdminController {
     @ApiQuery({ name: 'page', description: 'Page number', required: false })
     @ApiQuery({ name: 'limit', description: 'Items per page', required: false })
     @ApiQuery({ name: 'status', description: 'Filter by parcel status', required: false })
-    @ApiQuery({ name: 'driverId', description: 'Filter by driver ID', required: false })
-    @ApiQuery({ name: 'senderId', description: 'Filter by sender ID', required: false })
+    @ApiQuery({ name: 'driverId', description: 'Filter by driver CUID', required: false })
+    @ApiQuery({ name: 'senderId', description: 'Filter by sender CUID', required: false })
     @ApiQuery({ name: 'trackingNumber', description: 'Filter by tracking number', required: false })
     @ApiQuery({ name: 'dateFrom', description: 'Filter from date (ISO string)', required: false })
     @ApiQuery({ name: 'dateTo', description: 'Filter to date (ISO string)', required: false })
@@ -166,7 +179,7 @@ export class AdminController {
 
     @Put('parcels/:parcelId/status')
     @ApiOperation({ summary: 'Update parcel status with admin privileges' })
-    @ApiParam({ name: 'parcelId', description: 'Parcel ID' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel CUID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Parcel status updated successfully',
@@ -178,7 +191,7 @@ export class AdminController {
     })
     @UsePipes(new ValidationPipe({ transform: true }))
     async updateParcelStatus(
-        @Param('parcelId', ParseUUIDPipe) parcelId: string,
+        @Param('parcelId', ParseCUIDPipe) parcelId: string,
         @Body() updateStatusDto: UpdateParcelStatusDto,
         @Req() req
     ): Promise<AdminParcelResponse> {
@@ -209,7 +222,7 @@ export class AdminController {
 
     @Get('parcels/:parcelId')
     @ApiOperation({ summary: 'Get detailed parcel information by ID' })
-    @ApiParam({ name: 'parcelId', description: 'Parcel ID' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel CUID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Parcel details retrieved successfully',
@@ -220,7 +233,7 @@ export class AdminController {
         description: 'Parcel not found'
     })
     async getParcelById(
-        @Param('parcelId', ParseUUIDPipe) parcelId: string
+        @Param('parcelId', ParseCUIDPipe) parcelId: string
     ): Promise<AdminParcelResponse> {
         return this.adminService.getParcelById(parcelId);
     }
@@ -232,7 +245,6 @@ export class AdminController {
         description: 'Parcel statistics by status retrieved successfully'
     })
     async getParcelsByStatus() {
-        // This could use a dedicated service method for more detailed statistics
         const stats = await this.adminService.getDashboardStats();
         return {
             pending: stats.pendingParcels,
@@ -240,6 +252,60 @@ export class AdminController {
             delivered: stats.deliveredToday,
             total: stats.totalParcels
         };
+    }
+
+    @Get('parcels/unassigned')
+    @ApiOperation({ summary: 'Get all parcels without assigned drivers' })
+    @ApiQuery({ name: 'page', description: 'Page number', required: false })
+    @ApiQuery({ name: 'limit', description: 'Items per page', required: false })
+    @ApiQuery({ name: 'senderId', description: 'Filter by sender CUID', required: false })
+    @ApiQuery({ name: 'trackingNumber', description: 'Filter by tracking number', required: false })
+    @ApiQuery({ name: 'dateFrom', description: 'Filter from date (ISO string)', required: false })
+    @ApiQuery({ name: 'dateTo', description: 'Filter to date (ISO string)', required: false })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Unassigned parcels retrieved successfully'
+    })
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async getUnassignedParcels(
+        @Query() query: AdminParcelQueryDto
+    ): Promise<PaginatedResponse<AdminParcelResponse>> {
+        return this.adminService.getUnassignedParcels(query);
+    }
+
+    @Get('parcels/unassigned/stats')
+    @ApiOperation({ summary: 'Get statistics for unassigned parcels' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Unassigned parcels statistics retrieved successfully'
+    })
+    async getUnassignedParcelsStats() {
+        return this.adminService.getUnassignedParcelsStats();
+    }
+
+    @Post('parcels/:parcelId/assign-driver')
+    @ApiOperation({ summary: 'Assign driver to a single unassigned parcel' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel CUID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Driver assigned to parcel successfully',
+        type: AdminParcelResponseClass
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        description: 'Parcel or driver not found'
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: 'Parcel already has a driver assigned'
+    })
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async assignDriverToParcel(
+        @Param('parcelId', ParseCUIDPipe) parcelId: string,
+        @Body() assignmentDto: SingleDriverAssignmentDto,
+        @Req() req
+    ): Promise<AdminParcelResponse> {
+        return this.adminService.assignDriverToParcel(parcelId, assignmentDto, req.user.id);
     }
 
     @Get('stats/revenue')
@@ -250,7 +316,6 @@ export class AdminController {
         description: 'Revenue statistics retrieved successfully'
     })
     async getRevenueStats(@Query('period') period: string = 'monthly') {
-        // This would need a dedicated service method for more detailed revenue analysis
         const stats = await this.adminService.getDashboardStats();
         return {
             totalRevenue: stats.totalRevenue,

@@ -4,8 +4,13 @@
 @apiPrefix = /auth
 
 ### Variables for testing (update these with actual values)
-@testEmail = lukebetika@gmail.com
-@testPassword = password456
+@testEmailDriver = rockx2060@gmail.com
+@testEmailCustomer = lukebetika@gmail.com
+@testEmailAdmin = kivindukilonzo@gmail.com
+
+@testAdminPswd = kivindukilonzo@gmail.com
+@testPasswordDriver = rockx2060@gmail.com
+@testPasswordCustomer = password456
 @testName = John Doe
 @testPhone = +254798666512
 @testCity = Chuka
@@ -23,11 +28,11 @@ POST {{baseUrl}}{{apiPrefix}}/register
 Content-Type: application/json
 
 {
-  "name": "Luke",
-  "email": "lukebetika@gmail.com",
+  "name": "Driver Mzee",
+  "email": "rockx2060@gmail.com",
   "password": "password456",
-  "phone": "+254987654321",
-  "city": "Chuka",
+  "phone": "+25498765487",
+  "city": "Nairobi",
   "profileImage": "https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png",
   "country": "Kenya"
 }
@@ -44,13 +49,33 @@ Content-Type: application/json
 }
 
 ###
-# 4. LOGIN USER (should fail - phone not verified)
+# 4. LOGIN USER ()
 POST {{baseUrl}}{{apiPrefix}}/login
 Content-Type: application/json
 
 {
-  "email": "{{testEmail}}",
-  "password": "{{testPassword}}"
+  "email": "{{testEmailCustomer}}",
+  "password": "{{testPasswordCustomer}}"
+}
+
+###
+# 4. LOGIN ADMIN ()
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmailAdmin}}",
+  "password": "{{testAdminPswd}}"
+}
+
+###
+# 4. LOGIN DRIVER ()
+POST {{baseUrl}}{{apiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "{{testEmailDriver}}",
+  "password": "{{testPasswordDriver}}"
 }
 
 ###

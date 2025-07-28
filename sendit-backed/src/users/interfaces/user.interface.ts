@@ -50,6 +50,9 @@ export class UserResponse {
 
     @ApiProperty()
     updatedAt: Date;
+
+    @ApiProperty()
+    isActive: boolean;
 }
 
 

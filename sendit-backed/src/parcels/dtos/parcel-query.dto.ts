@@ -7,7 +7,7 @@ import {
     Max
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import {ParcelStatus} from "./enums";
+import {ParcelStatus} from "../../../generated/prisma";
 
 export class ParcelQueryDto {
     @ApiPropertyOptional()

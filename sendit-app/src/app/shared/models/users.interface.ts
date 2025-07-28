@@ -3,9 +3,11 @@ export  interface UserI {
   name: string;
   phone: string;
   email: string;
-  joinedDate: string;
-  status: 'Active' | 'Inactive';
-  profileImage?: string;
+  createdAt: string;
+  role: 'ADMIN' | 'DRIVER' | 'CUSTOMER';
+  isActive:boolean;
+  deletedAt?: string | null;
+  profilePicture?: string;
 }
 
 export interface Customer {

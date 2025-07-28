@@ -74,7 +74,7 @@ export class AuthService {
           const role = response.user.role?.toUpperCase();
 
           if (role === 'ADMIN') {
-            this.router.navigate(['/admin']);
+            this.router.navigate(['/auth/admin/dashboard']);
           } else {
             this.router.navigate(['/']);
           }

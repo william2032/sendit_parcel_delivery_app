@@ -1,0 +1,219 @@
+### Variables
+@baseUrl = http://localhost:3000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRrYTM2emgwMDAzdGJndzI1bTg0aG95IiwiZW1haWwiOiJraXZpbmR1a2lsb256b0BnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTM2NTE5MDEsImV4cCI6MTc1MzY1NTUwMX0.fzj7sHXQ33Y4pmybSistO1Zk5-aKFiwO4PvbhGEVP4A
+
+### Get Admin Dashboard Stats
+GET {{baseUrl}}/admin/dashboard/stats
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Search Senders
+GET {{baseUrl}}/admin/senders/search?query=william&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get Sender Details by ID
+GET {{baseUrl}}/admin/senders/12345678-1234-1234-1234-123456789abc
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Search Available Drivers
+GET {{baseUrl}}/admin/drivers/available?city=Nairobi&maxAssignedParcels=5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Create Parcel as Admin (Simple - addresses only)
+POST {{baseUrl}}/admin/parcels
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "senderId": "12345678-1234-1234-1234-123456789abc",
+  "senderPhone": "+254700123456",
+  "receiverName": "Jane Doe",
+  "receiverPhone": "+254700654321",
+  "receiverEmail": "jane@example.com",
+  "weight": 2.5,
+  "weightCategory": "MEDIUM",
+  "description": "Electronics package",
+  "pickupLocation": {
+    "name": "Sender Office",
+    "address": "Westlands, Nairobi, Kenya",
+    "lat": -1.2634,
+    "lng": 36.8078
+  },
+  "destinationLocation": {
+    "name": "Receiver Home",
+    "address": "Karen, Nairobi, Kenya",
+    "lat": -1.3197,
+    "lng": 36.7084
+  },
+  "quote": 500,
+  "currency": "KES",
+  "driverId": "87654321-4321-4321-4321-210987654cba",
+  "pickupTime": "2025-07-15T10:00:00Z",
+  "estimatedDeliveryTime": "2025-02-15T14:00:00Z"
+
+}
+
+###
+
+### Get All Parcels (with filters)
+GET {{baseUrl}}/admin/parcels?page=1&limit=20&status=PENDING
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get All Parcels (with date filters)
+GET {{baseUrl}}/admin/parcels?page=1&limit=10&dateFrom=2024-01-01&dateTo=2024-12-31
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get Parcel by ID
+GET {{baseUrl}}/admin/parcels/12345678-1234-1234-1234-123456789abc
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Update Parcel Status
+PUT {{baseUrl}}/admin/parcels/12345678-1234-1234-1234-123456789abc/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "IN_TRANSIT",
+  "currentLocation": {
+    "address": "En route to destination",
+    "lat": -1.2921,
+    "lng": 36.8219
+  }
+}
+
+###
+
+### Bulk Assign Driver to Multiple Parcels
+POST {{baseUrl}}/admin/parcels/bulk-assign-driver
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "parcelIds": [
+    "12345678-1234-1234-1234-123456789abc",
+    "87654321-4321-4321-4321-210987654cba"
+  ],
+  "driverId": "11111111-1111-1111-1111-111111111111",
+  "pickupTime": "2024-02-15T09:00:00Z",
+  "notes": "Priority delivery - handle with care"
+}
+
+###
+
+### Get Parcels by Status Statistics
+GET {{baseUrl}}/admin/stats/parcels-by-status
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get Revenue Statistics
+GET {{baseUrl}}/admin/stats/revenue?period=monthly
+Authorization: Bearer {{adminToken}}
+
+###
+### ============ SIMPLIFIED CREATE PARCEL (Address Only) ============
+### Create Parcel WITHOUT Driver Assignment
+POST {{baseUrl}}/admin/parcels
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "senderId": "cmdga3hwk0000tbss0d3svs2g",
+  "senderPhone": "+254700123456",
+  "receiverName": "Omondi Hulk",
+  "receiverPhone": "+254987654321",
+  "receiverEmail": "peter@example.com",
+  "weight": 0.8,
+  "weightCategory": "LIGHT",
+  "description": "Documents and certificates",
+  "pickupLocation": {
+    "name": "City Hall",
+    "address": "City Hall Way, Nairobi",
+    "lat": -1.2921,
+    "lng": 36.8219
+  },
+  "destinationLocation": {
+    "name": "Client Office",
+    "address": "Ngong Road, Nairobi",
+    "lat": -1.3057,
+    "lng": 36.7784
+  },
+  "quote": 200,
+  "currency": "KES",
+  "estimatedDeliveryTime": "2025-08-15T14:00:00Z"
+}
+
+###
+
+### Get All Unassigned Parcels
+GET {{baseUrl}}/admin/parcels/unassigned?page=1&limit=20
+Authorization: Bearer {{adminToken}}
+###
+
+### Get Unassigned Parcels Statistics
+GET {{baseUrl}}/admin/parcels/unassigned/stats
+Authorization: Bearer {{adminToken}}
+
+### Quick Status Updates
+PUT {{baseUrl}}/admin/parcels/12345678-1234-1234-1234-123456789abc/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "PICKED_UP"
+}
+
+###
+
+PUT {{baseUrl}}/admin/parcels/12345678-1234-1234-1234-123456789abc/status
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "status": "DELIVERED"
+}
+
+###
+
+### ============ COMMON SEARCH PATTERNS ============
+
+### Search drivers in specific city
+GET {{baseUrl}}/admin/drivers/available?city=Mombasa
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Search senders by email
+GET {{baseUrl}}/admin/senders/search?query=@gmail.com&limit=5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Search senders by phone
+GET {{baseUrl}}/admin/senders/search?query=0700&limit=5
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Filter parcels by driver
+GET {{baseUrl}}/admin/parcels?driverId=87654321-4321-4321-4321-210987654cba&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Filter parcels by tracking number
+GET {{baseUrl}}/admin/parcels?trackingNumber=TRK&page=1&limit=10
+Authorization: Bearer {{adminToken}}

@@ -9,6 +9,8 @@ export interface SenderSearchResult {
     country?: string;
     totalParcels: number;
     recentParcels: RecentParcel[];
+    isActive: boolean;
+    deletedAt?: string;
 }
 
 export interface RecentParcel {
@@ -31,6 +33,8 @@ export interface AvailableDriver {
     };
     assignedParcels: number;
     lastSeen: string;
+    isActive: boolean;
+    deletedAt?: string;
 }
 
 export interface AdminCreateParcelDto {
@@ -80,6 +84,8 @@ export interface AdminParcelResponse extends ParcelI {
         email: string;
         phone: string;
         totalOrders: number;
+        isActive: boolean; // Added
+        deletedAt?: string;
     };
     driverDetails?: {
         id: string;
@@ -87,10 +93,13 @@ export interface AdminParcelResponse extends ParcelI {
         email: string;
         phone: string;
         rating?: number;
+        isActive: boolean; // Added
+        deletedAt?: string;
     };
 }
 
 export interface AdminDashboardStats {
+    activeUsers: number;
     totalParcels: number;
     pendingParcels: number;
     inTransitParcels: number;

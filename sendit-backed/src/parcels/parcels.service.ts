@@ -16,10 +16,22 @@ import {
     ParcelStatus,
     WeightCategory as PrismaWeightCategory
 } from 'generated/prisma';
+import {MailerService} from "../mailer/mailer.service";
+import { Logger } from '@nestjs/common';
+import {DriversService} from "../drivers/drivers.service";
+
+
+interface ParcelInfo {
+    trackingNumber: string;
+    receiverName: string;
+    senderName: string;
+    estimatedDelivery: string;
+}
 
 @Injectable()
 export class ParcelsService {
-    constructor(private prisma: PrismaService) {}
+    private readonly logger = new Logger(ParcelsService.name);
+    constructor(private prisma: PrismaService, private readonly mailerService: MailerService,private  driverService:DriversService) {}
 
     async create(createParcelDto: CreateParcelDto): Promise<ParcelI> {
         const parcel = await this.prisma.parcel.create({
@@ -200,12 +212,21 @@ export class ParcelsService {
                 driver: { connect: { id: assignDriverDto.driverId } },
                 assignedAt: new Date(),
                 pickupTime: assignDriverDto.pickupTime ? new Date(assignDriverDto.pickupTime) : undefined,
-                status: ParcelStatus.ASSIGNED
+                status: ParcelStatus.ASSIGNED,
+                estimatedDeliveryTime: assignDriverDto.estimatedDeliveryTime
+                    ? new Date(assignDriverDto.estimatedDeliveryTime)
+                    : new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // Default to 3 days from now
             },
             include: {
-                sender: true,
-                receiver: true,
-                driver: true,
+                sender: {
+                    select: { name: true }
+                },
+                receiver: {
+                    select: { name: true }
+                },
+                driver: {
+                    select: { email: true, name: true }
+                },
                 pickupLocation: true,
                 destinationLocation: true,
                 trackingEvents: {
@@ -229,6 +250,35 @@ export class ParcelsService {
             automated: true
         });
 
+        // Prepare parcel info for notification
+        const parcelInfo: ParcelInfo= {
+            trackingNumber: updatedParcel.trackingNumber,
+            receiverName: updatedParcel.receiverName || 'Unknown Receiver',
+            senderName: updatedParcel.sender?.name || 'Unknown Sender',
+            estimatedDelivery: updatedParcel.estimatedDeliveryTime?.toISOString() || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+        };
+
+        // Send email notification to driver if email is available
+        if (updatedParcel.driver?.email) {
+            try {
+                await this.mailerService.sendParcelAssignmentNotification(
+                    updatedParcel.driver.email,
+                    updatedParcel.driver.name || 'Driver',
+                    parcelInfo
+                );
+                this.logger.log(`Parcel assignment notification sent to driver ${updatedParcel.driver.email}`);
+            } catch (error) {
+                this.logger.error(`Failed to send parcel assignment notification to ${updatedParcel.driver.email}`, error.stack);
+            }
+        } else {
+            this.logger.warn(`Email notification skipped. Missing driver email.`, {
+                driverEmailPresent: !!updatedParcel.driver?.email,
+                receiverNamePresent: !!updatedParcel.receiver?.name,
+                senderNamePresent: !!updatedParcel.sender?.name,
+                estimatedDeliveryTimePresent: !!updatedParcel.estimatedDeliveryTime,
+            });
+        }
+
         return this.transformToParcelInterface(updatedParcel);
     }
 
@@ -242,8 +292,24 @@ export class ParcelsService {
         if (status === ParcelStatus.DELIVERED) {
             updateData.deliveredAt = new Date();
             updateData.actualDeliveryTime = new Date();
-        } else if (status === ParcelStatus.COMPLETED) {
+        }
+        else if (status === ParcelStatus.COMPLETED) {
             updateData.completedAt = new Date();
+        }
+        if (status === ParcelStatus.PICKED_UP && parcel.status !== ParcelStatus.PICKED_UP) {
+            try {
+                if (parcel.driverId) {
+                    // Call your notification method
+                    await this.driverService.notifyParcelPickup(
+                        parcel.driverId,
+                        id,
+                        location
+                    );
+                }
+            } catch (error) {
+                // Log error but don't fail the status update
+                console.error('Failed to send pickup notification:', error);
+            }
         }
 
         const updatedParcel = await this.prisma.parcel.update({
@@ -399,7 +465,9 @@ export class ParcelsService {
                 name: parcel.sender.name,
                 email: parcel.sender.email,
                 phone: parcel.sender.phone,
-                role: parcel.sender.role
+                role: parcel.sender.role,
+                isActive: parcel.sender.isActive ?? true,
+                deletedAt: parcel.sender.deletedAt?.toISOString() || null,
             } : undefined,
             senderName: parcel.sender?.name || '',
             senderPhone: parcel.senderPhone || parcel.sender?.phone || '',
@@ -411,7 +479,9 @@ export class ParcelsService {
                 name: parcel.receiver.name,
                 email: parcel.receiver.email,
                 phone: parcel.receiver.phone,
-                role: parcel.receiver.role
+                role: parcel.receiver.role,
+                isActive: parcel.receiver.isActive ?? true,
+                deletedAt: parcel.receiver.deletedAt?.toISOString() || null,
             } : undefined,
             receiverName: parcel.receiverName,
             receiverPhone: parcel.receiverPhone || '',
@@ -423,7 +493,9 @@ export class ParcelsService {
                 name: parcel.driver.name,
                 email: parcel.driver.email,
                 phone: parcel.driver.phone,
-                role: parcel.driver.role
+                role: parcel.driver.role,
+                isActive: parcel.driver.isActive ?? true,
+                deletedAt: parcel.driver.deletedAt?.toISOString() || null,
             } : undefined,
 
             deliveryTime: parcel.deliveredAt?.toISOString() || '',

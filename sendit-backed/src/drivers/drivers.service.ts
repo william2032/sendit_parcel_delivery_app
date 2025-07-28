@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import {Injectable, NotFoundException, BadRequestException, Logger, forwardRef, Inject} from '@nestjs/common';
 
-import { TrackingEventType} from 'generated/prisma';
+import {TrackingEventType} from 'generated/prisma';
 import {
     UpdateDriverLocationDto,
     LocationSearchDto,
@@ -18,6 +18,7 @@ import {ParcelsService} from "../parcels/parcels.service";
 import {LocationService} from "../location/location.service";
 import {LocationAutocompleteService} from "./location-autocomplete/location-autocomplete.service";
 import {ParcelStatus} from "../parcels/dtos";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class DriversService {
@@ -27,16 +28,19 @@ export class DriversService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly mailerService: MailerService,
+        private readonly configService: ConfigService,
+        @Inject(forwardRef(() => ParcelsService))
         private readonly parcelsService: ParcelsService,
         private readonly locationService: LocationService,
         private readonly locationAutocompleteService: LocationAutocompleteService,
-    ) {}
+    ) {
+    }
 
     async updateDriverLocation(
         driverId: string,
         updateLocationDto: UpdateDriverLocationDto
     ): Promise<DriverLocationResponseDto> {
-        const { latitude, longitude, address } = updateLocationDto;
+        const {latitude, longitude, address} = updateLocationDto;
 
         try {
             // Validate coordinates
@@ -62,7 +66,7 @@ export class DriversService {
             // Process parcels assigned to this driver
             const locationUpdateResult = await this.processParcelLocationUpdates(
                 driverId,
-                { latitude, longitude },
+                {latitude, longitude},
                 finalAddress
             );
 
@@ -83,8 +87,8 @@ export class DriversService {
 
     async getDriverLocations(driverId: string): Promise<DriverLocationI[]> {
         const locations = await this.prisma.driverLocation.findMany({
-            where: { driverId },
-            orderBy: { timestamp: 'desc' },
+            where: {driverId},
+            orderBy: {timestamp: 'desc'},
             take: 50, // Limit to last 50 locations
         });
 
@@ -114,8 +118,8 @@ export class DriversService {
 
     async getDriverCurrentLocation(driverId: string): Promise<DriverLocationI | null> {
         const location = await this.prisma.driverLocation.findFirst({
-            where: { driverId },
-            orderBy: { timestamp: 'desc' },
+            where: {driverId},
+            orderBy: {timestamp: 'desc'},
         });
 
         return location ? this.transformToDriverLocationInterface(location) : null;
@@ -156,7 +160,7 @@ export class DriversService {
             const destination = parcel.destinationLocation;
             const proximityCheck = this.checkLocationProximity(
                 coordinates,
-                { latitude: destination.latitude, longitude: destination.longitude },
+                {latitude: destination.latitude, longitude: destination.longitude},
             );
 
             if (proximityCheck.isAtDestination) {
@@ -199,7 +203,7 @@ export class DriversService {
             type: TrackingEventType.DELIVERED,
             status: 'Delivered',
             location: address,
-            coordinates: { lat: coordinates.latitude, lng: coordinates.longitude },
+            coordinates: {lat: coordinates.latitude, lng: coordinates.longitude},
             description: `Parcel delivered to destination at ${address}.`,
             driverId,
             automated: true,
@@ -236,30 +240,56 @@ export class DriversService {
         parcelId: string,
         pickupLocation?: string
     ): Promise<void> {
+        // Add this log at the very beginning to confirm method is called
+        this.logger.log(`notifyParcelPickup called with driverId: ${driverId}, parcelId: ${parcelId}`);
+
         try {
+            // Add log before database query
+            this.logger.log('Fetching parcel details from database...');
+
             // Get parcel details
             const parcel = await this.prisma.parcel.findUnique({
-                where: { id: parcelId },
+                where: {id: parcelId},
                 include: {
-                    sender: { select: { name: true, email: true, phone: true } },
+                    sender: {select: {name: true, email: true, phone: true}},
                     pickupLocation: true,
                 },
             });
 
+            this.logger.log('Parcel query result:', {
+                found: !!parcel,
+                parcelId: parcel?.id,
+                driverId: parcel?.driverId,
+                senderEmail: parcel?.sender?.email
+            });
+
             if (!parcel) {
+                this.logger.error(`Parcel with ID ${parcelId} not found`);
                 throw new NotFoundException(`Parcel with ID ${parcelId} not found`);
             }
 
             // Verify driver is assigned to this parcel
+            this.logger.log(`Verifying driver assignment. Parcel driverId: ${parcel.driverId}, Request driverId: ${driverId}`);
+
             if (parcel.driverId !== driverId) {
+                this.logger.error('Driver not assigned to this parcel', {
+                    parcelDriverId: parcel.driverId,
+                    requestDriverId: driverId
+                });
                 throw new BadRequestException('Driver not assigned to this parcel');
             }
 
+            this.logger.log('Fetching driver details...');
+
             // Get driver details (drivers are Users with role DRIVER)
             const driver = await this.prisma.user.findUnique({
-                where: { id: driverId },
-                select: { name: true, phone: true },
+                where: {id: driverId},
+                select: {name: true, phone: true},
             });
+
+            this.logger.log('Driver details:', { found: !!driver, name: driver?.name });
+
+            this.logger.log('Updating parcel status to PICKED_UP...');
 
             // Update parcel status to PICKED_UP
             await this.parcelsService.updateStatus(
@@ -267,6 +297,10 @@ export class DriversService {
                 ParcelStatus.PICKED_UP,
                 pickupLocation || parcel.pickupLocation.address
             );
+
+            this.logger.log('Parcel status updated successfully');
+
+            this.logger.log('Creating tracking event...');
 
             // Create tracking event
             await this.parcelsService.createTrackingEvent({
@@ -279,22 +313,49 @@ export class DriversService {
                 automated: false,
             });
 
+            this.logger.log('Tracking event created successfully');
+
             // Send pickup notification to sender
             if (parcel.sender?.email) {
+                this.logger.log('Sender email found, preparing to send notification...');
+
+                this.logger.log('Preparing to send pickup notification email', {
+                    to: parcel.sender.email,
+                    senderName: parcel.sender.name,
+                    trackingNumber: parcel.trackingNumber,
+                    pickupLocation: pickupLocation || parcel.pickupLocation.address,
+                    driverName: driver?.name,
+                    driverPhone: driver?.phone
+                });
+
+                this.logger.log('Calling mailerService.sendPickupNotification...');
+
                 await this.mailerService.sendPickupNotification(
                     parcel.sender.email,
                     parcel.sender.name || 'Sender',
                     parcel.trackingNumber,
                     pickupLocation || parcel.pickupLocation.address,
                     driver?.name,
-                 driver?.phone || undefined || undefined
+                    driver?.phone || undefined // Remove the duplicate || undefined
                 );
+
+                this.logger.log('Email sent successfully');
+            } else {
+                this.logger.warn('No sender email found, skipping email notification', {
+                    senderId: parcel.sender?.name,
+                    senderExists: !!parcel.sender
+                });
             }
 
-            this.logger.log(`Pickup notification sent for parcel ${parcel.trackingNumber} by driver ${driverId}`);
+            this.logger.log(`Pickup notification process completed for parcel ${parcel.trackingNumber} by driver ${driverId}`);
 
         } catch (error) {
-            this.logger.error(`Failed to send pickup notification for parcel ${parcelId}`, error);
+            this.logger.error(`Failed to send pickup notification for parcel ${parcelId}`, {
+                error: error.message,
+                stack: error.stack,
+                driverId,
+                parcelId
+            });
             throw error;
         }
     }
@@ -308,9 +369,9 @@ export class DriversService {
         try {
             // Get parcel details
             const parcel = await this.prisma.parcel.findUnique({
-                where: { id: parcelId },
+                where: {id: parcelId},
                 include: {
-                    receiver: { select: { name: true, email: true, phone: true } },
+                    receiver: {select: {name: true, email: true, phone: true}},
                     destinationLocation: true,
                 },
             });
@@ -326,8 +387,8 @@ export class DriversService {
 
             // Get driver details (drivers are Users with role DRIVER)
             const driver = await this.prisma.user.findUnique({
-                where: { id: driverId },
-                select: { name: true, phone: true },
+                where: {id: driverId},
+                select: {name: true, phone: true},
             });
 
             const location = arrivalLocation || parcel.destinationLocation.address;
@@ -361,6 +422,8 @@ export class DriversService {
                     driver?.name,
                     driver?.phone || undefined || undefined
                 );
+            } else {
+                this.logger.warn(`Sender email not found. Skipping pickup email for parcel ${parcel.id}`);
             }
 
             this.logger.log(`Receiver pickup notification sent for parcel ${parcel.trackingNumber} by driver ${driverId}`);
@@ -384,7 +447,7 @@ export class DriversService {
             type: TrackingEventType.LOCATION_UPDATE,
             status: 'In Transit',
             location: address,
-            coordinates: { lat: coordinates.latitude, lng: coordinates.longitude },
+            coordinates: {lat: coordinates.latitude, lng: coordinates.longitude},
             description: `Driver location updated: ${address}.`,
             driverId,
             automated: true,
@@ -450,7 +513,7 @@ export class DriversService {
             where: {
                 parcelId,
                 type: TrackingEventType.LOCATION_UPDATE,
-                createdAt: { gte: thirtyMinutesAgo },
+                createdAt: {gte: thirtyMinutesAgo},
             },
         });
 
@@ -483,10 +546,10 @@ export class DriversService {
         try {
             // Get parcel details
             const parcel = await this.prisma.parcel.findUnique({
-                where: { id: parcelId },
+                where: {id: parcelId},
                 include: {
-                    sender: { select: { name: true, email: true, phone: true } },
-                    receiver: { select: { name: true, email: true, phone: true } },
+                    sender: {select: {name: true, email: true, phone: true}},
+                    receiver: {select: {name: true, email: true, phone: true}},
                     destinationLocation: true,
                 },
             });
@@ -505,13 +568,13 @@ export class DriversService {
             // Get current driver location for coordinates
             const driverLocation = await this.getDriverCurrentLocation(driverId);
             const coordinates = driverLocation ?
-                { lat: driverLocation.latitude, lng: driverLocation.longitude } :
-                { lat: parcel.destinationLocation.latitude, lng: parcel.destinationLocation.longitude };
+                {lat: driverLocation.latitude, lng: driverLocation.longitude} :
+                {lat: parcel.destinationLocation.latitude, lng: parcel.destinationLocation.longitude};
 
             // Manually deliver the parcel
             await this.deliverParcel(
                 parcel,
-                { latitude: coordinates.lat, longitude: coordinates.lng },
+                {latitude: coordinates.lat, longitude: coordinates.lng},
                 location,
                 driverId
             );

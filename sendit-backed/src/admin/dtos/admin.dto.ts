@@ -1,8 +1,22 @@
 // dtos/admin.dto.ts
 
-import { IsString, IsEmail, IsOptional, IsNumber, IsEnum, IsBoolean, ValidateNested, IsArray, Min, Max } from 'class-validator';
+import {
+    IsString,
+    IsEmail,
+    IsOptional,
+    IsNumber,
+    IsEnum,
+    IsBoolean,
+    ValidateNested,
+    IsArray,
+    Min,
+    Max,
+    IsUUID, IsDateString
+} from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import {AdminParcelResponseClass} from "./admin-response.dto";
+import {AdminParcelResponse} from "../interfaces/admin.interface";
 
 export class LocationDto {
     @ApiProperty({ example: 'Nairobi CBD Office' })
@@ -226,4 +240,98 @@ export class UpdateParcelStatusDto {
     @ValidateNested()
     @Type(() => LocationDto)
     currentLocation?: LocationDto;
+}
+
+
+export class SingleDriverAssignmentDto {
+    @ApiProperty({ description: 'Driver ID to assign to the parcel' })
+    @IsUUID()
+    driverId: string;
+
+    @ApiPropertyOptional({ description: 'Scheduled pickup time' })
+    @IsOptional()
+    @IsDateString()
+    pickupTime?: string;
+
+    @ApiPropertyOptional({ description: 'Admin notes for the assignment' })
+    @IsOptional()
+    @IsString()
+    notes?: string;
+}
+
+export class UnassignedParcelAssignmentDto {
+    @ApiProperty({ description: 'Parcel ID to assign driver to' })
+    @IsUUID()
+    parcelId: string;
+
+    @ApiProperty({ description: 'Driver ID to assign' })
+    @IsUUID()
+    driverId: string;
+
+    @ApiPropertyOptional({ description: 'Scheduled pickup time' })
+    @IsOptional()
+    @IsDateString()
+    pickupTime?: string;
+
+    @ApiPropertyOptional({ description: 'Admin notes for the assignment' })
+    @IsOptional()
+    @IsString()
+    notes?: string;
+}
+
+export class BulkUnassignedDriverAssignmentDto {
+    @ApiProperty({
+        description: 'Array of parcel-driver assignments',
+        type: [UnassignedParcelAssignmentDto]
+    })
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => UnassignedParcelAssignmentDto)
+    assignments: UnassignedParcelAssignmentDto[];
+}
+
+// Response DTOs
+export class UnassignedParcelStatsDto {
+    @ApiProperty({ description: 'Total number of unassigned parcels' })
+    total: number;
+
+    @ApiProperty({ description: 'Number of pending unassigned parcels' })
+    pending: number;
+
+    @ApiProperty({
+        description: 'Unassigned parcels grouped by city',
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: {
+                city: { type: 'string' },
+                count: { type: 'number' }
+            }
+        }
+    })
+    byCity: Array<{ city: string; count: number }>;
+
+    @ApiProperty({ description: 'Date of oldest unassigned parcel' })
+    oldestUnassigned: Date | null;
+}
+
+export class BulkAssignmentResultDto {
+    @ApiProperty({
+        description: 'Successfully assigned parcels',
+        type: [AdminParcelResponseClass]
+    })
+    successful: AdminParcelResponse[];
+
+    @ApiProperty({
+        description: 'Failed assignments with error messages',
+        type: 'array',
+        items: {
+            type: 'object',
+            properties: {
+                parcelId: { type: 'string' },
+                error: { type: 'string' }
+            }
+        }
+    })
+    failed: Array<{ parcelId: string; error: string }>;
 }

@@ -1,5 +1,3 @@
-// responses/admin.response.ts
-
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ParcelStatus } from 'generated/prisma';
 

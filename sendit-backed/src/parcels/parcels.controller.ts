@@ -21,15 +21,18 @@ import {
     ParcelQueryDto,
     UpdateParcelDto
 } from "./dtos";
-import { ParcelStatus, WeightCategory, TrackingEventType } from 'generated/prisma';
+import {ParcelStatus, WeightCategory, TrackingEventType, UserRole} from 'generated/prisma';
 import {PaginatedResponse, ParcelI, TrackingEventI} from "./interfaces/parcel.interface";
+import {Roles} from "../auth/decorators/role-decorator";
+import {RolesGuard} from "../auth/guards/roles.guards";
 @ApiTags('parcels')
 @Controller('parcels')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ParcelsController {
     constructor(private readonly parcelService: ParcelsService) {}
 
     @Post()
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Create a new parcel' })
     @ApiResponse({ status: HttpStatus.CREATED, description: 'Parcel created successfully' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input data' })
@@ -38,6 +41,7 @@ export class ParcelsController {
     }
 
     @Get()
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get all parcels with pagination and filtering' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Parcels retrieved successfully' })
     async findAll(@Query() query: ParcelQueryDto): Promise<PaginatedResponse<ParcelI>> {
@@ -45,6 +49,7 @@ export class ParcelsController {
     }
 
     @Get('tracking/:trackingNumber')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get parcel by tracking number' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Parcel found' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
@@ -53,13 +58,16 @@ export class ParcelsController {
     }
 
     @Get(':id')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get parcel by ID' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Parcel found' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
     async findOne(@Param('id') id: string): Promise<ParcelI> {
         return this.parcelService.findOne(id);
     }
+
     @Get('sent/:userId')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get parcels sent by a specific user' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Sent parcels retrieved successfully' })
     async getSentParcels(
@@ -70,6 +78,7 @@ export class ParcelsController {
     }
 
     @Get('received/:userId')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get parcels received by a specific user' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Received parcels retrieved successfully' })
     async getReceivedParcels(
@@ -79,8 +88,8 @@ export class ParcelsController {
         return this.parcelService.findAll({ ...query, receiverId: userId });
     }
 
-
     @Patch(':id')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER)
     @ApiOperation({ summary: 'Update parcel' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Parcel updated successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
@@ -92,6 +101,7 @@ export class ParcelsController {
     }
 
     @Patch(':id/assign-driver')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER)
     @ApiOperation({ summary: 'Assign driver to parcel' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Driver assigned successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
@@ -104,6 +114,7 @@ export class ParcelsController {
     }
 
     @Patch(':id/status')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER)
     @ApiOperation({ summary: 'Update parcel status' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Status updated successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
@@ -119,6 +130,7 @@ export class ParcelsController {
     }
 
     @Delete(':id')
+    @Roles(UserRole.ADMIN)
     @ApiOperation({ summary: 'Soft delete parcel' })
     @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Parcel deleted successfully' })
     @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Parcel not found' })
@@ -127,6 +139,7 @@ export class ParcelsController {
     }
 
     @Post(':id/tracking-events')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER)
     @ApiOperation({ summary: 'Create tracking event for parcel' })
     @ApiResponse({ status: HttpStatus.CREATED, description: 'Tracking event created successfully' })
     async createTrackingEvent(@Body() createTrackingEventDto: CreateTrackingEventDto): Promise<TrackingEventI> {
@@ -134,6 +147,7 @@ export class ParcelsController {
     }
 
     @Get(':id/tracking-events')
+    @Roles(UserRole.ADMIN, UserRole.DRIVER, UserRole.CUSTOMER)
     @ApiOperation({ summary: 'Get tracking events for parcel' })
     @ApiResponse({ status: HttpStatus.OK, description: 'Tracking events retrieved successfully' })
     async getTrackingEvents(@Param('id') id: string): Promise<TrackingEventI[]> {

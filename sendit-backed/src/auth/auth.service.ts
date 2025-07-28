@@ -441,6 +441,7 @@ export class AuthService implements IAuthService {
             city: user.city,
             country: user.country,
             role: user.role,
+            isActive: user.isActive,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
         };

@@ -14,4 +14,9 @@ export class AssignDriverDto {
     @IsOptional()
     @IsDateString()
     pickupTime?: string;
+
+    @ApiPropertyOptional({ description: 'Optional estimated delivery time for the parcel' })
+    @IsOptional()
+    @IsDateString()
+    estimatedDeliveryTime?: string;
 }

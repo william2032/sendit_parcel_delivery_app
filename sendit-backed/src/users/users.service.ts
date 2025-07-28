@@ -54,9 +54,10 @@ export class UsersService implements IuserService {
         }
     }
 
-    async findAll(): Promise<UserResponse[]> {
+    async findAll(includeDeleted: boolean = false): Promise<UserResponse[]> {
+        const whereClause = includeDeleted ? {} : { deletedAt: null };
         const users = await this.prisma.user.findMany({
-            where: { deletedAt: null },
+            where: whereClause,
             select: this.getUserSelectFields(),
             orderBy: { createdAt: 'desc' },
         });
@@ -219,11 +220,12 @@ export class UsersService implements IuserService {
             name: true,
             email: true,
             phone: true,
-            profileImage: true,
+            profilePicture: true,
             city: true,
             country: true,
             emailVerified: true,
             phoneVerified: true,
+            isActive: true,
             role: true,
             createdAt: true,
             updatedAt: true,
@@ -236,10 +238,11 @@ export class UsersService implements IuserService {
             name: user.name,
             email: user.email,
             phone: user.phone || '',
-            profilePicture: user.profileImage,
+            profilePicture: user.profilePicture,
             city: user.city,
             country: user.country,
             role: user.role,
+            isActive: user.isActive,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
         };

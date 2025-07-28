@@ -15,6 +15,8 @@ export interface UserI {
     email: string;
     phone?: string;
     role: string;
+    isActive: boolean;
+    deletedAt?: Date;
 }
 
 export interface LocationI {

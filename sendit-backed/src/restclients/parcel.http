@@ -1,0 +1,166 @@
+### Variables
+@baseUrl = http://localhost:3000
+@adminToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRrYTM2emgwMDAzdGJndzI1bTg0aG95IiwiZW1haWwiOiJraXZpbmR1a2lsb256b0BnbWFpbC5jb20iLCJyb2xlIjoiQURNSU4iLCJpYXQiOjE3NTM2NDc5MzQsImV4cCI6MTc1MzY1MTUzNH0.-iUvB7HauxOGQ5-n74qFPBVyx2lNAKcnoBTPu0-khxQ
+@driverToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRsbWZtOXEwMDA3dGJ3MHNpZWticTdzIiwiZW1haWwiOiJyb2NreDIwNjBAZ21haWwuY29tIiwicm9sZSI6IkRSSVZFUiIsImlhdCI6MTc1MzY0ODU1MiwiZXhwIjoxNzUzNjUyMTUyfQ.hlNrIjc9I3Hk4kuli-YanIsSfXnf9leQoK2AfQntthI
+@customerToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjbWRnYTNod2swMDAwdGJzczBkM3N2czJnIiwiZW1haWwiOiJsdWtlYmV0aWthQGdtYWlsLmNvbSIsInJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1MzY0NjAyOCwiZXhwIjoxNzUzNjQ5NjI4fQ.zttzqzRBAYeQc5g3VMNcXg8yI8gIti1X2eTNDFuxWVs
+
+### Create Parcel (Admin only)
+POST {{baseUrl}}/parcels
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "senderId": "12345678-1234-1234-1234-123456789abc",
+  "senderPhone": "+254700123456",
+  "receiverName": "John Doe",
+  "receiverPhone": "+254700654321",
+  "receiverEmail": "john@example.com",
+  "weight": 2.5,
+  "weightCategory": "MEDIUM",
+  "description": "Electronics package",
+  "pickupLocationId": "location-pickup-id-here",
+  "destinationLocationId": "location-destination-id-here",
+  "quote": 500,
+  "currency": "KES",
+  "estimatedDeliveryTime": "2024-02-15T14:00:00Z"
+}
+
+###
+
+### Get All Parcels
+GET {{baseUrl}}/parcels?page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Get Parcel by ID
+GET {{baseUrl}}/parcels/12345678-1234-1234-1234-123456789abc
+Authorization: Bearer {{customerToken}}
+
+###
+
+### Get Parcel by Tracking Number
+GET {{baseUrl}}/parcels/tracking/TRK123456789
+Authorization: Bearer {{customerToken}}
+
+###
+
+### Get Sent Parcels by User
+GET {{baseUrl}}/parcels/sent/cmdga3hwk0000tbss0d3svs2g?page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+###
+
+### Get Received Parcels by User
+GET {{baseUrl}}/parcels/received/cmdga3hwk0000tbss0d3svs2g?page=1&limit=5
+Authorization: Bearer {{customerToken}}
+
+###
+
+### Update Parcel Details
+PATCH {{baseUrl}}/parcels/12345678-1234-1234-1234-123456789abc
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "receiverName": "Jane Smith",
+  "receiverPhone": "+254700999888",
+  "weight": 3.0,
+  "quote": 600
+}
+
+###
+
+### Assign Driver to Parcel
+PATCH {{baseUrl}}/parcels/cmdm4puyq0002tbbo3v1lt97x/assign-driver
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "driverId": "cmdlmfm9q0007tbw0siekbq7s",
+  "pickupTime": "2025-08-15T10:00:00Z"
+}
+
+###
+
+### Update Parcel Status
+PATCH {{baseUrl}}/parcels/cmdm4puyq0002tbbo3v1lt97x/status
+Authorization: Bearer {{driverToken}}
+Content-Type: application/json
+
+{
+  "status": "PICKED_UP",
+  "location": "Westlands, Nairobi",
+  "coordinates": {
+    "lat": -1.2634,
+    "lng": 36.8078
+  }
+}
+
+###
+
+### Update Status to Delivered
+PATCH {{baseUrl}}/parcels/12345678-1234-1234-1234-123456789abc/status
+Authorization: Bearer {{driverToken}}
+Content-Type: application/json
+
+{
+  "status": "DELIVERED",
+  "location": "Karen, Nairobi",
+  "coordinates": {
+    "lat": -1.3197,
+    "lng": 36.7084
+  }
+}
+
+###
+
+### Create Tracking Event
+POST {{baseUrl}}/parcels/12345678-1234-1234-1234-123456789abc/tracking-events
+Authorization: Bearer {{driverToken}}
+Content-Type: application/json
+
+{
+  "parcelId": "12345678-1234-1234-1234-123456789abc",
+  "type": "LOCATION_UPDATE",
+  "status": "IN_TRANSIT",
+  "location": "En route to destination",
+  "coordinates": {
+    "lat": -1.2921,
+    "lng": 36.8219
+  },
+  "description": "Package is on the way to final destination",
+  "automated": false
+}
+
+###
+
+### Get Tracking Events for Parcel
+GET {{baseUrl}}/parcels/cmdm4puyq0002tbbo3v1lt97x/tracking-events
+Authorization: Bearer {{customerToken}}
+
+###
+
+### Delete Parcel (Admin only)
+DELETE {{baseUrl}}/parcels/12345678-1234-1234-1234-123456789abc
+Authorization: Bearer {{adminToken}}
+
+###
+
+### ============ QUICK FILTERS ============
+
+### Filter parcels by status
+GET {{baseUrl}}/parcels?status=PENDING&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Filter parcels by sender
+GET {{baseUrl}}/parcels?senderId=12345678-1234-1234-1234-123456789abc&page=1&limit=10
+Authorization: Bearer {{adminToken}}
+
+###
+
+### Search by tracking number
+GET {{baseUrl}}/parcels?trackingNumber=TRK&page=1&limit=10
+Authorization: Bearer {{adminToken}}

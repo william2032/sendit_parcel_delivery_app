@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import { DriversService } from './drivers.service';
 import { DriversController } from './drivers.controller';
 import { LocationAutocompleteService } from './location-autocomplete/location-autocomplete.service';
@@ -11,7 +11,7 @@ import {ConfigModule} from "@nestjs/config";
 @Module({
   imports: [PrismaModule,
     AppMailerModule,
-    ParcelsModule,
+    forwardRef(() => ParcelsModule),
     LocationModule,
     ConfigModule,],
   providers: [DriversService, LocationAutocompleteService],

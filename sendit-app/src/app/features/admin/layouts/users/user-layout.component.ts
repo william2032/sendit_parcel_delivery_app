@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {CommonModule, NgForOf} from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {UserI} from '../../../../shared/models/users.interface';
+import {AdminService} from '../../../../shared/services/admin.service';
+import {firstValueFrom} from 'rxjs';
 
 @Component({
   selector: 'app-users',
@@ -10,106 +12,108 @@ import {UserI} from '../../../../shared/models/users.interface';
   styleUrl: './user-layout.component.scss'
 })
 export class UserLayoutComponent implements OnInit {
-  activeTab: 'all' | 'active' | 'inactive' = 'all';
+  activeTab: 'all' | 'admin' | 'driver' | 'customer' | 'active' | 'inactive' = 'all';
   currentPage = 1;
+  itemsPerPage = 10;
   totalPages = 1;
   totalEntries = 0;
+  loading = false;
+  error: string | null = null;
 
-  users: UserI[] = [
-    {
-      id: '1',
-      name: 'Robert Fox',
-      phone: '+254712345678',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '2',
-      name: 'Robert Fox',
-      phone: '+254723456789',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '3',
-      name: 'Robert Fox',
-      phone: '+254734567890',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '4',
-      name: 'Talobi Manna',
-      phone: '+254745678901',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '5',
-      name: 'Brooklyn Simmons',
-      phone: '+254756789012',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '6',
-      name: 'Devon Lane',
-      phone: '+254767890123',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '7',
-      name: 'Devon Lane',
-      phone: '+254778901234',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Active',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    },
-    {
-      id: '8',
-      name: 'Devon Lane',
-      phone: '+254789012345',
-      email: 'debbie.baker@example.com',
-      joinedDate: '23 Jul 2025',
-      status: 'Inactive',
-      profileImage: 'https://cdn.prod.website-files.com/67009da69b1f97d92249b0ba/6700ba3eb83ab0f4750b6169_Testimonail%20Image%201.png'
-    }
-  ];
+  users: UserI[] = [];
+  selectedUsers: Set<string> = new Set();
+  selectAll = false;
 
   filteredUsers: UserI[] = [];
 
+  get allUsersCount(): number {
+    return this.users.length;
+  }
+
+  get adminUsersCount(): number {
+    return this.users.filter(user => user.role === 'ADMIN').length;
+  }
+
+  get driverUsersCount(): number {
+    return this.users.filter(user => user.role === 'DRIVER').length;
+  }
+
+  get customerUsersCount(): number {
+    return this.users.filter(user => user.role === 'CUSTOMER').length;
+  }
+
+  get activeUsersCount(): number {
+    return this.users.filter(user => user.isActive).length;
+  }
+
+  get inactiveUsersCount(): number {
+    return this.users.filter(user => !user.isActive).length;
+  }
+
+  constructor(private adminService: AdminService) {}
+
   ngOnInit() {
-    this.filterUsers();
+    this.loadUsers();
+  }
+
+  async loadUsers() {
+    this.loading = true;
+    this.error = null;
+
+    try {
+      const response = await firstValueFrom(this.adminService.getAllUsers());
+      // Handle both direct array response and wrapped response
+      if (Array.isArray(response)) {
+        this.users = response;
+      } else {
+        this.users = response?.data || [];
+      }
+      this.filterUsers();
+    } catch (error: any) {
+      this.error = error.message || 'Failed to load users';
+      console.error('Error loading users:', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   filterUsers() {
     switch (this.activeTab) {
+      case 'admin':
+        this.filteredUsers = this.users.filter(user => user.role === 'ADMIN');
+        break;
+      case 'driver':
+        this.filteredUsers = this.users.filter(user => user.role === 'DRIVER');
+        break;
+      case 'customer':
+        this.filteredUsers = this.users.filter(user => user.role === 'CUSTOMER');
+        break;
       case 'active':
-        this.filteredUsers = this.users.filter(user => user.status === 'Active');
+        this.filteredUsers = this.users.filter(user => user.isActive);
         break;
       case 'inactive':
-        this.filteredUsers = this.users.filter(user => user.status === 'Inactive');
+        this.filteredUsers = this.users.filter(user => !user.isActive);
         break;
       default:
-        this.filteredUsers = this.users;
+        this.filteredUsers = [...this.users];
     }
 
     this.totalEntries = this.filteredUsers.length;
-    this.totalPages = Math.ceil(this.filteredUsers.length / 10);
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.itemsPerPage);
+    this.currentPage = 1; // Reset to first page when filtering
+    this.selectedUsers.clear();
+    this.selectAll = false;
+  }
+
+  onTabChange(tab: 'all' | 'admin' | 'driver' | 'customer' | 'active' | 'inactive') {
+    this.activeTab = tab;
+    this.filterUsers();
+  }
+
+  getPaginatedUsers(): UserI[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredUsers.slice(startIndex, endIndex);
   }
 
   previousPage() {
@@ -124,22 +128,184 @@ export class UserLayoutComponent implements OnInit {
     }
   }
 
-  // Backend integration methods
-  async loadUsers() {
-    // TODO: Replace with actual API call
-    // this.users = await this.userService.getUsers();
-    // this.filterUsers();
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
   }
 
-  async updateUserStatus(userId: number, status: 'Active' | 'Inactive') {
-    // TODO: Replace with actual API call
-    // await this.userService.updateUserStatus(userId, status);
-    // this.loadUsers();
+  // Selection methods
+  toggleSelectAll() {
+    this.selectAll = !this.selectAll;
+    const currentPageUsers = this.getPaginatedUsers();
+
+    if (this.selectAll) {
+      currentPageUsers.forEach(user => this.selectedUsers.add(user.id));
+    } else {
+      currentPageUsers.forEach(user => this.selectedUsers.delete(user.id));
+    }
   }
 
-  async deleteUser(userId: number) {
-    // TODO: Replace with actual API call
-    // await this.userService.deleteUser(userId);
-    // this.loadUsers();
+  toggleUserSelection(userId: string) {
+    if (this.selectedUsers.has(userId)) {
+      this.selectedUsers.delete(userId);
+    } else {
+      this.selectedUsers.add(userId);
+    }
+
+    // Update selectAll status
+    const currentPageUsers = this.getPaginatedUsers();
+    this.selectAll = currentPageUsers.every(user => this.selectedUsers.has(user.id));
   }
+
+  isUserSelected(userId: string): boolean {
+    return this.selectedUsers.has(userId);
+  }
+
+  // User management methods - Updated to use firstValueFrom instead of toPromise()
+  async updateUserRole(userId: string, role: string) {
+    try {
+      this.loading = true;
+      await firstValueFrom(this.adminService.updateUserRole(userId, role));
+
+      // Update local user data
+      const userIndex = this.users.findIndex(user => user.id === userId);
+      if (userIndex !== -1) {
+        this.users[userIndex].role = role as any;
+        this.filterUsers();
+      }
+
+      console.log(`User ${userId} role updated to ${role}`);
+    } catch (error: any) {
+      this.error = error.message || 'Failed to update user role';
+      console.error('Error updating user role:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async updateUserStatus(userId: string, isActive: boolean) {
+    try {
+      this.loading = true;
+      await firstValueFrom(this.adminService.updateUserStatus(userId, isActive));
+
+      // Update local user data
+      const userIndex = this.users.findIndex(user => user.id === userId);
+      if (userIndex !== -1) {
+        this.users[userIndex].isActive = isActive;
+        this.filterUsers();
+      }
+
+      console.log(`User ${userId} status updated to ${isActive ? 'Active' : 'Inactive'}`);
+    } catch (error: any) {
+      this.error = error.message || 'Failed to update user status';
+      console.error('Error updating user status:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async deleteUser(userId: string) {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      this.loading = true;
+      await firstValueFrom(this.adminService.deleteUser(userId));
+
+      // Remove user from local data
+      this.users = this.users.filter(user => user.id !== userId);
+      this.selectedUsers.delete(userId);
+      this.filterUsers();
+
+      console.log(`User ${userId} deleted successfully`);
+    } catch (error: any) {
+      this.error = error.message || 'Failed to delete user';
+      console.error('Error deleting user:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async bulkDeleteSelected() {
+    if (this.selectedUsers.size === 0) {
+      return;
+    }
+
+    const confirmMessage = `Are you sure you want to delete ${this.selectedUsers.size} selected user(s)? This action cannot be undone.`;
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    try {
+      this.loading = true;
+      const deletePromises = Array.from(this.selectedUsers).map(userId =>
+        firstValueFrom(this.adminService.deleteUser(userId))
+      );
+
+      await Promise.all(deletePromises);
+
+      // Remove deleted users from local data
+      this.users = this.users.filter(user => !this.selectedUsers.has(user.id));
+      this.selectedUsers.clear();
+      this.selectAll = false;
+      this.filterUsers();
+
+      console.log('Selected users deleted successfully');
+    } catch (error: any) {
+      this.error = error.message || 'Failed to delete selected users';
+      console.error('Error deleting selected users:', error);
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  onImageError(event: Event, fallbackInitial: string) {
+    const imgElement = event.target as HTMLImageElement;
+    imgElement.src = `https://plus.unsplash.com/premium_photo-1671656349218-5218444643d8?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8YXZhdGFyfGVufDB8fDB8fHww`;
+  }
+
+  onRoleChange(event: Event, userId: string) {
+    const selectElement = event.target as HTMLSelectElement;
+    const newRole = selectElement.value;
+    this.updateUserRole(userId, newRole).then(() => {
+      // Role updated successfully
+    }).catch(error => {
+      console.error('Failed to update role:', error);
+    });
+  }
+
+  onStatusChange(event: Event, userId: string) {
+    const selectElement = event.target as HTMLSelectElement;
+    const isActive = selectElement.value === 'Active';
+    this.updateUserStatus(userId, isActive);
+  }
+
+  // Utility methods
+  getDisplayRange(): { start: number; end: number } {
+    const start = (this.currentPage - 1) * this.itemsPerPage + 1;
+    const end = Math.min(start + this.itemsPerPage - 1, this.totalEntries);
+    return { start, end };
+  }
+
+  refreshUsers() {
+    this.loadUsers();
+  }
+
+  clearError() {
+    this.error = null;
+  }
+
+  // Helper method to format date
+  formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  protected readonly Math = Math;
 }

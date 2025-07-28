@@ -1,65 +1,128 @@
 <div class="p-6 font-gilroy">
-  <h2 class="text-2xl font-semibold text-[#01003D] mb-6">Users</h2>
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-2xl font-semibold text-[#01003D]">Users</h2>
+    <div class="flex space-x-3">
+      <button
+        (click)="refreshUsers()"
+        [disabled]="loading"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        <span *ngIf="!loading">Refresh</span>
+        <span *ngIf="loading">Loading...</span>
+      </button>
+      <button
+        *ngIf="selectedUsers.size > 0"
+        (click)="bulkDeleteSelected()"
+        [disabled]="loading"
+        class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Delete Selected ({{ selectedUsers.size }})
+      </button>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+    <div class="flex justify-between items-center">
+      <div class="flex items-center">
+        <svg class="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="text-red-800">{{ error }}</span>
+      </div>
+      <button (click)="clearError()" class="text-red-400 hover:text-red-600">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
   <!-- Tab Navigation -->
   <div class="mb-6">
     <div class="border-b border-gray-200">
       <nav class="-mb-px flex space-x-8">
         <button
-          (click)="activeTab = 'all'"
+          (click)="onTabChange('all')"
           [class]="activeTab === 'all' ? 'border-yellow-400 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
           class="py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+          [disabled]="loading"
         >
-          All Users
+          All Users ({{ allUsersCount }})
         </button>
         <button
-          (click)="activeTab = 'active'"
+          (click)="onTabChange('active')"
           [class]="activeTab === 'active' ? 'border-yellow-400 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
           class="py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+          [disabled]="loading"
         >
-          Active Users
+          Active Users ({{ activeUsersCount }})
         </button>
         <button
-          (click)="activeTab = 'inactive'"
+          (click)="onTabChange('inactive')"
           [class]="activeTab === 'inactive' ? 'border-yellow-400 text-yellow-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
           class="py-2 px-1 border-b-2 font-medium text-sm transition-colors"
+          [disabled]="loading"
         >
-          Inactive Users
+          Inactive Users ({{ inactiveUsersCount }})
         </button>
       </nav>
     </div>
   </div>
 
+  <!-- Loading State -->
+  <div *ngIf="loading && users.length === 0" class="flex justify-center items-center py-12">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <span class="ml-2 text-gray-600">Loading users...</span>
+  </div>
+
   <!-- Users Table -->
-  <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+  <div *ngIf="!loading || users.length > 0" class="bg-white rounded-lg shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead class="bg-gray-50">
         <tr>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <input
+              type="checkbox"
+              [checked]="selectAll"
+              (change)="toggleSelectAll()"
+              [disabled]="getPaginatedUsers().length === 0"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            >
           </th>
-          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">S/N</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined Date</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
           <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
         </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-        <tr *ngFor="let user of filteredUsers; let i = index" class="hover:bg-gray-50 transition-colors">
+        <tr *ngFor="let user of getPaginatedUsers(); let i = index"
+            class="hover:bg-gray-50 transition-colors"
+            [class.bg-blue-50]="isUserSelected(user.id)">
           <td class="px-6 py-4 whitespace-nowrap">
-            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <input
+              type="checkbox"
+              [checked]="isUserSelected(user.id)"
+              (change)="toggleUserSelection(user.id)"
+              class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            >
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {{ i + 1 }}
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono">
+            {{ user.id }}
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
               <div class="flex-shrink-0 h-10 w-10">
                 <img
-                  [src]="user.profileImage || 'https://via.placeholder.com/40x40?text=' + user.name.charAt(0)"
+                  [src]="user.profilePicture || '' + user.name.charAt(0)"
                   [alt]="user.name"
                   class="h-10 w-10 rounded-full object-cover"
+                  (error)="onImageError($event, user.name.charAt(0))"
                 >
               </div>
               <div class="ml-4">
@@ -69,49 +132,110 @@
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            {{ user.joinedDate }}
+            {{ user.phone }}
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-                  <span
-                    [class]="user.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
-                    class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-                  >
-                    {{ user.status }}
-                  </span>
+            <select
+              *ngIf="user.role !== 'ADMIN'"
+              [value]="user.role"
+              (change)="onRoleChange($event, user.id)"
+              [disabled]="loading"
+              class="text-xs font-semibold rounded-full px-3 py-1 border border-gray-300 focus:ring-2 focus:ring-blue-500"
+              [class]="user.role === 'DRIVER' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'"
+            >
+              <option value="DRIVER">Driver</option>
+              <option value="CUSTOMER">Customer</option>
+            </select>
+            <span
+              *ngIf="user.role === 'ADMIN'"
+              class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"
+            >
+              Admin
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            {{ formatDate(user.createdAt) }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <select
+              [value]="user.isActive ? 'Active' : 'Inactive'"
+              (change)="onStatusChange($event, user.id)"
+              [disabled]="loading"
+              class="text-xs font-semibold rounded-full px-2 py-1 border-0 focus:ring-2 focus:ring-blue-500"
+              [class]="user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-            <button class="text-gray-400 hover:text-gray-600 transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-              </svg>
-            </button>
+            <div class="flex space-x-2">
+              <button
+                (click)="deleteUser(user.id)"
+                [disabled]="loading"
+                class="text-red-400 hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Delete User"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3l1.146-1.146a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 111.414-1.414L9 9V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                  <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+            </div>
           </td>
         </tr>
         </tbody>
       </table>
     </div>
 
+    <!-- Empty State -->
+    <div *ngIf="filteredUsers.length === 0 && !loading" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No users found</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        {{ activeTab === 'all' ? 'No users have been added yet.' :
+        activeTab === 'active' ? 'No active users found.' : 'No inactive users found.' }}
+      </p>
+    </div>
+
     <!-- Pagination -->
-    <div class="px-6 py-4 flex items-center justify-between border-t">
+    <div *ngIf="filteredUsers.length > 0" class="px-6 py-4 flex items-center justify-between border-t">
       <div class="text-sm text-gray-700">
-        Showing {{ currentPage }} to {{ totalPages }} of {{ totalEntries }} entries
+        <span *ngIf="totalEntries > 0">
+          Showing {{ getDisplayRange().start }} to {{ getDisplayRange().end }} of {{ totalEntries }} entries
+        </span>
+        <span *ngIf="selectedUsers.size > 0" class="ml-4 text-blue-600">
+          ({{ selectedUsers.size }} selected)
+        </span>
       </div>
-      <div class="flex space-x-2">
+      <div class="flex items-center space-x-2">
         <button
           class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          [disabled]="currentPage === 1"
+          [disabled]="currentPage === 1 || loading"
           (click)="previousPage()"
         >
           Previous
         </button>
-        <button
-          class="px-3 py-1 bg-gray-900 text-white rounded-md text-sm"
-        >
-          {{ currentPage }}
-        </button>
+
+        <!-- Page Numbers -->
+        <div class="flex space-x-1">
+          <button
+            *ngFor="let page of [].constructor(Math.min(5, totalPages)); let i = index"
+            [class]="(i + 1) === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+            class="px-3 py-1 border border-gray-300 rounded-md text-sm transition-colors"
+            (click)="goToPage(i + 1)"
+            [disabled]="loading"
+          >
+            {{ i + 1 }}
+          </button>
+        </div>
+
         <button
           class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          [disabled]="currentPage === totalPages"
+          [disabled]="currentPage === totalPages || loading"
           (click)="nextPage()"
         >
           Next

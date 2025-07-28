@@ -1,83 +1,193 @@
-<div class="flex h-screen bg-gray-100  font-gilroy">
+<div class="flex h-screen bg-gray-100 font-gilroy">
   <!-- Main Content -->
   <div class="flex-1 flex flex-col overflow-hidden">
     <!-- Dashboard Content -->
     <main class="flex-1 overflow-y-auto bg-[#B9B9B9] bg-opacity-20">
       <div class="p-6">
-        <h2 class="text-2xl font-semibold text-[#01003D] mb-6">Dashboard</h2>
+        <!-- Header with Refresh Button -->
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-semibold text-[#01003D]">Dashboard</h2>
+          <button
+            (click)="refreshData()"
+            [disabled]="isLoading"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            <span>{{ isLoading ? 'Loading...' : 'Refresh' }}</span>
+          </button>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="mb-6 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+          {{ errorMessage }}
+          <button (click)="refreshData()" class="ml-2 underline hover:no-underline">Try again</button>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div *ngIf="isLoading" class="mb-6 flex justify-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
 
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <!-- Total Users -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Active Users -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 mb-1">Total User</p>
-                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.totalUsers }}</p>
+                <p class="text-sm text-gray-600 mb-1">Active Users</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.activeUsers | number }}</p>
                 <div class="flex items-center mt-2 space-x-2">
                   <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
                   </svg>
-
-                  <span class="text-sm text-green-500">{{ dashboardStats.usersChange }}% Up from yesterday</span>
+                  <span class="text-sm text-green-500 font-medium">Active now</span>
                 </div>
               </div>
-              <div class="w-12 h-12  rounded-lg flex items-center justify-center">
+              <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-xl flex items-center justify-center shadow-sm">
                 <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#8280FF"/>
                   <path opacity="0.587821" d="M37.9998 24.666C40.2089 24.666 41.9998 26.4569 41.9998 28.666C41.9998 30.8752 40.2089 32.666 37.9998 32.666C35.7908 32.6658 33.9998 30.875 33.9998 28.666C33.9998 26.457 35.7908 24.6662 37.9998 24.666ZM25.9998 18C28.9452 18 31.3336 20.3876 31.3337 23.333C31.3337 26.2785 28.9453 28.667 25.9998 28.667C23.0544 28.6668 20.6667 26.2784 20.6667 23.333C20.6669 20.3877 23.0545 18.0002 25.9998 18Z" fill="#8280FF"/>
                   <path d="M37.4686 34.0039C42.0104 34.0537 45.7189 36.3492 45.9979 41.2021C46.0092 41.3978 45.9975 42.002 45.2743 42.002H40.1337V42.001C40.1336 39.0005 39.1414 36.2318 37.4686 34.0039ZM25.9774 31.334C32.3611 31.334 37.6061 34.3915 37.997 40.9336C38.0125 41.1942 37.9966 42.001 36.995 42.001H14.9696C14.6351 42.0006 13.9727 41.2792 14.0009 40.9326C14.5178 34.5693 19.6824 31.3341 25.9774 31.334Z" fill="#8280FF"/>
                 </svg>
-
               </div>
             </div>
           </div>
 
-          <!-- Total Orders -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <!-- Total Parcels -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 mb-1">Total Order</p>
-                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.totalOrders }}</p>
-                <div class="flex items-center mt-2 space-x-2 ">
+                <p class="text-sm text-gray-600 mb-1">Total Parcels</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.totalParcels | number }}</p>
+                <div class="flex items-center mt-2 space-x-2">
                   <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
                   </svg>
-
-                  <span class="text-sm text-green-500">{{ dashboardStats.ordersChange }}% Up from past week</span>
+                  <span class="text-sm text-green-500 font-medium">All time</span>
                 </div>
               </div>
-              <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+              <div class="w-14 h-14 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-xl flex items-center justify-center shadow-sm">
                 <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#FEC53D"/>
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M15 24.3164L27.9005 31.7645C28.0394 31.8447 28.1851 31.9026 28.3333 31.9394V46.3846L15.9201 39.0384C15.3498 38.701 15 38.0875 15 37.4248V24.3164ZM45 24.1191V37.4256C45 38.0882 44.6502 38.7017 44.0799 39.0392L31.6667 46.3854V31.8136C31.6969 31.7985 31.7269 31.7824 31.7566 31.7652L45 24.1191Z" fill="#FEC53D"/>
                   <path opacity="0.499209" fill-rule="evenodd" clip-rule="evenodd" d="M15.4053 20.7014C15.5628 20.5024 15.7617 20.3343 15.9936 20.2108L29.1186 13.2201C29.6696 12.9266 30.3305 12.9266 30.8815 13.2201L44.0065 20.2108C44.1852 20.306 44.3444 20.4277 44.4801 20.5697L30.0899 28.8778C29.9953 28.9325 29.9081 28.995 29.8286 29.064C29.7491 28.995 29.6618 28.9325 29.5672 28.8778L15.4053 20.7014Z" fill="#FEC53D"/>
                 </svg>
-
               </div>
             </div>
           </div>
 
-          <!-- Total Pending -->
-          <div class="bg-white rounded-lg shadow-sm p-6">
+          <!-- Pending Parcels -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm text-gray-600 mb-1">Total Pending</p>
-                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.totalPending }}</p>
+                <p class="text-sm text-gray-600 mb-1">Pending Parcels</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.pendingParcels | number }}</p>
                 <div class="flex items-center mt-2 space-x-2">
                   <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
                   </svg>
-                  <span class="text-sm text-green-500">{{ dashboardStats.pendingChange }}% Up from yesterday</span>
+                  <span class="text-sm text-green-500 font-medium">Awaiting processing</span>
                 </div>
               </div>
-              <div class="w-12 h-12  rounded-lg flex items-center justify-center">
+              <div class="w-14 h-14 bg-gradient-to-br from-orange-100 to-red-100 rounded-xl flex items-center justify-center shadow-sm">
                 <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path opacity="0.3" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#FF9066"/>
                   <path opacity="0.78" fill-rule="evenodd" clip-rule="evenodd" d="M28.6309 23.8074C28.651 23.5469 28.8682 23.3457 29.1294 23.3457H29.5473C29.8041 23.3457 30.0192 23.5404 30.0448 23.796L30.6664 30.0124L35.0812 32.5351C35.237 32.6241 35.3331 32.7898 35.3331 32.9692V33.3577C35.3331 33.6874 35.0196 33.9269 34.7015 33.8401L28.3984 32.1211C28.167 32.058 28.0131 31.8395 28.0315 31.6004L28.6309 23.8074Z" fill="#FF9066"/>
                   <path opacity="0.901274" d="M21.8525 15.1903C21.9479 14.7907 22.4575 14.6697 22.7217 14.9843L24.5205 17.1288C26.2037 16.4121 28.0551 16.0135 30 16.0135C37.7319 16.0135 43.9999 22.2816 44 30.0135C44 37.7455 37.732 44.0135 30 44.0135C22.268 44.0135 16 37.7455 16 30.0135C16 28.7005 16.1805 27.4296 16.5186 26.2245L19.0859 26.9442C18.8085 27.9333 18.667 28.9628 18.667 30.0135C18.667 36.2728 23.7408 41.3466 30 41.3466C36.2592 41.3466 41.333 36.2728 41.333 30.0135C41.3329 23.9499 36.5712 18.9986 30.583 18.6952L30 18.6805C28.7317 18.6805 27.4968 18.889 26.332 19.287L28.1328 21.4335C28.3974 21.7487 28.1892 22.2305 27.7783 22.2538L20.7334 22.6532C20.3992 22.672 20.1411 22.3636 20.2188 22.038L21.8525 15.1903Z" fill="#FF9066"/>
                 </svg>
+              </div>
+            </div>
+          </div>
 
+          <!-- In Transit Parcels -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">In Transit Parcels</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.inTransitParcels | number }}</p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
+                  </svg>
+                  <span class="text-sm text-green-500 font-medium">Currently moving</span>
+                </div>
+              </div>
+              <div class="w-14 h-14 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl flex items-center justify-center shadow-sm">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#4B9EFA"/>
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M16 20C16 18.8954 16.8954 18 18 18H42C43.1046 18 44 18.8954 44 20V25H46C47.1046 25 48 25.8954 48 27V35C48 36.1046 47.1046 37 46 37H44V40C44 41.1046 43.1046 42 42 42H40C38.8954 42 38 41.1046 38 40V37H22V40C22 41.1046 21.1046 42 20 42H18C16.8954 42 16 41.1046 16 40V20ZM18 35H20V37H18V35ZM40 35H42V37H40V35ZM44 25V35H46V27H44V25Z" fill="#4B9EFA"/>
+                  <path opacity="0.6" d="M20 25H36V33H20V25Z" fill="#4B9EFA"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Delivered Today -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Delivered Today</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.deliveredToday | number }}</p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
+                  </svg>
+                  <span class="text-sm text-green-500 font-medium">Today's deliveries</span>
+                </div>
+              </div>
+              <div class="w-14 h-14 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center shadow-sm">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#00B69B"/>
+                  <path fill-rule="evenodd" clip-rule="evenodd" d="M15 24.3164L27.9005 31.7645C28.0394 31.8447 28.1851 31.9026 28.3333 31.9394V46.3846L15.9201 39.0384C15.3498 38.701 15 38.0875 15 37.4248V24.3164ZM45 24.1191V37.4256C45 38.0882 44.6502 38.7017 44.0799 39.0392L31.6667 46.3854V31.8136C31.6969 31.7985 31.7269 31.7824 31.7566 31.7652L45 24.1191Z" fill="#00B69B"/>
+                  <path opacity="0.499209" fill-rule="evenodd" clip-rule="evenodd" d="M15.4053 20.7014C15.5628 20.5024 15.7617 20.3343 15.9936 20.2108L29.1186 13.2201C29.6696 12.9266 30.3305 12.9266 30.8815 13.2201L44.0065 20.2108C44.1852 20.306 44.3444 20.4277 44.4801 20.5697L30.0899 28.8778C29.9953 28.9325 29.9081 28.995 29.8286 29.064C29.7491 28.995 29.6618 28.9325 29.5672 28.8778L15.4053 20.7014Z" fill="#00B69B"/>
+                  <path d="M26 28L29 31L34 26" stroke="#00B69B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Revenue -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Total Revenue</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.totalRevenue | number:'1.0-0' }} KES</p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
+                  </svg>
+                  <span class="text-sm text-green-500 font-medium">All time</span>
+                </div>
+              </div>
+              <div class="w-14 h-14 bg-gradient-to-br from-purple-100 to-violet-100 rounded-xl flex items-center justify-center shadow-sm">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#A855F7"/>
+                  <path d="M30 16C22.268 16 16 22.268 16 30C16 37.732 22.268 44 30 44C37.732 44 44 37.732 44 30C44 22.268 37.732 16 30 16ZM30 20C31.1046 20 32 20.8954 32 22V24H34C35.1046 24 36 24.8954 36 26C36 27.1046 35.1046 28 34 28H32V32H34C35.1046 32 36 32.8954 36 34C36 35.1046 35.1046 36 34 36H32V38C32 39.1046 31.1046 40 30 40C28.8954 40 28 39.1046 28 38V36H26C24.8954 36 24 35.1046 24 34C24 32.8954 24.8954 32 26 32H28V28H26C24.8954 28 24 27.1046 24 26C24 24.8954 24.8954 24 26 24H28V22C28 20.8954 28.8954 20 30 20Z" fill="#A855F7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Drivers -->
+          <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 p-6 border border-gray-100">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm text-gray-600 mb-1">Active Drivers</p>
+                <p class="text-2xl font-bold text-[#01003D]">{{ dashboardStats.activeDrivers | number }}</p>
+                <div class="flex items-center mt-2 space-x-2">
+                  <svg width="20" height="12" viewBox="0 0 20 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 0L16.29 2.29L11.41 7.17L7.41 3.17L0 10.59L1.41 12L7.41 6L11.41 10L17.71 3.71L20 6V0H14Z" fill="#00B69B"/>
+                  </svg>
+                  <span class="text-sm text-green-500 font-medium">Available now</span>
+                </div>
+              </div>
+              <div class="w-14 h-14 bg-gradient-to-br from-teal-100 to-cyan-100 rounded-xl flex items-center justify-center shadow-sm">
+                <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path opacity="0.21" d="M37 0C49.7025 0 60 10.2975 60 23V37C60 49.7025 49.7025 60 37 60H23C10.2975 60 0 49.7025 0 37V23C0 10.2975 10.2975 0 23 0H37Z" fill="#8280FF"/>
+                  <path opacity="0.587821" d="M37.9998 24.666C40.2089 24.666 41.9998 26.4569 41.9998 28.666C41.9998 30.8752 40.2089 32.666 37.9998 32.666C35.7908 32.6658 33.9998 30.875 33.9998 28.666C33.9998 26.457 35.7908 24.6662 37.9998 24.666ZM25.9998 18C28.9452 18 31.3336 20.3876 31.3337 23.333C31.3337 26.2785 28.9453 28.667 25.9998 28.667C23.0544 28.6668 20.6667 26.2784 20.6667 23.333C20.6669 20.3877 23.0545 18.0002 25.9998 18Z" fill="#8280FF"/>
+                  <path d="M37.4686 34.0039C42.0104 34.0537 45.7189 36.3492 45.9979 41.2021C46.0092 41.3978 45.9975 42.002 45.2743 42.002H40.1337V42.001C40.1336 39.0005 39.1414 36.2318 37.4686 34.0039ZM25.9774 31.334C32.3611 31.334 37.6061 34.3915 37.997 40.9336C38.0125 41.1942 37.9966 42.001 36.995 42.001H14.9696C14.6351 42.0006 13.9727 41.2792 14.0009 40.9326C14.5178 34.5693 19.6824 31.3341 25.9774 31.334Z" fill="#8280FF"/>
+                </svg>
               </div>
             </div>
           </div>
@@ -86,25 +196,34 @@
         <!-- Delivery Information -->
         <div class="bg-white rounded-lg shadow-sm">
           <div class="p-6 border-b">
-            <h3 class="text-lg font-semibold text-[#01003D] mb-4">Delivery Information</h3>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg font-semibold text-[#01003D]">Delivery Information</h3>
+              <button
+                (click)="clearFilters()"
+                class="px-3 py-1 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-md hover:bg-gray-50">
+                Clear Filters
+              </button>
+            </div>
 
             <!-- Search Filters -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Customer</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Sender</label>
                 <input
                   type="text"
-                  placeholder="Enter Customer Name"
+                  placeholder="Enter Sender Name"
                   [(ngModel)]="searchFilters.customer"
+                  (input)="onSearchChange()"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Order number</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tracking Number</label>
                 <input
                   type="text"
-                  placeholder="Enter order number"
-                  [(ngModel)]="searchFilters.orderNumber"
+                  placeholder="Enter tracking number"
+                  [(ngModel)]="searchFilters.trackingNumber"
+                  (input)="onSearchChange()"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
@@ -114,6 +233,7 @@
                   type="text"
                   placeholder="Nairobi"
                   [(ngModel)]="searchFilters.pickupLocation"
+                  (input)="onSearchChange()"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
@@ -123,6 +243,7 @@
                   type="text"
                   placeholder="Chuka"
                   [(ngModel)]="searchFilters.destination"
+                  (input)="onSearchChange()"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
               </div>
@@ -134,52 +255,100 @@
             <table class="w-full">
               <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Number</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tracking Number</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pick up Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
               </tr>
               </thead>
               <tbody class="bg-white divide-y divide-gray-200">
-              <tr *ngFor="let order of filteredOrders" class="hover:bg-gray-50">
+              <tr *ngFor="let order of paginatedOrders; trackBy: trackByOrderId" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
-                  <span class="text-blue-600 hover:text-blue-800 cursor-pointer">#{{ order.orderNumber }}</span>
+                  <span class="text-blue-600 hover:text-blue-800 cursor-pointer font-medium">#{{ order.trackingNumber }}</span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.date }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.customer }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.time }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.destination }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.pickupLocation }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>
+                    <div class="font-medium">{{ order.sender?.name || 'N/A' }}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>
+                    <div class="font-medium">{{ order.pickupLocation?.name || 'N/A' }}</div>
+                    <div class="text-gray-500 text-xs">{{ order.pickupLocation?.address }}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <div>
+                    <div class="font-medium">{{ order.destination?.name || 'N/A' }}</div>
+                    <div class="text-gray-500 text-xs">{{ order.destination?.address }}</div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs rounded-full"
+                          [ngClass]="{
+                            'bg-yellow-100 text-yellow-800': order.status === 'PENDING',
+                            'bg-blue-100 text-blue-800': order.status === 'IN_TRANSIT',
+                            'bg-green-100 text-green-800': order.status === 'DELIVERED',
+                            'bg-red-100 text-red-800': order.status === 'CANCELLED',
+                            'bg-purple-100 text-purple-800': order.status === 'ASSIGNED'
+                          }">
+                      {{ order.status.replace('_', ' ') | titlecase }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  {{ order.createdAt | date:'MMM dd, yyyy HH:mm' }}
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="paginatedOrders.length === 0 && !isLoading">
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                  <div class="flex flex-col items-center space-y-2">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                    </svg>
+                    <p>No delivery orders found</p>
+                    <p class="text-sm">Try adjusting your search filters</p>
+                  </div>
+                </td>
               </tr>
               </tbody>
             </table>
           </div>
 
           <!-- Pagination -->
-          <div class="px-6 py-4 flex items-center justify-between border-t">
+          <div class="px-6 py-4 flex items-center justify-between border-t" *ngIf="totalEntries > 0">
             <div class="text-sm text-gray-700">
-              Showing {{ currentPage }} to {{ totalPages }} of {{ totalEntries }} entries
+              {{ getPaginationText() }}
             </div>
-            <div class="flex space-x-2">
+            <div class="flex items-center space-x-2">
               <button
-                class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
+                class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 [disabled]="currentPage === 1"
-                (click)="previousPage()"
-              >
+                (click)="previousPage()">
                 Previous
               </button>
+
+              <!-- Page Numbers -->
+              <div class="flex space-x-1">
+                <button
+                  *ngFor="let page of [].constructor(totalPages); let i = index"
+                  class="px-3 py-1 rounded-md text-sm"
+                  [ngClass]="{
+                    'bg-blue-600 text-white': currentPage === i + 1,
+                    'border border-gray-300 hover:bg-gray-50': currentPage !== i + 1
+                  }"
+                  (click)="goToPage(i + 1)">
+                  {{ i + 1 }}
+                </button>
+              </div>
+
               <button
-                class="px-3 py-1 bg-gray-900 text-white rounded-md text-sm"
-              >
-                {{ currentPage }}
-              </button>
-              <button
-                class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
+                class="px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 [disabled]="currentPage === totalPages"
-                (click)="nextPage()"
-              >
+                (click)="nextPage()">
                 Next
               </button>
             </div>
