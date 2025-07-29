@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {SenderSearchResult} from '../../../../shared/models/users.interface';
 import {AdminCreateParcelRequest, DeliveryFormData, WeightCategory} from '../../../../shared/models/parcel-interface';
 import {CommonModule} from '@angular/common';
@@ -16,7 +16,12 @@ interface Sender {
   phone: string;
 }
 
-
+interface Receiver {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
 
 interface PlaceResult {
   address: string;
@@ -28,7 +33,6 @@ interface PlaceResult {
 }
 
 type WeightCategoryValue = 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
-
 
 @Component({
   selector: 'app-delivery',
@@ -54,9 +58,15 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     weightCategory: ''
   };
 
-  // Additional form fields for API integration
+  // Sender and receiver state
   selectedSender: Sender | null = null;
   senderSearchQuery: string = '';
+  selectedReceiver: Receiver | null = null;
+  receiverSearchQuery: string = '';
+  senders: Sender[] = [];
+  receivers: Receiver[] = [];
+
+  // Additional form fields
   weight: number = 0;
   description: string = '';
   quote: number = 0;
@@ -70,14 +80,26 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
   selectedPickupPlace: PlaceResult | null = null;
   selectedDestinationPlace: PlaceResult | null = null;
 
-
   // Loading states
   isSubmitting: boolean = false;
   isSearchingSenders: boolean = false;
+  isSearchingReceivers: boolean = false;
   isLoadingGoogleMaps: boolean = false;
 
-  // Dropdown options
-  senders: Sender[] = [];
+  // Dropdown states
+  showSenderDropdown: boolean = false;
+  showReceiverDropdown: boolean = false;
+  showWeightDropdown: boolean = false;
+
+  // Search subjects for debouncing
+  private senderSearchSubject = new Subject<string>();
+  private receiverSearchSubject = new Subject<string>();
+
+  // Google Places autocomplete instances
+  private pickupAutocomplete: google.maps.places.Autocomplete | null = null;
+  private destinationAutocomplete: google.maps.places.Autocomplete | null = null;
+
+  // Weight categories
   weightCategories = [
     {
       value: WeightCategory.ULTRA_LIGHT,
@@ -131,24 +153,15 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
 
   arrivalTimeOptions = ['3 Hrs', '10 Hrs', '1 Day', '3 Days +'];
 
-  // Dropdown states
-  showSenderDropdown: boolean = false;
-  showWeightDropdown: boolean = false;
-
-  // Search subject for debouncing (increased debounce time)
-  private senderSearchSubject = new Subject<string>();
-
-  // Google Places autocomplete instances
-  private pickupAutocomplete: google.maps.places.Autocomplete | null = null;
-  private destinationAutocomplete: google.maps.places.Autocomplete | null = null;
-
   constructor(
     private http: HttpClient,
-    private googleMapsService: GoogleMapsService
+    private googleMapsService: GoogleMapsService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.setupSenderSearch();
+    this.setupReceiverSearch();
     this.initializeGooglePlaces();
   }
 
@@ -156,7 +169,7 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // Setup sender search with optimized debouncing
+  // Setup sender search with debouncing
   setupSenderSearch(): void {
     const searchSubscription = this.senderSearchSubject.pipe(
       debounceTime(500),
@@ -171,7 +184,7 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
       next: (senders) => {
         this.senders = senders;
         this.isSearchingSenders = false;
-        // Keep dropdown open if we have results or if still searching
+// Keep dropdown open if we have results or if still searching
         if (senders.length > 0 || this.senderSearchQuery.length >= 2) {
           this.showSenderDropdown = true;
         }
@@ -187,7 +200,7 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     this.subscriptions.add(searchSubscription);
   }
 
-  // Search senders from backend with better error handling
+// Search senders from backend with better error handling
   searchSenders(query: string): Observable<Sender[]> {
     if (!query || query.trim().length < 2) {
       return of([]);
@@ -196,9 +209,9 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     const cleanQuery = query.trim();
     return this.http.get<{data: SenderSearchResult[]}>(`${this.API_URL}/admin/senders/search?query=${encodeURIComponent(cleanQuery)}`).pipe(
       map(response => {
-        // Ensure we always return an array
+// Ensure we always return an array
 
-        const data = response?.data || [];
+        const data = Array.isArray(response) ? response : (response?.data || []);
         console.log('Sender search results:', data); // Debug log
         return data.map(sender => ({
           id: sender.id,
@@ -214,13 +227,71 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     );
   }
 
+
+
+
+  // Setup receiver search
+  setupReceiverSearch(): void {
+    const searchSubscription = this.receiverSearchSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter(query => query.trim().length >= 2),
+      switchMap(query => {
+        this.isSearchingReceivers = true;
+        return this.searchReceivers(query);
+      })
+    ).subscribe({
+      next: (receivers) => {
+        this.receivers = receivers;
+        this.isSearchingReceivers = false;
+        if (receivers.length > 0 || this.receiverSearchQuery.length >= 2) {
+          this.showReceiverDropdown = true;
+        }
+      },
+      error: (error) => {
+        console.error('Receiver search error:', error);
+        this.receivers = [];
+        this.isSearchingReceivers = false;
+        this.showReceiverDropdown = true;
+      }
+    });
+
+    this.subscriptions.add(searchSubscription);
+  }
+
+
+
+  // Search receivers from backend
+  searchReceivers(query: string): Observable<Receiver[]> {
+    if (!query || query.trim().length < 2) {
+      return of([]);
+    }
+
+    const cleanQuery = query.trim();
+    return this.http.get<{data: Receiver[]}>(`${this.API_URL}/admin/receivers/search?query=${encodeURIComponent(cleanQuery)}`).pipe(
+      map(response => {
+        const data =Array.isArray(response) ? response : (response?.data || []);
+        console.log('Receiver search results:', data);
+        return data.map(receiver => ({
+          id: receiver.id,
+          name: receiver.name,
+          email: receiver.email,
+          phone: receiver.phone
+        }));
+      }),
+      catchError(error => {
+        console.error('Error searching receivers:', error);
+        return of([]);
+      })
+    );
+  }
+
   // Initialize Google Places autocomplete
   async initializeGooglePlaces(): Promise<void> {
     try {
       this.isLoadingGoogleMaps = true;
       await this.googleMapsService.loadGoogleMaps();
 
-      // Wait for view to be ready
       setTimeout(() => {
         this.setupPickupAutocomplete();
         this.setupDestinationAutocomplete();
@@ -265,7 +336,6 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
         this.formData.pickupLocation = place.formatted_address;
       }
     });
-
   }
 
   // Setup destination location autocomplete
@@ -301,29 +371,46 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
         this.formData.deliveryLocation = place.formatted_address;
       }
     });
-
   }
 
-  // Handle sender search input with optimized debouncing
+  // Handle sender search input
   onSenderSearchInput(event: Event): void {
     const target = event.target as HTMLInputElement;
     const query = target.value.trim();
 
     this.senderSearchQuery = query;
+    this.formData.sender = query;
 
-    // Clear previous results if query is too short
     if (query.length < 2) {
       this.senders = [];
       this.showSenderDropdown = false;
       this.isSearchingSenders = false;
+      this.selectedSender = null;
       return;
     }
 
-    // Show dropdown immediately
     this.showSenderDropdown = true;
-
-    // Trigger debounced search
     this.senderSearchSubject.next(query);
+  }
+
+  // Handle receiver search input
+  onReceiverSearchInput(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    const query = target.value.trim();
+
+    this.receiverSearchQuery = query;
+    this.formData.receiver = query;
+
+    if (query.length < 2) {
+      this.receivers = [];
+      this.showReceiverDropdown = false;
+      this.isSearchingReceivers = false;
+      this.selectedReceiver = null;
+      return;
+    }
+
+    this.showReceiverDropdown = true;
+    this.receiverSearchSubject.next(query);
   }
 
   // Handle sender selection
@@ -334,28 +421,37 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     this.showSenderDropdown = false;
   }
 
-  // Handle weight category selection with auto-calculation
+  // Handle receiver selection
+  onReceiverSelect(receiver: Receiver): void {
+    this.selectedReceiver = receiver;
+    this.formData.receiver = receiver.name;
+    this.formData.emailAddress = receiver.email;
+    this.formData.receiverNo = receiver.phone;
+    this.receiverSearchQuery = receiver.name;
+    this.showReceiverDropdown = false;
+  }
+
+  // Handle weight category selection
   onWeightCategorySelect(category: any): void {
     this.formData.weightCategory = category.value.toUpperCase() as WeightCategoryValue;
+    console.log(this.formData.weightCategory);
     this.showWeightDropdown = false;
 
-    // Auto-set weight to middle of range and calculate quote
     this.weight = (category.minWeight + category.maxWeight) / 2;
     this.calculateQuote();
   }
 
-  // Calculate quote based on weight and category
+  // Calculate quote
   calculateQuote(): void {
     const selectedCategory = this.getSelectedWeightCategory();
     if (selectedCategory && this.weight > 0) {
-      // Calculate price based on weight within category range
       const weightRatio = (this.weight - selectedCategory.minWeight) / (selectedCategory.maxWeight - selectedCategory.minWeight);
-      const priceVariation = selectedCategory.basePrice * 0.3; // 30% variation within range
+      const priceVariation = selectedCategory.basePrice * 0.3;
       this.quote = Math.round((selectedCategory.basePrice + (priceVariation * weightRatio)) * 100) / 100;
     }
   }
 
-  // Get selected weight category details
+  // Get selected weight category
   getSelectedWeightCategory(): any {
     return this.weightCategories.find(cat => cat.value.toUpperCase() === this.formData.weightCategory);
   }
@@ -391,11 +487,13 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
 
   // Form validation
   isFormValid(): boolean {
+    const isReceiverValid = this.selectedReceiver
+      ? !!this.selectedReceiver.id
+      : !!this.formData.receiver && !!this.formData.emailAddress && !!this.formData.receiverNo;
+
     return !!(
       this.selectedSender &&
-      this.formData.receiver &&
-      this.formData.emailAddress &&
-      this.formData.receiverNo &&
+      isReceiverValid &&
       this.pickupName &&
       this.selectedPickupPlace &&
       this.selectedPickupPlace.coordinates &&
@@ -422,15 +520,15 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
 
     this.isSubmitting = true;
 
-    // Prepare data for backend API
     const parcelData: AdminCreateParcelRequest = {
       senderId: this.selectedSender.id,
       senderPhone: this.selectedSender.phone,
       receiverName: this.formData.receiver,
       receiverPhone: this.formData.receiverNo,
       receiverEmail: this.formData.emailAddress,
+      receiverId: this.selectedReceiver?.id,
       weight: this.weight,
-      weightCategory: this.formData.weightCategory as 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT',
+      weightCategory: this.formData.weightCategory as WeightCategoryValue,
       description: this.description || undefined,
       pickupLocation: {
         name: this.pickupName,
@@ -451,10 +549,8 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
       estimatedDeliveryTime: this.estimatedDeliveryTime || undefined
     };
 
-    console.log('Sending weight category:', this.formData.weightCategory);
-    console.log('Full parcel data:', JSON.stringify(parcelData, null, 2));
+    console.log('Sending parcel data:', JSON.stringify(parcelData, null, 2));
 
-    // Call the parcel creation service
     this.createParcel(parcelData).subscribe({
       next: (response) => {
         console.log('Parcel created successfully:', response);
@@ -496,13 +592,14 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
 
     this.selectedSender = null;
     this.senderSearchQuery = '';
+    this.selectedReceiver = null;
+    this.receiverSearchQuery = '';
+    this.senders = [];
+    this.receivers = [];
     this.weight = 0;
     this.description = '';
     this.quote = 0;
     this.estimatedDeliveryTime = '';
-    this.senders = [];
-
-    // Reset location fields
     this.pickupAddress = '';
     this.destinationAddress = '';
     this.pickupName = '';
@@ -510,7 +607,6 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     this.selectedPickupPlace = null;
     this.selectedDestinationPlace = null;
 
-    // Clear autocomplete inputs
     if (this.pickupAddressInput?.nativeElement) {
       this.pickupAddressInput.nativeElement.value = '';
     }
@@ -529,6 +625,7 @@ export class DeliveryLayoutComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLElement;
     if (!target.closest('.dropdown-container')) {
       this.showSenderDropdown = false;
+      this.showReceiverDropdown = false;
       this.showWeightDropdown = false;
     }
   }

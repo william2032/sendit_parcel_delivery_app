@@ -1,6 +1,6 @@
-import {Component, ElementRef, OnInit, ViewChild, OnDestroy, ChangeDetectorRef} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {DecimalPipe, NgFor, NgIf} from '@angular/common';
+import {DatePipe, DecimalPipe, NgFor, NgIf} from '@angular/common';
 import {GoogleMapsService} from '../../../../shared/services/google-maps';
 import {Parcel} from '../../../../shared/models/parcel-interface';
 import {ParcelService} from '../../../../shared/services/parcel.service';
@@ -9,7 +9,7 @@ import {
 } from "../../../../shared/components/parcel-details-modal/parcel-details-modal.component";
 import {HeaderComponent} from "../shared/header/header.component";
 import {FooterComponent} from "../shared/footer/footer.component";
-import {Subject, takeUntil, debounceTime, distinctUntilChanged, firstValueFrom, of} from 'rxjs';
+import {firstValueFrom, of, Subject, takeUntil} from 'rxjs';
 import {AuthService} from '../../../../shared/services/auth.service';
 import {catchError} from 'rxjs/operators';
 
@@ -19,7 +19,7 @@ declare var google: any;
   selector: 'app-track-order',
   standalone: true,
   templateUrl: './track-order.component.html',
-  imports: [FormsModule, NgFor, NgIf, ParcelDetailsModalComponent, HeaderComponent, FooterComponent, DecimalPipe],
+  imports: [FormsModule, NgFor, NgIf, ParcelDetailsModalComponent, HeaderComponent, FooterComponent, DecimalPipe, DatePipe],
   styleUrls: ['./track-order.component.scss'],
 })
 export class TrackOrderComponent implements OnInit, OnDestroy {
@@ -248,10 +248,10 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
       }
 
       const statusMap: { [key: string]: string } = {
-        picked: 'Picked',
-        'in-transit': 'In transit',
-        completed: 'Completed',
-        cancelled: 'Cancelled',
+        picked: 'PICKED_UP',
+        'in-transit': 'IN_TRANSIT',
+        completed: 'COMPLETED',
+        cancelled: 'CANCELLED',
       };
 
       const actualStatus = statusMap[status];
@@ -261,17 +261,17 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
       if (status === 'completed') {
         const [completedParcels, deliveredParcels] = await Promise.all([
           firstValueFrom(
-            this.parcelService.getParcelsByStatus('Completed', this.activeTab as 'sent' | 'received', userId).pipe(
+            this.parcelService.getParcelsByStatus('COMPLETED', this.activeTab as 'sent' | 'received', userId).pipe(
               catchError(error => {
-                console.error('Error fetching Completed parcels:', error);
+                console.error('Error fetching COMPLETED parcels:', error);
                 return of([]);
               })
             )
           ),
           firstValueFrom(
-            this.parcelService.getParcelsByStatus('Delivered', this.activeTab as 'sent' | 'received', userId).pipe(
+            this.parcelService.getParcelsByStatus('DELIVERED', this.activeTab as 'sent' | 'received', userId).pipe(
               catchError(error => {
-                console.error('Error fetching Delivered parcels:', error);
+                console.error('Error fetching DELIVERED parcels:', error);
                 return of([]);
               })
             )
@@ -309,19 +309,44 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
   }
 
   getCurrentParcels(): Parcel[] {
-    const parcels = this.activeTab === 'sent' ? this.sentParcels : this.receivedParcels;
-    console.log('Current Parcels:', parcels);
-    return parcels;
+    // console.log('Current Parcels:', parcels);
+    return this.activeTab === 'sent' ? this.sentParcels : this.receivedParcels;
   }
 
   getFilteredParcels(status: string): Parcel[] {
     const currentParcels = this.getCurrentParcels();
-    return currentParcels.filter(p => p.status === status);
+    const statusMap: { [key: string]: string[] } = {
+      'PENDING': ['PENDING'],
+      'ASSIGNED': ['ASSIGNED'],
+      'PICKED_UP': ['PICKED_UP'],
+      'IN_TRANSIT': ['IN_TRANSIT'],
+      'DELIVERED': ['DELIVERED'],
+      'COMPLETED': ['COMPLETED']
+    };
+
+    const statusesToMatch = statusMap[status] || [status];
+    return currentParcels.filter(p => statusesToMatch.includes(p.status));
   }
 
   getCompletedParcels(): Parcel[] {
     const currentParcels = this.getCurrentParcels();
-    return currentParcels.filter(p => p.status === 'Completed' || p.status === 'Delivered');
+    return currentParcels.filter(p => p.status === 'COMPLETED' || p.status === 'DELIVERED');
+  }
+
+  // Helper method to format date as ISO string
+  formatDate(dateValue: any): string {
+    if (!dateValue) return '';
+
+    let date: Date;
+    if (dateValue instanceof Date) {
+      date = dateValue;
+    } else if (typeof dateValue === 'string') {
+      date = new Date(dateValue);
+    } else {
+      return '';
+    }
+
+    return date.toISOString();
   }
 
   async onSearch() {
@@ -496,7 +521,7 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
 
     this.currentMarkers.push(pickupMarker, destinationMarker);
 
-    if (parcel.status === 'In transit') {
+    if (parcel.status === 'IN_TRANSIT') {
       this.showCurrentLocationOnRoute(parcel);
     }
   }
@@ -527,15 +552,15 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
   }
 
   getRouteColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case 'delivered':
+    switch (status.toUpperCase()) {
+      case 'COMPLETED':
+      case 'DELIVERED':
         return '#10B981';
-      case 'in transit':
+      case 'IN_TRANSIT':
         return '#F59E0B';
-      case 'picked':
+      case 'PICKED_UP':
         return '#3B82F6';
-      case 'cancelled':
+      case 'CANCELLED':
         return '#EF4444';
       default:
         return '#6B7280';
@@ -630,16 +655,20 @@ export class TrackOrderComponent implements OnInit, OnDestroy {
   }
 
   getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'completed':
-      case 'delivered':
+    switch (status.toUpperCase()) {
+      case 'COMPLETED':
+      case 'DELIVERED':
         return 'bg-green-100 text-green-800';
-      case 'picked':
+      case 'PICKED_UP':
         return 'bg-blue-100 text-blue-800';
-      case 'in transit':
+      case 'IN_TRANSIT':
         return 'bg-yellow-100 text-yellow-800';
-      case 'cancelled':
+      case 'CANCELLED':
         return 'bg-red-100 text-red-800';
+      case 'PENDING':
+        return 'bg-gray-100 text-gray-800';
+      case 'ASSIGNED':
+        return 'bg-purple-100 text-purple-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }

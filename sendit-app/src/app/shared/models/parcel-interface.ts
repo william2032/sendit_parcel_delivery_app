@@ -202,6 +202,7 @@ export interface UpdateParcelRequest {
 export interface AdminCreateParcelRequest {
   senderId: string;
   senderPhone: string;
+  receiverId?: string;
   receiverName: string;
   receiverPhone: string;
   receiverEmail: string;

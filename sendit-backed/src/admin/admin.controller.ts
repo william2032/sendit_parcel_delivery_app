@@ -19,7 +19,7 @@ import {
     ApiResponse,
     ApiBearerAuth,
     ApiParam,
-    ApiQuery, getSchemaPath
+    ApiQuery
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -90,22 +90,26 @@ export class AdminController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Senders found successfully',
-        schema: {
-            type: 'object',
-            properties: {
-                data: {
-                    type: 'array',
-                    items: { $ref: getSchemaPath(SenderSearchResponse) }
-                }
-            }
-        }
+        type: [SenderSearchResponse]
     })
     @UsePipes(new ValidationPipe({ transform: true }))
-    async searchSenders(@Query() searchDto: SenderSearchDto): Promise<{ data: SenderSearchResult[] }> {
-        const result = await this.adminService.searchSenders(searchDto);
-        return { data: result };
+    async searchSenders(@Query() searchDto: SenderSearchDto): Promise<SenderSearchResult[]> {
+        return this.adminService.searchSenders(searchDto);
     }
 
+    @Get('receivers/search')
+    @ApiOperation({ summary: 'Search for receivers by name, email, or phone' })
+    @ApiQuery({ name: 'query', description: 'Search query string' })
+    @ApiQuery({ name: 'limit', description: 'Maximum number of results', required: false })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Receivers found successfully',
+        type: [SenderSearchResponse]
+    })
+    @UsePipes(new ValidationPipe({ transform: true }))
+    async searchReceivers(@Query() searchDto: SenderSearchDto): Promise<SenderSearchResult[]> {
+        return this.adminService.searchReceivers(searchDto);
+    }
 
     @Get('senders/:senderId')
     @ApiOperation({ summary: 'Get detailed information about a specific sender' })

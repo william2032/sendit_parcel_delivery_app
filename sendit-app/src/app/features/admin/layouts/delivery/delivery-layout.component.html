@@ -70,47 +70,98 @@
             </div>
           </div>
 
-          <!-- Receiver Details Section -->
-          <div class="bg-gray-50 rounded-xl p-6 space-y-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Receiver Information</h3>
-            <!-- Receiver Name -->
-            <div class="space-y-3">
-              <label class="block text-sm font-semibold text-gray-900">
-                Receiver Name <span class="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                [(ngModel)]="formData.receiver"
-                name="receiver"
-                placeholder="e.g., Jane Doe"
-                required
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+          <!-- Receiver Search Section -->
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-gray-900">
+              Search Receiver <span class="text-red-500">*</span>
+            </label>
+            <div class="dropdown-container">
+              <div class="relative">
+                <input
+                  type="text"
+                  [(ngModel)]="receiverSearchQuery"
+                  name="receiverSearch"
+                  (input)="onReceiverSearchInput($event)"
+                  (focus)="showReceiverDropdown = receiverSearchQuery.length >= 2 && receivers.length > 0"
+                  placeholder="Type at least 2 characters to search or enter receiver name..."
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400"
+                  required
+                />
+                <!-- Receiver Search Results Dropdown -->
+                <div *ngIf="showReceiverDropdown && receiverSearchQuery.length >= 2"
+                     class="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                  <div *ngIf="isSearchingReceivers" class="p-6 text-center text-gray-500">
+                    <svg class="animate-spin h-5 w-5 mx-auto mb-2" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Searching receivers...
+                  </div>
+                  <div *ngIf="!isSearchingReceivers && receivers.length === 0"
+                       class="p-6 text-center text-gray-500">
+                    No receivers found matching "{{ receiverSearchQuery }}". Enter details manually.
+                  </div>
+                  <div *ngIf="!isSearchingReceivers && receivers.length > 0" class="py-2">
+                    <button
+                      type="button"
+                      *ngFor="let receiver of receivers"
+                      (click)="onReceiverSelect(receiver)"
+                      class="w-full px-4 py-3 text-left hover:bg-blue-50 focus:outline-none focus:bg-blue-50 border-b border-gray-50 last:border-b-0 transition-colors duration-150">
+                      <div class="font-medium text-gray-900">{{ receiver.name }}</div>
+                      <div class="text-sm text-gray-500 mt-1">{{ receiver.email }}</div>
+                      <div class="text-sm text-gray-500">{{ receiver.phone }}</div>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-            <!-- Email Address -->
+            <!-- Selected Receiver Display -->
+            <div *ngIf="selectedReceiver" class="mt-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-medium text-green-900">{{ selectedReceiver.name }}</p>
+                  <p class="text-sm text-green-700">{{ selectedReceiver.email }} • {{ selectedReceiver.phone }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Receiver Details Section (Manual Entry) -->
+          <div class="bg-gray-50 rounded-xl p-6 space-y-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Receiver Information (Manual Entry)</h3>
+            <!-- Receiver Email -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
-                Email Address <span class="text-red-500">*</span>
+                Receiver Email <span class="text-red-500">*</span>
               </label>
               <input
                 type="email"
                 [(ngModel)]="formData.emailAddress"
                 name="emailAddress"
                 placeholder="e.g., janedoe@gmail.com"
+                [disabled]="selectedReceiver != null"
                 required
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
             </div>
-            <!-- Phone Number -->
+            <!-- Receiver Phone -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
-                Phone Number <span class="text-red-500">*</span>
+                Receiver Phone Number <span class="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 [(ngModel)]="formData.receiverNo"
                 name="receiverNo"
                 placeholder="e.g., +254 700 000 000"
+                [disabled]="selectedReceiver != null"
                 required
-                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
+                class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
             </div>
           </div>
 
@@ -379,9 +430,9 @@
                 <div class="mt-2 text-sm text-red-700">
                   <ul class="list-disc list-inside space-y-1">
                     <li *ngIf="!selectedSender">Select a sender</li>
-                    <li *ngIf="!formData.receiver">Enter receiver name</li>
-                    <li *ngIf="!formData.emailAddress">Enter receiver email</li>
-                    <li *ngIf="!formData.receiverNo">Enter receiver phone number</li>
+                    <li *ngIf="!formData.receiver">Enter or select receiver name</li>
+                    <li *ngIf="!selectedReceiver && !formData.emailAddress">Enter receiver email</li>
+                    <li *ngIf="!selectedReceiver && !formData.receiverNo">Enter receiver phone number</li>
                     <li *ngIf="!pickupName">Enter pickup location name</li>
                     <li *ngIf="!selectedPickupPlace || !selectedPickupPlace.coordinates">Select pickup address with valid coordinates</li>
                     <li *ngIf="!destinationName">Enter delivery location name</li>

@@ -38,15 +38,11 @@
       <div class="p-4 bg-white border-t" *ngIf="selectedParcel">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2">
-            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span class="text-sm font-medium text-gray-700">{{ selectedParcel.pickupLocation.name }}</span>
-          </div>
-          <div class="flex items-center space-x-2">
             <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
             <span class="text-sm font-medium text-gray-700">{{ selectedParcel.destination.name }}</span>
           </div>
         </div>
-        <div class="mt-2 text-center" *ngIf="selectedParcel.status === 'In transit'">
+        <div class="mt-2 text-center" *ngIf="selectedParcel.status === 'IN_TRANSIT'">
           <div class="flex items-center justify-center space-x-2">
             <div class="w-3 h-3 bg-purple-500 rounded-full"></div>
             <span class="text-sm font-medium text-gray-700">Current Location</span>
@@ -97,18 +93,39 @@
               ALL ({{ getCurrentParcels().length }})
             </button>
             <button
+              (click)="setActiveFilter('pending')"
+              [class]="activeFilter === 'pending' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+              class="pb-1 transition-colors"
+              [disabled]="isLoading">
+              Pending ({{ getFilteredParcels('PENDING').length }})
+            </button>
+            <button
+              (click)="setActiveFilter('assigned')"
+              [class]="activeFilter === 'assigned' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+              class="pb-1 transition-colors"
+              [disabled]="isLoading">
+              Assigned ({{ getFilteredParcels('ASSIGNED').length }})
+            </button>
+            <button
               (click)="setActiveFilter('picked')"
               [class]="activeFilter === 'picked' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
               class="pb-1 transition-colors"
               [disabled]="isLoading">
-              Picked ({{ getFilteredParcels('Picked').length }})
+              Picked Up ({{ getFilteredParcels('PICKED_UP').length }})
             </button>
             <button
               (click)="setActiveFilter('in-transit')"
               [class]="activeFilter === 'in-transit' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
               class="pb-1 transition-colors"
               [disabled]="isLoading">
-              In Transit ({{ getFilteredParcels('In transit').length }})
+              In Transit ({{ getFilteredParcels('IN_TRANSIT').length }})
+            </button>
+            <button
+              (click)="setActiveFilter('delivered')"
+              [class]="activeFilter === 'delivered' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
+              class="pb-1 transition-colors"
+              [disabled]="isLoading">
+              Delivered ({{ getFilteredParcels('DELIVERED').length }})
             </button>
             <button
               (click)="setActiveFilter('completed')"
@@ -122,7 +139,7 @@
               [class]="activeFilter === 'cancelled' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'"
               class="pb-1 transition-colors"
               [disabled]="isLoading">
-              Cancelled ({{ getFilteredParcels('Cancelled').length }})
+              Cancelled ({{ getFilteredParcels('CANCELLED').length }})
             </button>
           </div>
 
@@ -209,8 +226,8 @@
               </td>
               <td class="py-4 px-2 text-gray-700">
                 <div>
-                  <div>{{ parcel.date }}</div>
-                  <div class="text-sm text-gray-500">{{ parcel.deliveryTime }} est.</div>
+                  <div>{{ formatDate(parcel.createdAt) | date:'short' }}</div>
+                  <div class="text-sm text-gray-500">{{ formatDate(parcel.deliveryTime) | date:'short' }}</div>
                 </div>
               </td>
               <td class="py-4 px-2">
@@ -269,3 +286,4 @@
   <!-- Footer -->
   <app-footer></app-footer>
 </div>
+

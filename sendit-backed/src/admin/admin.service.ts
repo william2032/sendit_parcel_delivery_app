@@ -20,7 +20,7 @@ import {
 } from './interfaces/admin.interface';
 import {Prisma, ParcelStatus, TrackingEventType, UserRole} from 'generated/prisma';
 import {PaginatedResponse, ParcelI} from '../parcels/interfaces/parcel.interface';
-import {CoordinatesDto, ParcelQueryDto, WeightCategory} from "../parcels/dtos";
+import {CoordinatesDto, ParcelQueryDto,  WeightCategory} from "../parcels/dtos";
 
 @Injectable()
 export class AdminService {
@@ -31,12 +31,13 @@ export class AdminService {
     ) {
     }
 
-    // Search for senders by name or email, including active and inactive users
+    // Search for senders by name or email, including active
     async searchSenders(searchDto: SenderSearchDto): Promise<SenderSearchResult[]> {
         const {query, limit = 10} = searchDto;
 
         const users = await this.prisma.user.findMany({
             where: {
+                isActive: true, // Only fetch active users
                 OR: [
                     {name: {contains: query, mode: Prisma.QueryMode.insensitive}},
                     {email: {contains: query, mode: Prisma.QueryMode.insensitive}},
@@ -81,6 +82,102 @@ export class AdminService {
             })),
             isActive: user.isActive, // Added to indicate user status
             deletedAt: user.deletedAt ? user.deletedAt.toISOString() : undefined // Added to indicate deletion status
+        }));
+    }
+
+
+    async createParcel(adminId: string, createParcelDto: AdminCreateParcelDto): Promise<AdminParcelResponse> {
+        const admin = await this.usersService.findOne(adminId);
+        if (admin.role !== UserRole.ADMIN && admin.role !== UserRole.CUSTOMER) {
+            throw new ForbiddenException('Only admins can create parcels on behalf of users');
+        }
+
+        const sender = await this.getSenderDetails(createParcelDto.senderId);
+
+        const pickupLocation = await this.createOrFindLocation(createParcelDto.pickupLocation);
+        const destinationLocation = await this.createOrFindLocation(createParcelDto.destinationLocation);
+
+        const parcelData = {
+            senderId: createParcelDto.senderId,
+            senderPhone: createParcelDto.senderPhone,
+            receiverId: createParcelDto.receiverId,
+            receiverName: createParcelDto.receiverName,
+            receiverPhone: createParcelDto.receiverPhone,
+            receiverEmail: createParcelDto.receiverEmail,
+            weight: createParcelDto.weight,
+            weightCategory: createParcelDto.weightCategory as 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT',
+            description: createParcelDto.description,
+            pickupLocationId: pickupLocation.id,
+            destinationLocationId: destinationLocation.id,
+            quote: createParcelDto.quote,
+            currency: createParcelDto.currency || 'KES',
+            estimatedDeliveryTime: createParcelDto.estimatedDeliveryTime
+        };
+
+        const parcel = await this.parcelsService.create(parcelData);
+        // If driver is specified, assign after creation
+        if (createParcelDto.driverId) {
+            await this.parcelsService.assignDriver(parcel.id, {
+                driverId: createParcelDto.driverId,
+                pickupTime: createParcelDto.pickupTime
+            });
+        }
+
+
+        return this.transformToAdminParcelResponse(parcel, sender);
+    }
+
+    // Search for receivers by name, email, or phone, only fetching active users
+    async searchReceivers(searchDto: SenderSearchDto): Promise<SenderSearchResult[]> {
+        const {query, limit = 10} = searchDto;
+
+        const users = await this.prisma.user.findMany({
+            where: {
+                isActive: true, // Only fetch active users
+                OR: [
+                    {name: {contains: query, mode: Prisma.QueryMode.insensitive}},
+                    {email: {contains: query, mode: Prisma.QueryMode.insensitive}},
+                    {phone: {contains: query, mode: Prisma.QueryMode.insensitive}}
+                ]
+            },
+            include: {
+                receivedParcels: { // Changed from sentParcels to receivedParcels
+                    where: {isActive: true},
+                    orderBy: {createdAt: 'desc'},
+                    take: 3,
+                    include: {
+                        destinationLocation: true
+                    }
+                },
+                _count: {
+                    select: {
+                        receivedParcels: { // Changed from sentParcels to receivedParcels
+                            where: {isActive: true}
+                        }
+                    }
+                }
+            },
+            take: limit,
+            orderBy: [{name: 'asc'}]
+        });
+
+        return users.map(user => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            city: user.city || undefined,
+            country: user.country || undefined,
+            totalParcels: user._count.receivedParcels, // Changed to receivedParcels
+            recentParcels: user.receivedParcels.map(parcel => ({ // Changed to receivedParcels
+                id: parcel.id,
+                trackingNumber: parcel.trackingNumber,
+                status: parcel.status,
+                createdAt: parcel.createdAt.toISOString(),
+                destination: parcel.destinationLocation?.address || 'Unknown'
+            })),
+            isActive: user.isActive,
+            deletedAt: user.deletedAt ? user.deletedAt.toISOString() : undefined
         }));
     }
 
@@ -249,45 +346,6 @@ export class AdminService {
         return this.transformToAdminParcelResponse(parcel, senderDetails);
     }
 
-    async createParcel(adminId: string, createParcelDto: AdminCreateParcelDto): Promise<AdminParcelResponse> {
-        const admin = await this.usersService.findOne(adminId);
-        if (admin.role !== UserRole.ADMIN && admin.role !== UserRole.CUSTOMER) {
-            throw new ForbiddenException('Only admins can create parcels on behalf of users');
-        }
-
-        const sender = await this.getSenderDetails(createParcelDto.senderId);
-
-        const pickupLocation = await this.createOrFindLocation(createParcelDto.pickupLocation);
-        const destinationLocation = await this.createOrFindLocation(createParcelDto.destinationLocation);
-
-        const parcelData = {
-            senderId: createParcelDto.senderId,
-            senderPhone: createParcelDto.senderPhone,
-            receiverName: createParcelDto.receiverName,
-            receiverPhone: createParcelDto.receiverPhone,
-            receiverEmail: createParcelDto.receiverEmail,
-            weight: createParcelDto.weight,
-            weightCategory: createParcelDto.weightCategory as 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT',
-            description: createParcelDto.description,
-            pickupLocationId: pickupLocation.id,
-            destinationLocationId: destinationLocation.id,
-            quote: createParcelDto.quote,
-            currency: createParcelDto.currency || 'KES',
-            estimatedDeliveryTime: createParcelDto.estimatedDeliveryTime
-        };
-
-        const parcel = await this.parcelsService.create(parcelData);
-        // If driver is specified, assign after creation
-        if (createParcelDto.driverId) {
-            await this.parcelsService.assignDriver(parcel.id, {
-                driverId: createParcelDto.driverId,
-                pickupTime: createParcelDto.pickupTime
-            });
-        }
-
-
-        return this.transformToAdminParcelResponse(parcel, sender);
-    }
 
     async getDashboardStats(): Promise<AdminDashboardStats> {
         const today = new Date();

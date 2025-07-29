@@ -51,6 +51,11 @@ export class AdminCreateParcelDto {
     @IsString()
     senderPhone?: string;
 
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsString()
+    receiverId?: string;
+
     @ApiProperty({ example: 'John Doe' })
     @IsString()
     receiverName: string;

@@ -25,6 +25,7 @@ export class CreateParcelDto {
     @IsString()
     receiverId?: string;
 
+
     @ApiProperty()
     @IsString()
     receiverName: string;
