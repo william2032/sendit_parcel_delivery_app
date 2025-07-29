@@ -39,6 +39,13 @@ export class HeaderComponent implements OnInit, OnDestroy{
     this.userSubscription.unsubscribe();
   }
 
+  getUserRole(): string {
+    if (this.currentUser && this.currentUser.role) {
+      return this.currentUser.role.charAt(0).toUpperCase() + this.currentUser.role.slice(1);
+    }
+    return 'CUSTOMER';
+  }
+
   scrollToServices() {
     if (this.router.url === '/home') {
       this.scrollService.requestScrollToServices();

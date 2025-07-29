@@ -30,7 +30,8 @@
                   class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors cursor-pointer">
             Services
           </button>
-          <a routerLink="/home/track-order"
+
+          <a   *ngIf="isLoggedIn" routerLink="/home/track-order"
              routerLinkActive="bg-gray-900 text-white"
              class="text-gray-700 hover:bg-gray-900 px-3 py-2 rounded-md text-sm font-gilroy font-medium transition-colors">
             Track
@@ -73,9 +74,9 @@
             class="text-sm font-semibold text-gray-800 group-hover:text-orange-600 transition-colors duration-200 leading-tight">
             {{ currentUser?.name || 'CUSTOMER' }}
           </span>
-                <span class="text-xs text-gray-500 group-hover:text-gray-600 transition-colors duration-200">
-            Online
-          </span>
+                <span class="text-left mt-2" *ngIf="isLoggedIn">
+                  <p class="text-[12px]  text-red-300">{{ getUserRole() }}</p>
+                </span>
               </div>
 
               <!-- Dropdown Arrow -->
