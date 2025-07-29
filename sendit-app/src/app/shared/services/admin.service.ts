@@ -6,7 +6,7 @@ import {AdminDashboardStats} from '../models/admin-dashboard.interface';
 import {environment} from '../../../environments/environment';
 import {UserI} from '../models/users.interface';
 import {ApiResponse} from '../models/api-response.interface';
-import {CreateParcelRequest, DeliveryOrder, ParcelApiResponse, UpdateParcelRequest} from "../models/parcel-interface";
+import {DeliveryOrder, ParcelApiResponse, UpdateParcelRequest} from "../models/parcel-interface";
 
 @Injectable({
     providedIn: 'root'
@@ -67,12 +67,12 @@ export class AdminService {
     }
 
     // Create new parcel
-    createParcel(parcelData: CreateParcelRequest): Observable<DeliveryOrder> {
-        return this.http.post<{ data: DeliveryOrder }>(`${this.API_URL}/parcels`, parcelData).pipe(
-            map(response => this.mapParcelData(response.data)),
-            catchError(this.handleError)
-        );
-    }
+    // createParcel(parcelData: CreateParcelRequest): Observable<DeliveryOrder> {
+    //     return this.http.post<{ data: DeliveryOrder }>(`${this.API_URL}/parcels`, parcelData).pipe(
+    //         map(response => this.mapParcelData(response.data)),
+    //         catchError(this.handleError)
+    //     );
+    // }
 
     // Update parcel
     updateParcel(parcelId: string, parcelData: UpdateParcelRequest): Observable<DeliveryOrder> {

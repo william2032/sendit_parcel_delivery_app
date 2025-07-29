@@ -10,9 +10,21 @@ export  interface UserI {
   profilePicture?: string;
 }
 
-export interface Customer {
+
+export interface SenderSearchResult {
   id: string;
   name: string;
   email: string;
   phone: string;
+  city: string;
+  country: string;
+  totalParcels: number;
+  recentParcels: {
+    id: string;
+    trackingNumber: string;
+    status: string;
+    createdAt: string;
+    destination: string;
+  }[];
+  isActive: boolean;
 }

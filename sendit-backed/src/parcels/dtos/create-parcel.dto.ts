@@ -46,7 +46,7 @@ export class CreateParcelDto {
 
     @ApiProperty({ enum: WeightCategory })
     @IsEnum(WeightCategory)
-    weightCategory: WeightCategory;
+    weightCategory: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
 
     @ApiPropertyOptional()
     @IsOptional()

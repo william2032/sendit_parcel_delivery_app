@@ -19,7 +19,7 @@ import {
     ApiResponse,
     ApiBearerAuth,
     ApiParam,
-    ApiQuery
+    ApiQuery, getSchemaPath
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -90,12 +90,22 @@ export class AdminController {
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Senders found successfully',
-        type: [SenderSearchResponse]
+        schema: {
+            type: 'object',
+            properties: {
+                data: {
+                    type: 'array',
+                    items: { $ref: getSchemaPath(SenderSearchResponse) }
+                }
+            }
+        }
     })
     @UsePipes(new ValidationPipe({ transform: true }))
-    async searchSenders(@Query() searchDto: SenderSearchDto): Promise<SenderSearchResult[]> {
-        return this.adminService.searchSenders(searchDto);
+    async searchSenders(@Query() searchDto: SenderSearchDto): Promise<{ data: SenderSearchResult[] }> {
+        const result = await this.adminService.searchSenders(searchDto);
+        return { data: result };
     }
+
 
     @Get('senders/:senderId')
     @ApiOperation({ summary: 'Get detailed information about a specific sender' })

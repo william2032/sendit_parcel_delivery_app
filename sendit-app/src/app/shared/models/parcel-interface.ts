@@ -1,6 +1,16 @@
 import {UserI} from './users.interface';
 import {LocationI} from './location.interface';
 
+
+export enum WeightCategory {
+  ULTRA_LIGHT = 'ultra-light',
+  LIGHT = 'light',
+  MEDIUM = 'medium',
+  HEAVY = 'heavy',
+  EXTRA_HEAVY = 'extra-heavy',
+  FREIGHT = 'freight'
+}
+
 export interface Parcel {
   id: string;
   trackingNumber: string;
@@ -158,20 +168,20 @@ export interface NotificationsSent {
   driverAssignment: boolean;
 }
 
-export interface CreateParcelRequest {
-  pickupLocation: LocationI;
-  destination: LocationI;
-  senderName: string;
-  senderPhone: string;
-  senderEmail: string;
-  receiverName: string;
-  receiverPhone: string;
-  receiverEmail: string;
-  weight: number;
-  price: number;
-  estimatedDeliveryDate?: string;
-  notes?: string;
-}
+// export interface CreateParcelRequest {
+//   pickupLocation: LocationI;
+//   destination: LocationI;
+//   senderName: string;
+//   senderPhone: string;
+//   senderEmail: string;
+//   receiverName: string;
+//   receiverPhone: string;
+//   receiverEmail: string;
+//   weight: number;
+//   price: number;
+//   estimatedDeliveryDate?: string;
+//   notes?: string;
+// }
 
 
 export interface UpdateParcelRequest {
@@ -187,4 +197,34 @@ export interface UpdateParcelRequest {
   weightCategory?: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
   status?: 'PENDING' | 'PICKED_UP' | 'IN_TRANSIT' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED';
   estimatedDeliveryTime?: string;
+}
+
+export interface AdminCreateParcelRequest {
+  senderId: string;
+  senderPhone: string;
+  receiverName: string;
+  receiverPhone: string;
+  receiverEmail: string;
+  weight: number;
+  weightCategory:'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
+  description?: string;
+  pickupLocation: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    placeId?: string;
+  };
+  destinationLocation: {
+    name: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    placeId?: string;
+  };
+  quote: number;
+  currency?: string;
+  estimatedDeliveryTime?: string;
+  driverId?: string;
+  pickupTime?: string;
 }

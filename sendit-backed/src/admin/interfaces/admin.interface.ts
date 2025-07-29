@@ -119,6 +119,6 @@ export interface DriverAssignmentDto {
 export interface LocationCreateDto {
     name: string;
     address: string;
-    lat: number;
-    lng: number;
+    latitude: number;
+    longitude: number;
 }

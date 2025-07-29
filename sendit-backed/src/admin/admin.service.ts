@@ -20,7 +20,7 @@ import {
 } from './interfaces/admin.interface';
 import {Prisma, ParcelStatus, TrackingEventType, UserRole} from 'generated/prisma';
 import {PaginatedResponse, ParcelI} from '../parcels/interfaces/parcel.interface';
-import {CoordinatesDto, ParcelQueryDto,  WeightCategory} from "../parcels/dtos";
+import {CoordinatesDto, ParcelQueryDto, WeightCategory} from "../parcels/dtos";
 
 @Injectable()
 export class AdminService {
@@ -267,7 +267,7 @@ export class AdminService {
             receiverPhone: createParcelDto.receiverPhone,
             receiverEmail: createParcelDto.receiverEmail,
             weight: createParcelDto.weight,
-            weightCategory: createParcelDto.weightCategory as WeightCategory,
+            weightCategory: createParcelDto.weightCategory as 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT',
             description: createParcelDto.description,
             pickupLocationId: pickupLocation.id,
             destinationLocationId: destinationLocation.id,
@@ -277,7 +277,7 @@ export class AdminService {
         };
 
         const parcel = await this.parcelsService.create(parcelData);
-
+        // If driver is specified, assign after creation
         if (createParcelDto.driverId) {
             await this.parcelsService.assignDriver(parcel.id, {
                 driverId: createParcelDto.driverId,
@@ -285,18 +285,6 @@ export class AdminService {
             });
         }
 
-        await this.parcelsService.createTrackingEvent({
-            parcelId: parcel.id,
-            type: TrackingEventType.ORDER_CREATED,
-            status: ParcelStatus.PENDING,
-            location: pickupLocation.address,
-            coordinates: {
-                lat: pickupLocation.latitude,
-                lng: pickupLocation.longitude
-            },
-            description: `Parcel order created by admin ${admin.name}`,
-            automated: false
-        });
 
         return this.transformToAdminParcelResponse(parcel, sender);
     }
@@ -637,8 +625,8 @@ export class AdminService {
         let coordinates: CoordinatesDto | undefined;
         if (currentLocation) {
             coordinates = {
-                lat: currentLocation.lat,
-                lng: currentLocation.lng
+                lat: currentLocation.latitude,
+                lng: currentLocation.longitude
             };
         }
 
@@ -676,8 +664,8 @@ export class AdminService {
     private async createOrFindLocation(locationDto: LocationCreateDto) {
         const existingLocation = await this.prisma.location.findFirst({
             where: {
-                latitude: locationDto.lat,
-                longitude: locationDto.lng,
+                latitude: locationDto.latitude,
+                longitude: locationDto.longitude,
                 address: locationDto.address
             }
         });
@@ -690,8 +678,8 @@ export class AdminService {
             data: {
                 name: locationDto.name,
                 address: locationDto.address,
-                latitude: locationDto.lat,
-                longitude: locationDto.lng
+                latitude: locationDto.latitude,
+                longitude: locationDto.longitude
             }
         });
     }

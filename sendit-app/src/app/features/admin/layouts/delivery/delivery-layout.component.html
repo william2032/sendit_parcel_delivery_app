@@ -4,53 +4,67 @@
     <p class="mt-2 text-sm text-gray-600 text-center sm:text-left">Fill out the details below to place customer's delivery order</p>
   </div>
   <div class="max-w-2xl mx-auto">
-    <!-- Header -->
     <!-- Main Form Container -->
     <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
       <form (ngSubmit)="onSubmit()" #deliveryForm="ngForm" class="p-6 sm:p-8">
         <div class="space-y-8">
-
-          <!-- Sender Section -->
+          <!-- Sender Search Section -->
           <div class="space-y-3">
             <label class="block text-sm font-semibold text-gray-900">
-              Sender <span class="text-red-500">*</span>
+              Search Sender <span class="text-red-500">*</span>
             </label>
             <div class="dropdown-container">
               <div class="relative">
-                <button
-                  type="button"
-                  (click)="showSenderDropdown = !showSenderDropdown"
-                  class="w-full px-4 py-4 text-left bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between hover:border-blue-300 transition-all duration-200 min-h-[56px]">
-                  <span class="text-gray-400 text-sm" *ngIf="!formData.sender">Select a customer</span>
-                  <span class="text-gray-900 font-medium" *ngIf="formData.sender">{{ formData.sender }}</span>
-                  <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200"
-                       [class.rotate-180]="showSenderDropdown"
-                       fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-
-                <!-- Enhanced Dropdown Menu -->
-                <div *ngIf="showSenderDropdown"
+                <input
+                  type="text"
+                  [(ngModel)]="senderSearchQuery"
+                  name="senderSearch"
+                  (input)="onSenderSearchInput($event)"
+                  (focus)="showSenderDropdown = senderSearchQuery.length >= 2 && senders.length > 0"
+                  placeholder="Type at least 2 characters to search..."
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400"
+                  required
+                />
+                <!-- Search Results Dropdown -->
+                <div *ngIf="showSenderDropdown && senderSearchQuery.length >= 2"
                      class="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
-                  <div *ngIf="isLoadingCustomers" class="p-6 text-center text-gray-500">
+                  <div *ngIf="isSearchingSenders" class="p-6 text-center text-gray-500">
                     <svg class="animate-spin h-5 w-5 mx-auto mb-2" viewBox="0 0 24 24">
                       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                       <path class="opacity-75" fill="currentColor"
                             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Loading customers...
+                    Searching senders...
                   </div>
-                  <div *ngIf="!isLoadingCustomers" class="py-2">
+                  <div *ngIf="!isSearchingSenders && senders.length === 0"
+                       class="p-6 text-center text-gray-500">
+                    No senders found matching "{{ senderSearchQuery }}"
+                  </div>
+                  <div *ngIf="!isSearchingSenders && senders.length > 0" class="py-2">
                     <button
                       type="button"
-                      *ngFor="let customer of customers; let i = index"
-                      (click)="onSenderSelect(customer)"
+                      *ngFor="let sender of senders"
+                      (click)="onSenderSelect(sender)"
                       class="w-full px-4 py-3 text-left hover:bg-blue-50 focus:outline-none focus:bg-blue-50 border-b border-gray-50 last:border-b-0 transition-colors duration-150">
-                      <div class="font-medium text-gray-900">{{ customer.name }}</div>
-                      <div class="text-sm text-gray-500 mt-1">{{ customer.email }}</div>
+                      <div class="font-medium text-gray-900">{{ sender.name }}</div>
+                      <div class="text-sm text-gray-500 mt-1">{{ sender.email }}</div>
+                      <div class="text-sm text-gray-500">{{ sender.phone }}</div>
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+            <!-- Selected Sender Display -->
+            <div *ngIf="selectedSender" class="mt-3 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-medium text-green-900">{{ selectedSender.name }}</p>
+                  <p class="text-sm text-green-700">{{ selectedSender.email }} • {{ selectedSender.phone }}</p>
                 </div>
               </div>
             </div>
@@ -59,7 +73,6 @@
           <!-- Receiver Details Section -->
           <div class="bg-gray-50 rounded-xl p-6 space-y-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Receiver Information</h3>
-
             <!-- Receiver Name -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
@@ -73,7 +86,6 @@
                 required
                 class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
             </div>
-
             <!-- Email Address -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
@@ -87,7 +99,6 @@
                 required
                 class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 transition-all duration-200 placeholder-gray-400 bg-white">
             </div>
-
             <!-- Phone Number -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
@@ -103,7 +114,7 @@
             </div>
           </div>
 
-          <!-- Location Section -->
+          <!-- Location Section with Google Places Autocomplete -->
           <div class="space-y-6">
             <h3 class="text-lg font-semibold text-gray-900">Delivery Locations</h3>
 
@@ -123,18 +134,35 @@
                 <label class="block text-sm font-semibold text-gray-900">
                   Pickup Location <span class="text-red-500">*</span>
                 </label>
+                <!-- Pickup Name -->
                 <input
                   type="text"
-                  [(ngModel)]="formData.pickupLocation"
-                  name="pickupLocation"
-                  placeholder="Enter pickup location"
+                  [(ngModel)]="pickupName"
+                  name="pickupName"
+                  placeholder="Location name (e.g., Home, Office, Shop)"
                   required
-                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 placeholder-gray-400 transition-all duration-200"
-                />
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400 bg-white">
+                <!-- Pickup Address with Google Autocomplete -->
+                <input
+                  #pickupAddressInput
+                  type="text"
+                  [(ngModel)]="pickupAddress"
+                  name="pickupAddress"
+                  placeholder="Enter pickup address..."
+                  required
+                  [disabled]="isLoadingGoogleMaps"
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
+                <div *ngIf="isLoadingGoogleMaps" class="text-sm text-blue-600 flex items-center">
+                  <svg class="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Loading Google Maps...
+                </div>
               </div>
             </div>
 
-            <!-- Delivery Location -->
+            <!-- Destination Location -->
             <div class="flex gap-4 items-start">
               <div class="flex-shrink-0 pt-2">
                 <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
@@ -148,42 +176,33 @@
                 <label class="block text-sm font-semibold text-gray-900">
                   Delivery Location <span class="text-red-500">*</span>
                 </label>
+                <!-- Destination Name -->
                 <input
                   type="text"
-                  [(ngModel)]="formData.deliveryLocation"
-                  name="deliveryLocation"
-                  placeholder="Enter delivery location"
+                  [(ngModel)]="destinationName"
+                  name="destinationName"
+                  placeholder="Location name (e.g., Home, Office, Shop)"
                   required
-                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-gray-300 placeholder-gray-400 transition-all duration-200"
-                />
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400 bg-white">
+                <!-- Destination Address with Google Autocomplete -->
+                <input
+                  #destinationAddressInput
+                  type="text"
+                  [(ngModel)]="destinationAddress"
+                  name="destinationAddress"
+                  placeholder="Enter delivery address..."
+                  required
+                  [disabled]="isLoadingGoogleMaps"
+                  class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400 bg-white disabled:bg-gray-100 disabled:cursor-not-allowed">
               </div>
             </div>
           </div>
 
-          <!-- Delivery Details Section -->
+          <!-- Simplified Parcel Details Section -->
           <div class="bg-gray-50 rounded-xl p-6 space-y-6">
-            <h3 class="text-lg font-semibold text-gray-900">Delivery Details</h3>
+            <h3 class="text-lg font-semibold text-gray-900">Parcel Details</h3>
 
-            <!-- Arrival Time -->
-            <div class="space-y-4">
-              <label class="block text-sm font-semibold text-gray-900">
-                Preferred Arrival Time <span class="text-red-500">*</span>
-              </label>
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <button
-                  type="button"
-                  *ngFor="let time of arrivalTimeOptions"
-                  (click)="onArrivalTimeSelect(time)"
-                  [class]="'px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ' +
-                           (formData.arrivalTime === time ?
-                            'bg-blue-600 text-white border-blue-600 shadow-md' :
-                            'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300')">
-                  {{ time }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Weight Category -->
+            <!-- Weight Category Selection -->
             <div class="space-y-3">
               <label class="block text-sm font-semibold text-gray-900">
                 Weight Category <span class="text-red-500">*</span>
@@ -195,16 +214,13 @@
                     (click)="showWeightDropdown = !showWeightDropdown"
                     class="w-full px-4 py-4 text-left bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 flex items-center justify-between hover:border-blue-300 transition-all duration-200 min-h-[56px]">
                     <span class="text-gray-400 text-sm" *ngIf="!formData.weightCategory">Select weight category</span>
-                    <span class="text-gray-900 font-medium"
-                          *ngIf="formData.weightCategory">{{ getSelectedWeightCategory()?.label }}</span>
+                    <span class="text-gray-900 font-medium" *ngIf="formData.weightCategory">{{ getSelectedWeightCategory()?.label }}</span>
                     <svg class="w-5 h-5 text-gray-400 transform transition-transform duration-200"
                          [class.rotate-180]="showWeightDropdown"
                          fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                   </button>
-
-                  <!-- Enhanced Weight Dropdown -->
                   <div *ngIf="showWeightDropdown"
                        class="absolute z-20 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto">
                     <div class="py-2">
@@ -222,20 +238,105 @@
               </div>
             </div>
 
-            <!-- Price Estimate -->
-            <div *ngIf="formData.weightCategory"
-                 class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
-              <div class="flex items-center">
-                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
-                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                  </svg>
+            <!-- Auto-calculated Weight Display -->
+            <div *ngIf="formData.weightCategory" class="space-y-3">
+              <label class="block text-sm font-semibold text-gray-900">
+                Estimated Weight (kg)
+              </label>
+              <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-blue-900 font-medium">Auto-calculated weight:</span>
+                  <span class="text-xl font-bold text-blue-600">{{ weight }} kg</span>
                 </div>
-                <div>
-                  <p class="text-sm font-medium text-blue-900">Estimated Price</p>
-                  <p class="text-2xl font-bold text-blue-600">{{ getSelectedWeightCategory()?.priceRange }}</p>
+                <div class="text-sm text-blue-700 mt-1">
+                  Based on {{ getSelectedWeightCategory()?.label }}
                 </div>
+              </div>
+
+              <!-- Manual weight adjustment option -->
+              <div class="mt-3">
+                <label class="block text-xs text-gray-600 mb-2">Adjust weight if needed:</label>
+                <input
+                  type="number"
+                  [(ngModel)]="weight"
+                  name="weight"
+                  (input)="onWeightChange()"
+                  [min]="getSelectedWeightCategory()?.minWeight"
+                  [max]="getSelectedWeightCategory()?.maxWeight"
+                  step="0.1"
+                  class="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                <div class="text-xs text-gray-500 mt-1">
+                  Range: {{ getSelectedWeightCategory()?.minWeight }}kg - {{ getSelectedWeightCategory()?.maxWeight }}kg
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description/Notes -->
+          <div class="space-y-3">
+            <label class="block text-sm font-semibold text-gray-900">
+              Description/Notes
+            </label>
+            <textarea
+              [(ngModel)]="description"
+              name="description"
+              rows="3"
+              placeholder="Optional notes about the parcel..."
+              class="w-full px-4 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 hover:border-blue-300 transition-all duration-200 placeholder-gray-400 bg-white resize-none">
+            </textarea>
+          </div>
+
+          <!-- Arrival Time -->
+          <div class="space-y-4">
+            <label class="block text-sm font-semibold text-gray-900">
+              Preferred Arrival Time <span class="text-red-500">*</span>
+            </label>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <button
+                type="button"
+                *ngFor="let time of arrivalTimeOptions"
+                (click)="onArrivalTimeSelect(time)"
+                [class]="'px-4 py-3 text-sm font-medium rounded-xl border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ' +
+                         (formData.arrivalTime === time ?
+                          'bg-blue-600 text-white border-blue-600 shadow-md' :
+                          'bg-white text-gray-700 border-gray-200 hover:bg-blue-50 hover:border-blue-300')">
+                {{ time }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Price Quote Display -->
+          <div *ngIf="formData.weightCategory && weight > 0"
+               class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-blue-900">Calculated Quote</p>
+                <p class="text-2xl font-bold text-blue-600">KSh {{ quote | number:'1.2-2' }}</p>
+                <p class="text-sm text-blue-700 mt-1">Weight: {{ weight }}kg • {{ getSelectedWeightCategory()?.label }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estimated Delivery Time Display -->
+          <div *ngIf="estimatedDeliveryTime"
+               class="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-green-900">Estimated Delivery</p>
+                <p class="text-xl font-bold text-green-600">{{ estimatedDeliveryTime | date:'medium' }}</p>
+                <p class="text-sm text-green-700 mt-1">Delivery Time: {{ formData.arrivalTime }}</p>
               </div>
             </div>
           </div>
@@ -265,6 +366,33 @@
             </button>
           </div>
 
+          <!-- Form Validation Summary -->
+          <div *ngIf="!isFormValid()" class="bg-red-50 border border-red-200 rounded-xl p-4">
+            <div class="flex">
+              <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+              </div>
+              <div class="ml-3">
+                <h3 class="text-sm font-medium text-red-800">Please complete the following required fields:</h3>
+                <div class="mt-2 text-sm text-red-700">
+                  <ul class="list-disc list-inside space-y-1">
+                    <li *ngIf="!selectedSender">Select a sender</li>
+                    <li *ngIf="!formData.receiver">Enter receiver name</li>
+                    <li *ngIf="!formData.emailAddress">Enter receiver email</li>
+                    <li *ngIf="!formData.receiverNo">Enter receiver phone number</li>
+                    <li *ngIf="!pickupName">Enter pickup location name</li>
+                    <li *ngIf="!selectedPickupPlace || !selectedPickupPlace.coordinates">Select pickup address with valid coordinates</li>
+                    <li *ngIf="!destinationName">Enter delivery location name</li>
+                    <li *ngIf="!selectedDestinationPlace || !selectedDestinationPlace.coordinates">Select delivery address with valid coordinates</li>
+                    <li *ngIf="!formData.weightCategory">Select weight category</li>
+                    <li *ngIf="!weight || weight <= 0">Weight must be greater than 0</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </form>
     </div>

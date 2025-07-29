@@ -29,11 +29,16 @@ export class LocationDto {
 
     @ApiProperty({ example: -1.2864 })
     @IsNumber()
-    lat: number;
+    longitude: number;
 
     @ApiProperty({ example: 36.8172 })
     @IsNumber()
-    lng: number;
+    latitude: number;
+
+    @ApiPropertyOptional({ example: 'ChIJOwg_06VLbS4RYukuLdYD3FE' })
+    @IsOptional()
+    @IsString()
+    placeId?: string;
 }
 
 export class AdminCreateParcelDto {
@@ -65,9 +70,9 @@ export class AdminCreateParcelDto {
     @Max(1000)
     weight: number;
 
-    @ApiProperty({ enum: ['LIGHT', 'MEDIUM', 'HEAVY', 'EXTRA_HEAVY'] })
-    @IsEnum(['LIGHT', 'MEDIUM', 'HEAVY', 'EXTRA_HEAVY'])
-    weightCategory: 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY';
+    @ApiProperty({ enum: ['ULTRA_LIGHT', 'LIGHT', 'MEDIUM', 'HEAVY', 'EXTRA_HEAVY', 'FREIGHT'] })
+    @IsEnum(['ULTRA_LIGHT', 'LIGHT', 'MEDIUM', 'HEAVY', 'EXTRA_HEAVY', 'FREIGHT'])
+    weightCategory: 'ULTRA_LIGHT' | 'LIGHT' | 'MEDIUM' | 'HEAVY' | 'EXTRA_HEAVY' | 'FREIGHT';
 
     @ApiPropertyOptional({ example: 'Fragile electronics package' })
     @IsOptional()
