@@ -135,3 +135,54 @@ export class LocationSuggestionDto {
     })
     type?: string;
 }
+
+export class NotifyPickupDto {
+    @ApiProperty({
+        description: 'Custom pickup location (optional)',
+        example: 'Main entrance of the building',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    pickupLocation?: string;
+}
+
+export class NotifyReceiverPickupDto {
+    @ApiProperty({
+        description: 'Arrival location (optional)',
+        example: 'Outside the main gate',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    arrivalLocation?: string;
+
+    @ApiProperty({
+        description: 'Special pickup instructions (optional)',
+        example: 'Please call when you arrive',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    pickupInstructions?: string;
+}
+
+export class ConfirmManualDeliveryDto {
+    @ApiProperty({
+        description: 'Delivery location (optional)',
+        example: 'Left at front door',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    deliveryLocation?: string;
+
+    @ApiProperty({
+        description: 'Additional delivery notes (optional)',
+        example: 'Package delivered to receptionist',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    deliveryNotes?: string;
+}

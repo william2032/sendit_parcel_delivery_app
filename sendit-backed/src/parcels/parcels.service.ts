@@ -319,6 +319,8 @@ export class ParcelsService {
         return this.transformToParcelInterface(updatedParcel);
     }
 
+    // In your ParcelsService, replace the updateStatus method with this:
+
     async updateStatus(id: string, status: ParcelStatus, location?: string, coordinates?: CoordinatesDto): Promise<ParcelI> {
         const parcel = await this.findOne(id);
 
@@ -333,14 +335,16 @@ export class ParcelsService {
         else if (status === ParcelStatus.COMPLETED) {
             updateData.completedAt = new Date();
         }
+
+        // Fix: Call notification method with proper parameters
         if (status === ParcelStatus.PICKED_UP && parcel.status !== ParcelStatus.PICKED_UP) {
             try {
                 if (parcel.driverId) {
-                    // Call your notification method
+                    // Pass the location as an object with pickupLocation property
                     await this.driverService.notifyParcelPickup(
                         parcel.driverId,
                         id,
-                        location
+                        location ? { pickupLocation: location } : undefined
                     );
                 }
             } catch (error) {

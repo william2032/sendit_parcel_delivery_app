@@ -75,6 +75,8 @@ export class AuthService {
 
           if (role === 'ADMIN') {
             this.router.navigate(['/auth/admin/dashboard']);
+          } else if (role === 'DRIVER') {
+            this.router.navigate(['/auth/dashboard-driver']);
           } else {
             this.router.navigate(['/']);
           }

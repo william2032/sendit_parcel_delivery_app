@@ -1,8 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
 import {DriverStats, Parcel, TrackingEvent} from '../../shared/models/parcel-interface';
 import {GoogleMapsService} from '../../shared/services/google-maps';
+import {Subscription} from 'rxjs';
+import {DriversService, LocationUtils} from '../../shared/services/drivers.service';
+import {AuthService} from '../../shared/services/auth.service';
 
 interface LocationData {
   lat: number;
@@ -16,275 +20,45 @@ interface LocationData {
   templateUrl: './driver.component.html',
   styleUrl: './driver.component.scss'
 })
+export class DriverComponent implements OnInit, OnDestroy {
+  currentUser: any = null;
+  isLoggedIn: boolean = false;
+  driverId: string = '';
 
-export class DriverComponent implements OnInit {
-  driverName = 'John Doe';
-  driverId = 'driver_123';
   activeFilter: string = 'all';
   locationUpdate: string = '';
   isUpdating: boolean = false;
   isLocationLoading: boolean = false;
   currentDriverLocation: LocationData | null = null;
+  private userSubscription!: Subscription;
+  private subscriptions: Subscription[] = [];
 
   stats: DriverStats = {
-    totalAssigned: 8,
-    totalEarnings: 32050,
-    totalDeliveries: 42,
-    inProgress: 3,
-    completed: 5,
+    totalAssigned: 0,
+    totalEarnings: 0,
+    totalDeliveries: 0,
+    inProgress: 0,
+    completed: 0,
     rating: 4.8
   };
 
   filterTabs = [
-    { key: 'all', label: 'All Parcels' },
-    { key: 'assigned', label: 'Assigned' },
-    { key: 'in_progress', label: 'In Progress' },
-    { key: 'completed', label: 'Completed' }
+    {key: 'all', label: 'All Parcels'},
+    {key: 'assigned', label: 'Assigned'},
+    {key: 'in_progress', label: 'In Progress'},
+    {key: 'completed', label: 'Completed'}
   ];
 
-  parcels: Parcel[] = [
-    {
-      id: '1',
-      trackingNumber: 'SIT240923001',
-      address: 'Chuka Town Center, Main Street',
-      date: '2024-09-23',
-      status: 'ASSIGNED',
-      createdAt: '2024-09-23T14:00:00Z',
-      pickupLocation: {
-        lat: -0.0917,
-        lng: 34.7680,
-        name: 'Uyo Business Center',
-        address: '342 Oron road, Uyo'
-      },
-      destination: {
-        lat: -0.3900,
-        lng: 37.6530,
-        name: 'Chuka Town Center',
-        address: 'Chuka Town Center, Main Street'
-      },
-      senderId: 'sender-001',
-      senderName: 'Jacob Marcus',
-      senderPhone: '+254700123456',
-      senderEmail: 'jacob@example.com',
-      receiverId: 'receiver-001',
-      receiverName: 'Mary Johnson',
-      receiverPhone: '+254700654321',
-      receiverEmail: 'mary@example.com',
-      driverId: 'driver-001',
-      deliveryTime: '16:00',
-      estimatedDeliveryDate: '2024-09-24T16:00:00Z',
-      weight: 2.5,
-      weightCategory: 'LIGHT',
-      price: 850,
-      notificationsSent: {
-        customerPickup: false,
-        customerDelivery: false,
-        recipientDelivery: false,
-        driverAssignment: true
-      },
-      trackingEvents: [
-        {
-          id: 'evt1',
-          parcelId: '1',
-          type: 'ORDER_CREATED',
-          status: 'Order Created',
-          location: 'Uyo Business Center',
-          timestamp: '2024-09-23T14:00:00Z',
-          description: 'Parcel order created and payment confirmed',
-          automated: true
-        },
-        {
-          id: 'evt2',
-          parcelId: '1',
-          type: 'DRIVER_ASSIGNED',
-          status: 'Driver Assigned',
-          location: 'Uyo Business Center',
-          timestamp: '2024-09-23T14:15:00Z',
-          description: 'Driver John Doe assigned to this delivery',
-          automated: true
-        }
-      ]
-    },
-    {
-      id: '2',
-      trackingNumber: 'SIT240923002',
-      address: 'Chuka University, Main Campus',
-      date: '2024-09-23',
-      status: 'IN_TRANSIT',
-      createdAt: '2024-09-23T13:30:00Z',
-      pickupLocation: {
-        lat: -1.2921,
-        lng: 36.8219,
-        name: 'Nairobi CBD',
-        address: 'University Way, Nairobi CBD'
-      },
-      destination: {
-        lat: -0.3900,
-        lng: 37.6530,
-        name: 'Chuka University',
-        address: 'Chuka University, Main Campus'
-      },
-      currentLocation: {
-        lat: -0.6000,
-        lng: 37.2000,
-        address: 'Embu Junction'
-      },
-      senderId: 'sender-002',
-      senderName: 'Alice Smith',
-      senderPhone: '+254700789012',
-      senderEmail: 'alice@example.com',
-      receiverId: 'receiver-002',
-      receiverName: 'Bob Wilson',
-      receiverPhone: '+254700345678',
-      receiverEmail: 'bob@example.com',
-      driverId: 'driver-002',
-      deliveryTime: '18:00',
-      estimatedDeliveryDate: '2024-09-23T18:00:00Z',
-      weight: 1.2,
-      weightCategory: 'ULTRA_LIGHT',
-      price: 650,
-      notificationsSent: {
-        customerPickup: true,
-        customerDelivery: false,
-        recipientDelivery: false,
-        driverAssignment: true
-      },
-      trackingEvents: [
-        {
-          id: 'evt3',
-          parcelId: '2',
-          type: 'ORDER_CREATED',
-          status: 'Order Created',
-          location: 'Nairobi CBD',
-          timestamp: '2024-09-23T13:30:00Z',
-          description: 'Parcel order created and payment confirmed',
-          automated: true
-        },
-        {
-          id: 'evt4',
-          parcelId: '2',
-          type: 'PICKED_UP',
-          status: 'Picked Up',
-          location: 'Nairobi CBD',
-          timestamp: '2024-09-23T14:00:00Z',
-          description: 'Package picked up from sender',
-          automated: false,
-          notes: 'Customer provided package in excellent condition'
-        },
-        {
-          id: 'evt5',
-          parcelId: '2',
-          type: 'LOCATION_UPDATE',
-          status: 'In Transit',
-          location: 'Thika Road',
-          timestamp: '2024-09-23T15:30:00Z',
-          description: 'Package in transit - Thika Road',
-          automated: false
-        },
-        {
-          id: 'evt6',
-          parcelId: '2',
-          type: 'LOCATION_UPDATE',
-          status: 'In Transit',
-          location: 'Embu Junction',
-          timestamp: '2024-09-23T16:45:00Z',
-          description: 'Package in transit - Embu Junction',
-          automated: false
-        }
-      ]
-    },
-    {
-      id: '3',
-      trackingNumber: 'SIT240922001',
-      address: 'Chuka Market, Vendor Section B',
-      date: '2024-09-22',
-      status: 'DELIVERED',
-      createdAt: '2024-09-22T11:00:00Z',
-      pickupLocation: {
-        lat: 0.0500,
-        lng: 37.6500,
-        name: 'Meru Town',
-        address: 'Meru Town, Commercial Street'
-      },
-      destination: {
-        lat: -0.3900,
-        lng: 37.6530,
-        name: 'Chuka Market',
-        address: 'Chuka Market, Vendor Section B'
-      },
-      currentLocation: {
-        lat: -0.3900,
-        lng: 37.6530,
-        address: 'Chuka Market'
-      },
-      senderId: 'sender-003',
-      senderName: 'David Brown',
-      senderPhone: '+254700456789',
-      senderEmail: 'david@example.com',
-      receiverId: 'receiver-003',
-      receiverName: 'Sarah Davis',
-      receiverPhone: '+254700987654',
-      receiverEmail: 'sarah@example.com',
-      driverId: 'driver-003',
-      deliveryTime: '16:30',
-      estimatedDeliveryDate: '2024-09-22T17:00:00Z',
-      weight: 3.8,
-      weightCategory: 'MEDIUM',
-      price: 950,
-      notificationsSent: {
-        customerPickup: true,
-        customerDelivery: true,
-        recipientDelivery: true,
-        driverAssignment: true
-      },
-      trackingEvents: [
-        {
-          id: 'evt7',
-          parcelId: '3',
-          type: 'ORDER_CREATED',
-          status: 'Order Created',
-          location: 'Meru Town',
-          timestamp: '2024-09-22T11:00:00Z',
-          description: 'Parcel order created and payment confirmed',
-          automated: true
-        },
-        {
-          id: 'evt8',
-          parcelId: '3',
-          type: 'PICKED_UP',
-          status: 'Picked Up',
-          location: 'Meru Town',
-          timestamp: '2024-09-22T11:30:00Z',
-          description: 'Package picked up from sender',
-          automated: false
-        },
-        {
-          id: 'evt9',
-          parcelId: '3',
-          type: 'LOCATION_UPDATE',
-          status: 'In Transit',
-          location: 'Chogoria',
-          timestamp: '2024-09-22T14:00:00Z',
-          description: 'Package in transit - Chogoria',
-          automated: false
-        },
-        {
-          id: 'evt10',
-          parcelId: '3',
-          type: 'DELIVERED',
-          status: 'Delivered',
-          location: 'Chuka Market',
-          timestamp: '2024-09-22T16:30:00Z',
-          description: 'Package successfully delivered to recipient',
-          automated: false,
-          notes: 'Delivered to Sarah Davis. Package in perfect condition. Signature obtained.'
-        }
-      ]
-    }
-  ];
+  parcels: Parcel[] = [];
 
-  constructor(private googleMapsService: GoogleMapsService) {}
+  constructor(
+    private googleMapsService: GoogleMapsService,
+    private driversService: DriversService,
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
+  // Getter for filtered parcels based on activeFilter
   get filteredParcels(): Parcel[] {
     if (this.activeFilter === 'all') {
       return this.parcels;
@@ -300,12 +74,74 @@ export class DriverComponent implements OnInit {
     return this.parcels.filter(parcel => parcel.status === this.activeFilter.toUpperCase());
   }
 
-  async ngOnInit() {
+
+  ngOnInit(): void {
+    // Subscribe to user changes
+    this.userSubscription = this.authService.user$.subscribe(user => {
+      this.currentUser = user;
+      this.isLoggedIn = this.authService.isLoggedIn();
+      this.driverId = user?.id || ''; // Set driverId from user.id
+    });
+
+    // Initialize current user state
+    this.currentUser = this.authService.getCurrentUser();
+    this.isLoggedIn = this.authService.isLoggedIn();
+    this.driverId = this.currentUser?.id || ''; // Initialize driverId from currentUser
+
+    // Existing initialization
+    this.loadGoogleMaps();
+    this.getCurrentLocation();
+    this.loadAssignedParcels();
+    this.subscribeToLocationUpdates();
     this.updateStats();
-    await this.loadGoogleMaps();
-    await this.getCurrentLocation();
-    // In a real app, you would load parcels from a service
-    // this.loadAssignedParcels();
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  logout(): void {
+    try {
+      this.authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      this.currentUser = null;
+      this.isLoggedIn = false;
+      this.driverId = ''; // Reset driverId on logout
+      this.router.navigate(['/home']);
+    }
+  }
+
+  getUserDisplayName(): string {
+    if (this.currentUser) {
+      return this.currentUser.firstName && this.currentUser.lastName
+        ? `${this.currentUser.firstName} ${this.currentUser.lastName}`
+        : this.currentUser.username || this.currentUser.email || 'Driver';
+    }
+    return 'Driver';
+  }
+
+  private subscribeToLocationUpdates(): void {
+    const locationSub = this.driversService.locationUpdate$.subscribe(update => {
+      if (update && update.affectedParcels) {
+        update.affectedParcels.forEach(affectedParcel => {
+          const localParcel = this.parcels.find(p => p.id === affectedParcel.id);
+          if (localParcel) {
+            localParcel.status = affectedParcel.status;
+            if (affectedParcel.action === 'delivered') {
+              localParcel.currentLocation = this.currentDriverLocation || undefined;
+            }
+          }
+        });
+        this.updateStats();
+        this.showSuccessMessage(`Updated ${update.affectedParcels.length} parcel(s) successfully`);
+      }
+    });
+    this.subscriptions.push(locationSub);
   }
 
   async loadGoogleMaps(): Promise<void> {
@@ -318,6 +154,28 @@ export class DriverComponent implements OnInit {
   }
 
   async getCurrentLocation(): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
+      return;
+    }
+    try {
+      const driverLocation = await this.driversService.getDriverCurrentLocation(this.driverId).toPromise();
+      if (driverLocation) {
+        this.currentDriverLocation = {
+          lat: driverLocation.latitude,
+          lng: driverLocation.longitude,
+          address: driverLocation.address
+        };
+      } else {
+        await this.getBrowserLocation();
+      }
+    } catch (error) {
+      console.error('Error getting current location from backend:', error);
+      await this.getBrowserLocation();
+    }
+  }
+
+  async getBrowserLocation(): Promise<void> {
     if (!navigator.geolocation) {
       console.warn('Geolocation is not supported by this browser.');
       return;
@@ -330,8 +188,6 @@ export class DriverComponent implements OnInit {
         lng: position.coords.longitude,
         address: 'Current Location'
       };
-
-      // Optionally reverse geocode to get address
       await this.reverseGeocodeCurrentLocation();
     } catch (error) {
       console.error('Error getting current location:', error);
@@ -343,13 +199,15 @@ export class DriverComponent implements OnInit {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000 // 5 minutes
+        maximumAge: 300000
       });
     });
   }
 
-  private async reverseGeocodeCurrentLocation(): Promise<void> {
-    if (!this.currentDriverLocation) return;
+  async reverseGeocodeCurrentLocation(): Promise<void> {
+    if (!this.currentDriverLocation) {
+      return;
+    }
 
     try {
       const geocoder = new google.maps.Geocoder();
@@ -358,15 +216,42 @@ export class DriverComponent implements OnInit {
         this.currentDriverLocation.lng
       );
 
-      geocoder.geocode({ location: latlng }, (results, status) => {
-        if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-          if (this.currentDriverLocation) {
-            this.currentDriverLocation.address = results[0].formatted_address;
+      const results = await new Promise<google.maps.GeocoderResult[]>((resolve, reject) => {
+        geocoder.geocode({ location: latlng }, (results, status) => {
+          if (status === google.maps.GeocoderStatus.OK && results) {
+            resolve(results);
+          } else {
+            reject(new Error(`Geocoding failed with status: ${status}`));
           }
-        }
+        });
       });
+
+      if (this.currentDriverLocation && results[0]) {
+        this.currentDriverLocation.address = results[0].formatted_address;
+      }
     } catch (error) {
       console.error('Error reverse geocoding current location:', error);
+    }
+  }
+
+  async loadAssignedParcels(): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
+      this.parcels = [];
+      return;
+    }
+    try {
+      const backendParcels = await this.driversService.getDriverAssignedParcels(this.driverId).toPromise();
+      if (backendParcels) {
+        this.parcels = backendParcels.map(backendParcel =>
+          this.driversService.transformParcelToFrontend(backendParcel)
+        );
+      } else {
+        this.parcels = [];
+      }
+    } catch (error) {
+      console.error('Error loading assigned parcels:', error);
+      this.parcels = [];
     }
   }
 
@@ -394,7 +279,8 @@ export class DriverComponent implements OnInit {
       'OUT_FOR_DELIVERY': 'bg-purple-100 text-purple-800',
       'DELIVERED': 'bg-green-100 text-green-800',
       'COMPLETED': 'bg-emerald-100 text-emerald-800',
-      'CANCELLED': 'bg-red-100 text-red-800'
+      'CANCELLED': 'bg-red-100 text-red-800',
+      'ARRIVED_AT_DESTINATION': 'bg-indigo-100 text-indigo-800'
     };
     return classes[status as keyof typeof classes] || 'bg-gray-100 text-gray-800';
   }
@@ -408,45 +294,56 @@ export class DriverComponent implements OnInit {
       'OUT_FOR_DELIVERY': 'Out for Delivery',
       'DELIVERED': 'Delivered',
       'COMPLETED': 'Completed',
-      'CANCELLED': 'Cancelled'
+      'CANCELLED': 'Cancelled',
+      'ARRIVED_AT_DESTINATION': 'Arrived at Destination'
     };
     return labels[status as keyof typeof labels] || status;
   }
 
-  async updateParcelStatus(parcelId: string, newStatus: string) {
+  async updateParcelStatus(parcelId: string, newStatus: string): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
+      return;
+    }
     this.isUpdating = true;
 
     try {
-      // In a real app, this would call your backend service
-      // await this.driverService.updateParcelStatus(parcelId, newStatus);
+      if (newStatus === 'PICKED_UP') {
+        await this.driversService.notifyParcelPickup(
+          this.driverId,
+          parcelId,
+          { pickupLocation: this.currentDriverLocation?.address }
+        ).toPromise();
+      } else if (newStatus === 'DELIVERED') {
+        await this.driversService.confirmManualDelivery(
+          this.driverId,
+          parcelId,
+          { deliveryLocation: this.currentDriverLocation?.address }
+        ).toPromise();
+      } else if (newStatus === 'ARRIVED_AT_DESTINATION') {
+        await this.driversService.notifyReceiverForPickup(
+          this.driverId,
+          parcelId,
+          { arrivalLocation: this.currentDriverLocation?.address }
+        ).toPromise();
+      } else {
+        await this.driversService.updateParcelStatus(
+          this.driverId,
+          parcelId,
+          newStatus,
+          this.currentDriverLocation?.address
+        ).toPromise();
+      }
 
-      // Update local state for demo
       const parcel = this.parcels.find(p => p.id === parcelId);
       if (parcel) {
         const oldStatus = parcel.status;
         parcel.status = newStatus;
 
-        // Update current location to driver's current location if available
         if (this.currentDriverLocation && newStatus !== 'DELIVERED') {
           parcel.currentLocation = { ...this.currentDriverLocation };
         }
 
-        // Add tracking event
-        const newEvent: TrackingEvent = {
-          id: `evt_${Date.now()}`,
-          parcelId: parcelId,
-          type: this.getTrackingEventType(newStatus),
-          status: this.getStatusLabel(newStatus),
-          location: this.currentDriverLocation?.address || parcel.currentLocation?.address || 'Current location',
-          timestamp: new Date().toISOString(),
-          description: `Package ${newStatus.toLowerCase().replace('_', ' ')} by driver`,
-          automated: false,
-          notes: `Status updated from ${this.getStatusLabel(oldStatus)} to ${this.getStatusLabel(newStatus)}`
-        };
-
-        parcel.trackingEvents.push(newEvent);
-
-        // Show success message
         this.showSuccessMessage(`Order ${parcel.trackingNumber} has been marked as ${this.getStatusLabel(newStatus)}. Automatic notifications have been sent to relevant parties.`);
       }
 
@@ -459,43 +356,30 @@ export class DriverComponent implements OnInit {
     }
   }
 
-  async updateLocation(parcelId: string) {
-    if (!this.locationUpdate.trim()) return;
+  async updateLocation(parcelId: string): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
+      return;
+    }
+    if (!this.locationUpdate.trim()) {
+      return;
+    }
 
     this.isLocationLoading = true;
 
     try {
-      // Geocode the address to get coordinates
-      const geocodeResult = await this.googleMapsService.geocodeAddress(this.locationUpdate.trim());
+      const response = await this.driversService.updateParcelLocationWithAddress(
+        this.driverId,
+        parcelId,
+        this.locationUpdate.trim()
+      ).toPromise();
 
-      const locationData: LocationData = {
-        lat: geocodeResult.geometry.location.lat(),
-        lng: geocodeResult.geometry.location.lng(),
-        address: geocodeResult.formatted_address
-      };
-
-      // In a real app, this would call your backend service
-      // await this.driverService.updateCurrentLocation(parcelId, locationData);
-
-      // Update local state for demo
-      const parcel = this.parcels.find(p => p.id === parcelId);
-      if (parcel) {
-        // Update current location with geocoded coordinates
-        parcel.currentLocation = locationData;
-
-        // Add tracking event
-        const newEvent: TrackingEvent = {
-          id: `evt_${Date.now()}`,
-          parcelId: parcelId,
-          type: 'LOCATION_UPDATE',
-          status: 'Location Updated',
-          location: locationData.address,
-          timestamp: new Date().toISOString(),
-          description: `Driver updated current location: ${locationData.address}`,
-          automated: false
+      if (response) {
+        this.currentDriverLocation = {
+          lat: response.latitude,
+          lng: response.longitude,
+          address: response.address
         };
-
-        parcel.trackingEvents.push(newEvent);
 
         this.showSuccessMessage('Location updated successfully! Customers have been notified of the current location.');
         this.locationUpdate = '';
@@ -508,40 +392,25 @@ export class DriverComponent implements OnInit {
     }
   }
 
-  async updateLocationWithCurrentPosition(parcelId: string) {
-    if (!this.currentDriverLocation) {
-      await this.getCurrentLocation();
-    }
-
-    if (!this.currentDriverLocation) {
-      alert('Unable to get current location. Please ensure location services are enabled.');
+  async updateLocationWithCurrentPosition(parcelId: string): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
       return;
     }
-
     this.isLocationLoading = true;
 
     try {
-      // In a real app, this would call your backend service
-      // await this.driverService.updateCurrentLocation(parcelId, this.currentDriverLocation);
+      const response = await this.driversService.updateParcelLocationWithGPS(
+        this.driverId,
+        parcelId
+      ).toPromise();
 
-      // Update local state for demo
-      const parcel = this.parcels.find(p => p.id === parcelId);
-      if (parcel) {
-        parcel.currentLocation = { ...this.currentDriverLocation };
-
-        // Add tracking event
-        const newEvent: TrackingEvent = {
-          id: `evt_${Date.now()}`,
-          parcelId: parcelId,
-          type: 'LOCATION_UPDATE',
-          status: 'Location Updated',
-          location: this.currentDriverLocation.address,
-          timestamp: new Date().toISOString(),
-          description: `Driver updated location using GPS: ${this.currentDriverLocation.address}`,
-          automated: false
+      if (response) {
+        this.currentDriverLocation = {
+          lat: response.latitude,
+          lng: response.longitude,
+          address: response.address
         };
-
-        parcel.trackingEvents.push(newEvent);
 
         this.showSuccessMessage('Location updated with your current GPS position! Customers have been notified.');
       }
@@ -558,28 +427,15 @@ export class DriverComponent implements OnInit {
       return 'Unknown';
     }
 
-    const R = 6371; // Earth's radius in kilometers
-    const dLat = this.toRadians(parcel.destination.lat - this.currentDriverLocation.lat);
-    const dLon = this.toRadians(parcel.destination.lng - this.currentDriverLocation.lng);
+    const distance = LocationUtils.calculateDistance(
+      { lat: this.currentDriverLocation.lat, lng: this.currentDriverLocation.lng },
+      { lat: parcel.destination.lat, lng: parcel.destination.lng }
+    );
 
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.toRadians(this.currentDriverLocation.lat)) *
-      Math.cos(this.toRadians(parcel.destination.lat)) *
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-
-    return distance < 1 ?
-      `${Math.round(distance * 1000)}m` :
-      `${distance.toFixed(1)}km`;
+    return LocationUtils.formatDistance(distance);
   }
 
-  private toRadians(degrees: number): number {
-    return degrees * (Math.PI / 180);
-  }
-
-  showParcelDetails(parcel: Parcel) {
+  showParcelDetails(parcel: Parcel): void {
     const distance = this.calculateDistance(parcel);
     const details = `
 Parcel Details:
@@ -591,7 +447,7 @@ Status: ${this.getStatusLabel(parcel.status)}
 Distance from you: ${distance}
 
 Sender: ${parcel.senderName} (${parcel.senderPhone})
-Pickup: ${parcel.pickupLocation.name}
+Pickup: ${parcel.pickupLocation?.name || 'N/A'}
 
 Recipient: ${parcel.receiverName} (${parcel.receiverPhone})
 Destination: ${parcel.destination.name}
@@ -602,12 +458,15 @@ Current Location: ${parcel.currentLocation?.address || 'Not updated'}
     alert(details);
   }
 
-  openMapDirections(parcel: Parcel) {
-    // Get current location if available, otherwise use pickup location
-    const currentLat = this.currentDriverLocation?.lat || parcel.currentLocation?.lat || parcel.pickupLocation.lat;
-    const currentLng = this.currentDriverLocation?.lng || parcel.currentLocation?.lng || parcel.pickupLocation.lng;
+  openMapDirections(parcel: Parcel): void {
+    const currentLat = this.currentDriverLocation?.lat || parcel.currentLocation?.lat || parcel.pickupLocation?.lat;
+    const currentLng = this.currentDriverLocation?.lng || parcel.currentLocation?.lng || parcel.pickupLocation?.lng;
 
-    // Open Google Maps with directions to destination
+    if (!currentLat || !currentLng) {
+      alert('Unable to get current location for directions');
+      return;
+    }
+
     const mapsUrl = `https://www.google.com/maps/dir/${currentLat},${currentLng}/${parcel.destination.lat},${parcel.destination.lng}`;
     window.open(mapsUrl, '_blank');
   }
@@ -623,21 +482,7 @@ Current Location: ${parcel.currentLocation?.address || 'Not updated'}
     });
   }
 
-  private getTrackingEventType(status: string): 'ORDER_CREATED' | 'DRIVER_ASSIGNED' | 'PICKED_UP' | 'LOCATION_UPDATE' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED' | 'EXCEPTION' {
-    const mapping: Record<string, 'ORDER_CREATED' | 'DRIVER_ASSIGNED' | 'PICKED_UP' | 'LOCATION_UPDATE' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'COMPLETED' | 'CANCELLED' | 'EXCEPTION'> = {
-      'ASSIGNED': 'DRIVER_ASSIGNED',
-      'PICKED_UP': 'PICKED_UP',
-      'IN_TRANSIT': 'LOCATION_UPDATE',
-      'OUT_FOR_DELIVERY': 'OUT_FOR_DELIVERY',
-      'DELIVERED': 'DELIVERED',
-      'COMPLETED': 'COMPLETED',
-      'CANCELLED': 'CANCELLED'
-    };
-    return mapping[status] || 'LOCATION_UPDATE';
-  }
-
-  private showSuccessMessage(message: string) {
-    // In a real app, you might use a toast notification service
+  private showSuccessMessage(message: string): void {
     alert(message);
   }
 
@@ -658,8 +503,128 @@ Current Location: ${parcel.currentLocation?.address || 'Not updated'}
       inProgress: inProgress.length,
       completed: completed.length,
       totalEarnings: totalEarnings,
-      rating: 4.8, // Ideally from backend rating service
+      rating: 4.8,
       totalDeliveries: totalDeliveries
     };
+  }
+
+  async refreshParcels(): Promise<void> {
+    await this.loadAssignedParcels();
+    this.updateStats();
+  }
+
+  async refreshLocation(): Promise<void> {
+    await this.getCurrentLocation();
+  }
+
+  canUpdateStatus(parcel: Parcel, newStatus: string): boolean {
+    const currentStatus = parcel.status;
+
+    const allowedTransitions: { [key: string]: string[] } = {
+      'ASSIGNED': ['PICKED_UP', 'CANCELLED'],
+      'PICKED_UP': ['IN_TRANSIT', 'CANCELLED'],
+      'IN_TRANSIT': ['OUT_FOR_DELIVERY', 'ARRIVED_AT_DESTINATION', 'CANCELLED'],
+      'OUT_FOR_DELIVERY': ['DELIVERED', 'ARRIVED_AT_DESTINATION', 'CANCELLED'],
+      'ARRIVED_AT_DESTINATION': ['DELIVERED', 'OUT_FOR_DELIVERY', 'CANCELLED'],
+      'DELIVERED': ['COMPLETED'],
+      'COMPLETED': [],
+      'CANCELLED': []
+    };
+
+    return allowedTransitions[currentStatus]?.includes(newStatus) || false;
+  }
+
+  getAvailableStatusTransitions(parcel: Parcel): Array<{ value: string, label: string }> {
+    const currentStatus = parcel.status;
+
+    const statusOptions = [
+      { value: 'PICKED_UP', label: 'Mark as Picked Up' },
+      { value: 'IN_TRANSIT', label: 'Mark as In Transit' },
+      { value: 'OUT_FOR_DELIVERY', label: 'Mark as Out for Delivery' },
+      { value: 'ARRIVED_AT_DESTINATION', label: 'Mark as Arrived' },
+      { value: 'DELIVERED', label: 'Mark as Delivered' },
+      { value: 'COMPLETED', label: 'Mark as Completed' },
+      { value: 'CANCELLED', label: 'Cancel Delivery' }
+    ];
+
+    return statusOptions.filter(option => this.canUpdateStatus(parcel, option.value));
+  }
+
+  async handleBulkLocationUpdate(): Promise<void> {
+    if (!this.driverId) {
+      console.error('Driver ID is not set');
+      return;
+    }
+    if (!this.currentDriverLocation) {
+      await this.getCurrentLocation();
+    }
+
+    if (!this.currentDriverLocation) {
+      alert('Unable to get current location. Please ensure location services are enabled.');
+      return;
+    }
+
+    this.isLocationLoading = true;
+
+    try {
+      const inTransitParcels = this.parcels.filter(p =>
+        ['ASSIGNED', 'PICKED_UP', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'].includes(p.status)
+      );
+
+      if (inTransitParcels.length === 0) {
+        alert('No parcels available for location update.');
+        return;
+      }
+
+      const response = await this.driversService.updateDriverLocation(this.driverId, {
+        latitude: this.currentDriverLocation.lat,
+        longitude: this.currentDriverLocation.lng,
+        address: this.currentDriverLocation.address
+      }).toPromise();
+
+      if (response) {
+        this.showSuccessMessage(
+          `Location updated for ${response.affectedParcels.length} parcel(s). ` +
+          `${response.affectedParcels.filter(p => p.action === 'delivered').length} parcel(s) were automatically delivered.`
+        );
+      }
+    } catch (error) {
+      console.error('Error updating bulk location:', error);
+      alert('Failed to update location for all parcels. Please try again.');
+    } finally {
+      this.isLocationLoading = false;
+    }
+  }
+
+  getParcelStatusColor(status: string): string {
+    const colors = {
+      'PENDING': '#6B7280',
+      'ASSIGNED': '#3B82F6',
+      'PICKED_UP': '#F59E0B',
+      'IN_TRANSIT': '#F97316',
+      'OUT_FOR_DELIVERY': '#8B5CF6',
+      'ARRIVED_AT_DESTINATION': '#6366F1',
+      'DELIVERED': '#10B981',
+      'COMPLETED': '#059669',
+      'CANCELLED': '#EF4444'
+    };
+    return colors[status as keyof typeof colors] || '#6B7280';
+  }
+
+  trackParcel(trackingNumber: string): void {
+    const trackingUrl = `/track/${trackingNumber}`;
+    window.open(trackingUrl, '_blank');
+  }
+
+  callRecipient(parcel: Parcel): void {
+    if (parcel.receiverPhone) {
+      window.open(`tel:${parcel.receiverPhone}`, '_self');
+    }
+  }
+
+  callSender(parcel: Parcel): void {
+    if (parcel.senderPhone) {
+      window.open(`tel:${parcel.senderPhone}`, '_self');
+    }
   }
 }

@@ -2,12 +2,14 @@ import {
     Controller,
     Post,
     Get,
+    Put,
     Body,
     Query,
+    Param,
     UseGuards,
     BadRequestException,
     HttpStatus,
-    Param, Request, Req
+    Req,
 } from '@nestjs/common';
 import {
     ApiTags,
@@ -17,16 +19,18 @@ import {
     ApiQuery,
     ApiParam,
 } from '@nestjs/swagger';
-import {AuthGuard} from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 import {
     UpdateDriverLocationDto,
     LocationSearchDto,
     DriverLocationResponseDto,
     LocationSuggestionDto,
+    NotifyPickupDto,
+    NotifyReceiverPickupDto,
+    ConfirmManualDeliveryDto,
 } from './dtos/driver-location.dto';
-import {DriverLocationI} from './interfaces/driver-location.interface';
-import {DriversService} from "./drivers.service";
-
+import { DriverLocationI } from './interfaces/driver-location.interface';
+import { DriversService } from './drivers.service';
 
 interface AuthenticatedRequest extends Request {
     user: {
@@ -41,67 +45,52 @@ interface AuthenticatedRequest extends Request {
 @ApiBearerAuth()
 @UseGuards(AuthGuard('jwt'))
 export class DriversController {
-    constructor(private readonly driversService: DriversService) {
-    }
+    constructor(private readonly driversService: DriversService) {}
 
-    @Post('location')
+    // Route: PUT /drivers/:driverId/location (matches frontend expectation)
+    @Put(':driverId/location')
     @ApiOperation({
         summary: 'Update driver location',
         description: 'Updates the current location of a driver and automatically processes parcel deliveries and status updates',
     })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Location updated successfully',
         type: DriverLocationResponseDto,
     })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'Invalid coordinates or user is not a driver',
-    })
-    @ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
-        description: 'Authentication required',
-    })
-    async updateLocation(
-        @Req() req: AuthenticatedRequest,
+    async updateDriverLocation(
+        @Param('driverId') driverId: string,
         @Body() updateLocationDto: UpdateDriverLocationDto,
     ): Promise<DriverLocationResponseDto> {
-        const user = req.user;
-        if (!user || user.role !== 'DRIVER') {
-            throw new BadRequestException('Only drivers can update their location');
-        }
-
-        return this.driversService.updateDriverLocation(user.id, updateLocationDto);
+        return this.driversService.updateDriverLocation(driverId, updateLocationDto);
     }
 
-    @Get('locations')
+    // Route: GET /drivers/:driverId/locations (matches frontend expectation)
+    @Get(':driverId/locations')
     @ApiOperation({
         summary: 'Get driver location history',
-        description: 'Retrieves the location history for the authenticated driver',
+        description: 'Retrieves the location history for a specific driver',
     })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Location history retrieved successfully',
         type: [DriverLocationResponseDto],
     })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'User is not a driver',
-    })
-    async getLocations(@Req() req: AuthenticatedRequest): Promise<DriverLocationI[]> {
-        const user = req.user;
-        if (!user || user.role !== 'DRIVER') {
-            throw new BadRequestException('Only drivers can view their location history');
-        }
-
-        return this.driversService.getDriverLocations(user.id);
+    async getDriverLocations(
+        @Param('driverId') driverId: string
+    ): Promise<DriverLocationI[]> {
+        return this.driversService.getDriverLocations(driverId);
     }
 
-    @Get('location/current')
+    // Route: GET /drivers/:driverId/location/current (matches frontend expectation)
+    @Get(':driverId/location/current')
     @ApiOperation({
         summary: 'Get current driver location',
-        description: 'Retrieves the most recent location of the authenticated driver',
+        description: 'Retrieves the most recent location of a specific driver',
     })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Current location retrieved successfully',
@@ -111,31 +100,25 @@ export class DriversController {
         status: HttpStatus.NOT_FOUND,
         description: 'No location found for driver',
     })
-    async getCurrentLocation(@Req() req: AuthenticatedRequest): Promise<DriverLocationI | null> {
-        const user = req.user;
-        if (!user || user.role !== 'DRIVER') {
-            throw new BadRequestException('Only drivers can view their current location');
-        }
-
-        return this.driversService.getDriverCurrentLocation(user.id);
+    async getDriverCurrentLocation(
+        @Param('driverId') driverId: string
+    ): Promise<DriverLocationI | null> {
+        return this.driversService.getDriverCurrentLocation(driverId);
     }
 
-    @Get('parcels/assigned')
+    // Route: GET /drivers/:driverId/parcels (matches frontend expectation)
+    @Get(':driverId/parcels')
     @ApiOperation({
         summary: 'Get assigned parcels',
-        description: 'Retrieves all parcels currently assigned to the authenticated driver',
+        description: 'Retrieves all parcels currently assigned to a specific driver',
     })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
     @ApiResponse({
         status: HttpStatus.OK,
         description: 'Assigned parcels retrieved successfully',
     })
-    async getAssignedParcels(@Req() req: AuthenticatedRequest) {
-        const user = req.user;
-        if (!user || user.role !== 'DRIVER') {
-            throw new BadRequestException('Only drivers can view their assigned parcels');
-        }
-
-        return this.driversService.getDriverAssignedParcels(user.id);
+    async getDriverAssignedParcels(@Param('driverId') driverId: string) {
+        return this.driversService.getDriverAssignedParcels(driverId);
     }
 
     @Get('locations/search')
@@ -159,20 +142,10 @@ export class DriversController {
         description: 'Location suggestions retrieved successfully',
         type: [LocationSuggestionDto],
     })
-    @ApiResponse({
-        status: HttpStatus.BAD_REQUEST,
-        description: 'Invalid search query',
-    })
     async searchLocations(
-        @Req() req: AuthenticatedRequest,
         @Query('query') query: string,
         @Query('limit') limit?: number,
     ): Promise<LocationSuggestionDto[]> {
-        const user = req.user;
-        if (!user) {
-            throw new BadRequestException('Authentication required');
-        }
-
         if (!query || query.length < 2) {
             throw new BadRequestException('Query must be at least 2 characters long');
         }
@@ -184,58 +157,126 @@ export class DriversController {
 
         return this.driversService.searchLocations(searchDto);
     }
-    @Post(':driverId/parcels/:parcelId/notify-pickup')
-    @ApiOperation({ summary: 'Notify sender that parcel has been picked up' })
+
+    // Route: POST /drivers/:driverId/parcels/:parcelId/pickup (matches frontend expectation)
+    @Post(':driverId/parcels/:parcelId/pickup')
+    @ApiOperation({
+        summary: 'Notify pickup completion',
+        description: 'Notify that a parcel has been picked up by the driver',
+    })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Pickup notification sent successfully',
+    })
     async notifyParcelPickup(
         @Param('driverId') driverId: string,
         @Param('parcelId') parcelId: string,
-        @Body() body: { pickupLocation?: string }
-    ) {
-        await this.driversService.notifyParcelPickup(
-            driverId,
-            parcelId,
-            body.pickupLocation
-        );
+        @Body() pickupData: NotifyPickupDto = {},
+    ): Promise<{ message: string }> {
+        await this.driversService.notifyParcelPickup(driverId, parcelId, pickupData);
         return { message: 'Pickup notification sent successfully' };
     }
 
-    @Post(':driverId/parcels/:parcelId/notify-receiver-pickup')
-    @ApiOperation({ summary: 'Notify receiver that driver has arrived for pickup' })
+    @Post(':driverId/parcels/:parcelId/notify-receiver')
+    @ApiOperation({
+        summary: 'Notify receiver for pickup',
+        description: 'Notify receiver that driver has arrived at destination for pickup',
+    })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Receiver pickup notification sent successfully',
+    })
     async notifyReceiverForPickup(
         @Param('driverId') driverId: string,
         @Param('parcelId') parcelId: string,
-        @Body() body: {
-            arrivalLocation?: string;
-            pickupInstructions?: string;
-        }
-    ) {
-        await this.driversService.notifyReceiverForPickup(
-            driverId,
-            parcelId,
-            body.arrivalLocation,
-            body.pickupInstructions
-        );
+        @Body() notifyData: NotifyReceiverPickupDto = {},
+    ): Promise<{ message: string }> {
+        await this.driversService.notifyReceiverForPickup(driverId, parcelId, notifyData);
         return { message: 'Receiver pickup notification sent successfully' };
     }
 
-    @Post(':driverId/parcels/:parcelId/confirm-delivery')
-    @ApiOperation({ summary: 'Manually confirm parcel delivery' })
+    @Post(':driverId/parcels/:parcelId/manual-delivery')
+    @ApiOperation({
+        summary: 'Confirm manual delivery',
+        description: 'Manually confirm that a parcel has been delivered',
+    })
+    @ApiParam({ name: 'driverId', description: 'Driver ID' })
+    @ApiParam({ name: 'parcelId', description: 'Parcel ID' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: 'Manual delivery confirmed successfully',
+    })
     async confirmManualDelivery(
         @Param('driverId') driverId: string,
         @Param('parcelId') parcelId: string,
-        @Body() body: {
-            deliveryLocation?: string;
-            deliveryNotes?: string;
-        }
-    ) {
-        await this.driversService.confirmManualDelivery(
-            driverId,
-            parcelId,
-            body.deliveryLocation,
-            body.deliveryNotes
-        );
-        return { message: 'Delivery confirmed successfully' };
+        @Body() deliveryData: ConfirmManualDeliveryDto = {},
+    ): Promise<{ message: string }> {
+        await this.driversService.confirmManualDelivery(driverId, parcelId, deliveryData);
+        return { message: 'Manual delivery confirmed successfully' };
     }
 
+    @Post('location')
+    @ApiOperation({
+        summary: 'Update authenticated driver location',
+        description: 'Updates location for the currently authenticated driver',
+    })
+    async updateAuthenticatedDriverLocation(
+        @Req() req: AuthenticatedRequest,
+        @Body() updateLocationDto: UpdateDriverLocationDto,
+    ): Promise<DriverLocationResponseDto> {
+        const user = req.user;
+        if (!user || user.role !== 'DRIVER') {
+            throw new BadRequestException('Only drivers can update their location');
+        }
+        return this.driversService.updateDriverLocation(user.id, updateLocationDto);
+    }
 
+    @Get('locations')
+    @ApiOperation({
+        summary: 'Get authenticated driver location history',
+        description: 'Retrieves location history for the currently authenticated driver',
+    })
+    async getAuthenticatedDriverLocations(
+        @Req() req: AuthenticatedRequest
+    ): Promise<DriverLocationI[]> {
+        const user = req.user;
+        if (!user || user.role !== 'DRIVER') {
+            throw new BadRequestException('Only drivers can view their location history');
+        }
+        return this.driversService.getDriverLocations(user.id);
+    }
+
+    @Get('location/current')
+    @ApiOperation({
+        summary: 'Get authenticated driver current location',
+        description: 'Retrieves current location for the currently authenticated driver',
+    })
+    async getAuthenticatedDriverCurrentLocation(
+        @Req() req: AuthenticatedRequest
+    ): Promise<DriverLocationI | null> {
+        const user = req.user;
+        if (!user || user.role !== 'DRIVER') {
+            throw new BadRequestException('Only drivers can view their current location');
+        }
+        return this.driversService.getDriverCurrentLocation(user.id);
+    }
+
+    @Get('parcels/assigned')
+    @ApiOperation({
+        summary: 'Get authenticated driver assigned parcels',
+        description: 'Retrieves assigned parcels for the currently authenticated driver',
+    })
+    async getAuthenticatedDriverAssignedParcels(
+        @Req() req: AuthenticatedRequest
+    ) {
+        const user = req.user;
+        if (!user || user.role !== 'DRIVER') {
+            throw new BadRequestException('Only drivers can view their assigned parcels');
+        }
+        return this.driversService.getDriverAssignedParcels(user.id);
+    }
 }
