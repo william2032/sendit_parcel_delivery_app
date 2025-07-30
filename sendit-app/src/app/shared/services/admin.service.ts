@@ -66,13 +66,7 @@ export class AdminService {
         );
     }
 
-    // Create new parcel
-    // createParcel(parcelData: CreateParcelRequest): Observable<DeliveryOrder> {
-    //     return this.http.post<{ data: DeliveryOrder }>(`${this.API_URL}/parcels`, parcelData).pipe(
-    //         map(response => this.mapParcelData(response.data)),
-    //         catchError(this.handleError)
-    //     );
-    // }
+
 
     // Update parcel
     updateParcel(parcelId: string, parcelData: UpdateParcelRequest): Observable<DeliveryOrder> {
@@ -134,6 +128,17 @@ export class AdminService {
         );
     }
 
+    getAvailableDrivers(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/admin/drivers/available`).pipe(
+            catchError(this.handleError)
+        );
+    }
+
+    assignDriver(parcelId: string, driverId: string): Observable<any> {
+        return this.http.post<any>(`${this.API_URL}/admin/parcels/${parcelId}/assign-driver`, { driverId }).pipe(
+            catchError(this.handleError)
+        );
+    }
     // Get parcels by status
     getParcelsByStatus(status: string): Observable<DeliveryOrder[]> {
         return this.http.get<ParcelApiResponse>(`${this.API_URL}/parcels?status=${status}`).pipe(

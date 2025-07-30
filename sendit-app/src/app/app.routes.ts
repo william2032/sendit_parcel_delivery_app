@@ -12,6 +12,7 @@ import {AuthComponent} from './features/auth/auth.component';
 import {SupportComponent} from './shared/components/support/support.component';
 import {DriverComponent} from './features/driver/driver.component';
 import {VerifyEmailComponent} from './shared/components/verify-email/verify-email.component';
+import {DriverAssignComponent} from './features/admin/layouts/driver-assign/driver-assign.component';
 
 export const routes: Routes = [
   {
@@ -41,6 +42,8 @@ export const routes: Routes = [
       {path: 'orders', component: OrdersLayoutComponent},
       {path: 'make-delivery', component: DeliveryLayoutComponent},
       {path: 'account-settings', component: AccountComponent},
+      {path: 'drivers', component:DriverAssignComponent },
+
     ]
   },
 
