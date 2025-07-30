@@ -1,4 +1,3 @@
-// dtos/admin.dto.ts
 
 import {
     IsString,
@@ -255,7 +254,7 @@ export class UpdateParcelStatusDto {
 
 export class SingleDriverAssignmentDto {
     @ApiProperty({ description: 'Driver ID to assign to the parcel' })
-    @IsUUID()
+    @IsString()
     driverId: string;
 
     @ApiPropertyOptional({ description: 'Scheduled pickup time' })
