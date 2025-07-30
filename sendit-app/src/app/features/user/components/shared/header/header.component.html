@@ -179,14 +179,15 @@
                 class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
           Services
         </button>
-        <a routerLink="/home/track-order"
-           routerLinkActive="bg-gray-900 text-white"
-           class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
-          Track
-        </a>
+
 
         <!-- Mobile: When logged in -->
         <div *ngIf="isLoggedIn">
+          <a routerLink="/home/track-order"
+             routerLinkActive="bg-gray-900 text-white"
+             class="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-gilroy font-medium">
+            Track
+          </a>
           <div class="flex items-center gap-3 px-3 py-2">
             <div class="relative">
               <img *ngIf="currentUser?.profilePicture"
@@ -202,6 +203,7 @@
               {{ currentUser?.name }}
             </span>
           </div>
+
           <button (click)="onLogout()"
                   class="bg-red-100 text-red-600 hover:bg-red-600 hover:text-white block px-3 py-2 rounded-md text-base font-gilroy font-medium w-full text-left">
             Logout

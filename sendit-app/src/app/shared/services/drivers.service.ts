@@ -3,55 +3,105 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {map, catchError, switchMap} from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import {
-  ConfirmManualDeliveryDto,
-  DriverLocationI,
-  DriverLocationResponseDto,
-  LocationSearchDto, LocationSuggestionDto, NotifyPickupDto, NotifyReceiverPickupDto,
-  UpdateDriverLocationDto
-} from '../models/location.interface';
-import {Parcel} from '../models/parcel-interface';
 
+// DTOs to match backend
+export interface UpdateDriverLocationDto {
+  latitude: number;
+  longitude: number;
+  address?: string;
+}
 
-// export interface BackendParcel {
-//   id: string;
-//   trackingNumber: string;
-//   status: string;
-//   createdAt: string;
-//   driverId: string;
-//   weight: number;
-//   price: number;
-//   deliveryTime?: string;
-//   estimatedDeliveryDate: string;
-//   destinationLocation: {
-//     latitude: number;
-//     longitude: number;
-//     address: string;
-//     name?: string;
-//   };
-//   pickupLocation?: {
-//     latitude: number;
-//     longitude: number;
-//     address: string;
-//     name?: string;
-//   };
-//   currentLocation?: {
-//     latitude: number;
-//     longitude: number;
-//     address: string;
-//   };
-//   sender: {
-//     name: string;
-//     email: string;
-//     phone: string;
-//   };
-//   receiver: {
-//     name: string;
-//     email: string;
-//     phone: string;
-//   };
-//   trackingEvents?: any[];
-// }
+export interface LocationSearchDto {
+  query: string;
+  limit?: number;
+}
+
+export interface DriverLocationResponseDto {
+  id: string;
+  driverId: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  timestamp: string;
+  affectedParcels: Array<{
+    id: string;
+    trackingNumber: string;
+    status: string;
+    action: 'delivered' | 'location_updated';
+  }>;
+}
+
+export interface LocationSuggestionDto {
+  displayName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  type: string;
+}
+
+export interface DriverLocationI {
+  id: string;
+  driverId: string;
+  latitude: number;
+  longitude: number;
+  address: string;
+  timestamp: string;
+}
+
+export interface NotifyPickupDto {
+  pickupLocation?: string;
+}
+
+export interface NotifyReceiverPickupDto {
+  arrivalLocation?: string;
+  pickupInstructions?: string;
+}
+
+export interface ConfirmManualDeliveryDto {
+  deliveryLocation?: string;
+  deliveryNotes?: string;
+}
+
+// Response interfaces that match your component's Parcel interface
+export interface BackendParcel {
+  id: string;
+  trackingNumber: string;
+  status: string;
+  createdAt: string;
+  driverId: string;
+  weight: number;
+  price: number;
+  deliveryTime?: string;
+  estimatedDeliveryDate: string;
+  destinationLocation: {
+    latitude: number;
+    longitude: number;
+    address: string;
+    name?: string;
+  };
+  pickupLocation?: {
+    latitude: number;
+    longitude: number;
+    address: string;
+    name?: string;
+  };
+  currentLocation?: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  };
+  sender: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  receiver: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  trackingEvents?: any[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -112,8 +162,8 @@ export class DriversService {
   /**
    * Get parcels assigned to driver
    */
-  getDriverAssignedParcels(driverId: string): Observable<Parcel[]> {
-    return this.http.get<Parcel[]>(`${this.baseUrl}/${driverId}/parcels`)
+  getDriverAssignedParcels(driverId: string): Observable<BackendParcel[]> {
+    return this.http.get<BackendParcel[]>(`${this.baseUrl}/${driverId}/parcels`)
       .pipe(catchError(this.handleError));
   }
 
@@ -214,69 +264,67 @@ export class DriversService {
   /**
    * Transform backend parcel to frontend parcel format
    */
-    // If the input already matches the Parcel interface, return a Parcel.
-
-  transformParcelToFrontend(parcel: Parcel): Parcel {
+  transformParcelToFrontend(backendParcel: BackendParcel): any {
     return {
-      id: parcel.id,
-      trackingNumber: parcel.trackingNumber,
-      status: parcel.status,
+      id: backendParcel.id,
+      trackingNumber: backendParcel.trackingNumber,
+      status: backendParcel.status,
+      date: backendParcel.createdAt.split('T')[0],
+      createdAt: backendParcel.createdAt,
+      address: backendParcel.destinationLocation.address,
 
-      date: parcel.date ?? (parcel.createdAt ? parcel.createdAt.split('T')[0] : ''),
+      // Location mappings
+      pickupLocation: backendParcel.pickupLocation ? {
+        lat: backendParcel.pickupLocation.latitude,
+        lng: backendParcel.pickupLocation.longitude,
+        name: backendParcel.pickupLocation.name || 'Pickup Location',
+        address: backendParcel.pickupLocation.address
+      } : undefined,
 
-      createdAt: parcel.createdAt,
+      destination: {
+        lat: backendParcel.destinationLocation.latitude,
+        lng: backendParcel.destinationLocation.longitude,
+        name: backendParcel.destinationLocation.name || 'Destination',
+        address: backendParcel.destinationLocation.address
+      },
 
-      address: parcel.address ?? parcel.destination?.address ?? '',
+      currentLocation: backendParcel.currentLocation ? {
+        lat: backendParcel.currentLocation.latitude,
+        lng: backendParcel.currentLocation.longitude,
+        address: backendParcel.currentLocation.address
+      } : undefined,
 
-      pickupLocation: parcel.pickupLocation,
-      destination: parcel.destination,
-      currentLocation: parcel.currentLocation,
+      // Sender and receiver
+      senderId: `sender-${backendParcel.id}`,
+      senderName: backendParcel.sender.name,
+      senderPhone: backendParcel.sender.phone,
+      senderEmail: backendParcel.sender.email,
 
-      // Sender
-      senderId: parcel.senderId,
-      sender: parcel.sender,
-      senderName: parcel.senderName,
-      senderPhone: parcel.senderPhone,
-      senderEmail: parcel.senderEmail,
+      receiverId: `receiver-${backendParcel.id}`,
+      receiverName: backendParcel.receiver.name,
+      receiverPhone: backendParcel.receiver.phone,
+      receiverEmail: backendParcel.receiver.email,
 
-      // Receiver
-      receiverId: parcel.receiverId,
-      receiver: parcel.receiver,
-      receiverName: parcel.receiverName,
-      receiverPhone: parcel.receiverPhone,
-      receiverEmail: parcel.receiverEmail,
+      // Other fields
+      driverId: backendParcel.driverId,
+      weight: backendParcel.weight,
+      weightCategory: this.determineWeightCategory(backendParcel.weight),
+      price: backendParcel.price,
+      deliveryTime: backendParcel.deliveryTime,
+      estimatedDeliveryDate: backendParcel.estimatedDeliveryDate,
 
-      // Driver
-      driverId: parcel.driverId,
-      driver: parcel.driver,
+      // Tracking events (if available)
+      trackingEvents: backendParcel.trackingEvents || [],
 
-      // Delivery
-      deliveryTime: parcel.deliveryTime,
-      estimatedDeliveryDate: parcel.estimatedDeliveryDate,
-
-      // Tracking
-      trackingEvents: parcel.trackingEvents ?? [],
-
-      // Commerce
-      price: parcel.price,
-
-      // Notifications (fallbacks if missing)
-      notificationsSent: parcel.notificationsSent ?? {
+      // Notifications (default values since not provided by backend)
+      notificationsSent: {
         customerPickup: false,
         customerDelivery: false,
         recipientDelivery: false,
-        driverAssignment: !!parcel.driverId,
-      },
-
-      // Weight
-      weight: parcel.weight,
-      weightCategory:
-        parcel.weightCategory ?? (this.determineWeightCategory
-          ? this.determineWeightCategory(parcel.weight)
-          : 'MEDIUM'),
+        driverAssignment: true
+      }
     };
   }
-
 
   /**
    * Determine weight category based on weight
